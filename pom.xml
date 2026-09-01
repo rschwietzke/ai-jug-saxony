@@ -16,13 +16,16 @@
         <module>demo3</module>
         <module>demo4</module>
         <module>demo5</module>
+        <module>demo6</module>
+        <module>demo7</module>
+        <module>demo8</module>
         <module>coverage-report</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>21</maven.compiler.release>
-        <junit.jupiter.version>6.0.0</junit.jupiter.version>
+        <junit.jupiter.version>5.10.2</junit.jupiter.version>
         <assertj.version>3.25.3</assertj.version>
         <jacoco.version>0.8.12</jacoco.version>
         <pitest.version>1.17.4</pitest.version>
@@ -47,6 +50,31 @@
             <dependency>
                 <groupId>org.jugsaxony</groupId>
                 <artifactId>demo3</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jugsaxony</groupId>
+                <artifactId>demo4</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jugsaxony</groupId>
+                <artifactId>demo5</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jugsaxony</groupId>
+                <artifactId>demo6</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jugsaxony</groupId>
+                <artifactId>demo7</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jugsaxony</groupId>
+                <artifactId>demo8</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -141,6 +169,7 @@
                             <outputFormat>XML</outputFormat>
                             <outputFormat>CSV</outputFormat>
                         </outputFormats>
+                        <threads>4</threads>
                         <timestampedReports>false</timestampedReports>
                     </configuration>
                 </plugin>

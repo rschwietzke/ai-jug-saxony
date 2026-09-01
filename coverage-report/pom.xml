@@ -21,6 +21,34 @@
             <groupId>org.jugsaxony</groupId>
             <artifactId>demo1</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jugsaxony</groupId>
+            <artifactId>demo2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jugsaxony</groupId>
+            <artifactId>demo3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jugsaxony</groupId>
+            <artifactId>demo4</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jugsaxony</groupId>
+            <artifactId>demo5</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jugsaxony</groupId>
+            <artifactId>demo6</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jugsaxony</groupId>
+            <artifactId>demo7</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jugsaxony</groupId>
+            <artifactId>demo8</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

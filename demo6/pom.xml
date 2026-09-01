@@ -9,11 +9,11 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>demo5</artifactId>
+    <artifactId>demo6</artifactId>
     <packaging>jar</packaging>
 
-    <name>demo5</name>
-    <description>Demo 5 - FastHashMap Open Addressing Hash Map</description>
+    <name>demo6</name>
+    <description>Demo 6 - FastHashMap Open Addressing Hash Map</description>
 
     <dependencies>
         <!-- JUnit 5/6 -->
