@@ -1,0 +1,49 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.jugsaxony</groupId>
+        <artifactId>ai-jug-saxony-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>coverage-report</artifactId>
+    <packaging>jar</packaging>
+
+    <name>coverage-report</name>
+    <description>Aggregated Code Coverage Report across all subprojects</description>
+
+    <dependencies>
+        <!-- Subproject dependencies to include in aggregate coverage -->
+        <dependency>
+            <groupId>org.jugsaxony</groupId>
+            <artifactId>demo1</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>**/org/jugsaxony/**</include>
+                        <include>org/jugsaxony/**</include>
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>report-aggregate</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

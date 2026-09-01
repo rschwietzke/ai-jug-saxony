@@ -1,0 +1,179 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.jugsaxony</groupId>
+    <artifactId>ai-jug-saxony-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>AI JUG Saxony Parent</name>
+
+    <modules>
+        <module>demo1</module>
+        <module>demo2</module>
+        <module>demo3</module>
+        <module>demo4</module>
+        <module>demo5</module>
+        <module>coverage-report</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.release>21</maven.compiler.release>
+        <junit.jupiter.version>6.0.0</junit.jupiter.version>
+        <assertj.version>3.25.3</assertj.version>
+        <jacoco.version>0.8.12</jacoco.version>
+        <pitest.version>1.17.4</pitest.version>
+        <pitest-junit5.version>1.2.2</pitest-junit5.version>
+        <jmh.version>1.37</jmh.version>
+        <jol.version>0.17</jol.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Project Submodules -->
+            <dependency>
+                <groupId>org.jugsaxony</groupId>
+                <artifactId>demo1</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jugsaxony</groupId>
+                <artifactId>demo2</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jugsaxony</groupId>
+                <artifactId>demo3</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- JUnit 6 (Jupiter) -->
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${junit.jupiter.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- AssertJ -->
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>${assertj.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- JMH Microbenchmarking -->
+            <dependency>
+                <groupId>org.openjdk.jmh</groupId>
+                <artifactId>jmh-core</artifactId>
+                <version>${jmh.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.openjdk.jmh</groupId>
+                <artifactId>jmh-generator-annprocess</artifactId>
+                <version>${jmh.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- Java Object Layout (JOL) for memory footprint metrics -->
+            <dependency>
+                <groupId>org.openjdk.jol</groupId>
+                <artifactId>jol-core</artifactId>
+                <version>${jol.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.13.0</version>
+                    <configuration>
+                        <release>21</release>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.openjdk.jmh</groupId>
+                                <artifactId>jmh-generator-annprocess</artifactId>
+                                <version>${jmh.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.2.5</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.pitest</groupId>
+                    <artifactId>pitest-maven</artifactId>
+                    <version>${pitest.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.pitest</groupId>
+                            <artifactId>pitest-junit5-plugin</artifactId>
+                            <version>${pitest-junit5.version}</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <targetClasses>
+                            <param>org.jugsaxony.*</param>
+                        </targetClasses>
+                        <targetTests>
+                            <param>org.jugsaxony.*</param>
+                        </targetTests>
+                        <outputFormats>
+                            <outputFormat>HTML</outputFormat>
+                            <outputFormat>XML</outputFormat>
+                            <outputFormat>CSV</outputFormat>
+                        </outputFormats>
+                        <timestampedReports>false</timestampedReports>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <!-- Global JaCoCo execution for test coverage in all subprojects -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>**/org/jugsaxony/**</include>
+                        <include>org/jugsaxony/**</include>
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
