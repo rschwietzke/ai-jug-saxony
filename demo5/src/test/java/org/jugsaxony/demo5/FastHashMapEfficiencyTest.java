@@ -1,4 +1,4 @@
-package org.jugsaxony.demo1;
+package org.jugsaxony.demo5;
 
 import org.junit.jupiter.api.Test;
 import org.openjdk.jol.info.ClassLayout;

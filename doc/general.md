@@ -19,5 +19,10 @@ Claude Opus 5 Ultra via Claude
 # Demo 7
 Qwenn 38 max XHigh via Kilo Code, VSCode
 
-# Demo8
+# Demo 8
 Gemini 3.7 Flash High with Kilo Code in VSCode
+
+
+# Demo11
+Demo1 - Gemini 3.7 Flash High with Kilo Code in VSCode
+Rework automatically for coverage and pi test

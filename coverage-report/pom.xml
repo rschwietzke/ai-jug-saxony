@@ -19,6 +19,10 @@
         <!-- Subproject dependencies to include in aggregate coverage -->
         <dependency>
             <groupId>org.jugsaxony</groupId>
+            <artifactId>demo0</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jugsaxony</groupId>
             <artifactId>demo1</artifactId>
         </dependency>
         <dependency>
@@ -49,19 +53,44 @@
             <groupId>org.jugsaxony</groupId>
             <artifactId>demo8</artifactId>
         </dependency>
+
+        <!-- Testing & Layout Dependencies -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openjdk.jol</groupId>
+            <artifactId>jol-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <configuration>
-                    <includes>
-                        <include>**/org/jugsaxony/**</include>
-                        <include>org/jugsaxony/**</include>
-                    </includes>
-                </configuration>
                 <executions>
                     <execution>
                         <id>report-aggregate</id>
