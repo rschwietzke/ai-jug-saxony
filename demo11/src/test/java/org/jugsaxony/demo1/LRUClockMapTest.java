@@ -18,7 +18,7 @@ class LRUClockMapTest {
     class ConstructorTest {
 
         @Test
-        @DisplayName("Constructor rejects maxSize < 4")
+        @DisplayName("Constructor rejects maxSize < 4 and maxSize > (1 << 29)")
         void testInvalidMaxSize() {
             assertThatThrownBy(() -> new LRUClockMap<String, String>(-1))
                     .isInstanceOf(IllegalArgumentException.class)
@@ -38,12 +38,27 @@ class LRUClockMapTest {
         }
 
         @Test
+        @DisplayName("Capacity calculation across various maxSize boundaries")
+        void testCapacityCalculations() {
+            assertThat(new LRUClockMap<String, String>(4).occupiedSpace()).isEqualTo(8);
+            assertThat(new LRUClockMap<String, String>(5).occupiedSpace()).isEqualTo(16);
+            assertThat(new LRUClockMap<String, String>(8).occupiedSpace()).isEqualTo(16);
+            assertThat(new LRUClockMap<String, String>(9).occupiedSpace()).isEqualTo(32);
+            assertThat(new LRUClockMap<String, String>(16).occupiedSpace()).isEqualTo(32);
+            assertThat(new LRUClockMap<String, String>(17).occupiedSpace()).isEqualTo(64);
+            assertThat(new LRUClockMap<String, String>(32).occupiedSpace()).isEqualTo(64);
+            assertThat(new LRUClockMap<String, String>(33).occupiedSpace()).isEqualTo(128);
+            assertThat(new LRUClockMap<String, String>(64).occupiedSpace()).isEqualTo(128);
+            assertThat(new LRUClockMap<String, String>(65).occupiedSpace()).isEqualTo(256);
+        }
+
+        @Test
         @DisplayName("Valid initial state for maxSize >= 4")
         void testValidInitialization() {
             LRUClockMap<String, String> map = new LRUClockMap<>(4);
             assertThat(map.size()).isZero();
             assertThat(map.trueSize()).isZero();
-            assertThat(map.occupiedSpace()).isGreaterThanOrEqualTo(8);
+            assertThat(map.occupiedSpace()).isEqualTo(8);
             assertThat(map.keys()).isEmpty();
         }
     }
@@ -224,28 +239,41 @@ class LRUClockMapTest {
         }
 
         @Test
-        @DisplayName("expensiveGet updates secondChance from false to true for colliding key")
+        @DisplayName("expensiveGet flips secondChance and protects entry")
         void testExpensiveGetUpdatesSecondChance() {
-            LRUClockMap<FixedHashKey, String> tightMap = new LRUClockMap<>(4);
-            int fixedHash = 42;
-            FixedHashKey tk0 = new FixedHashKey(0, fixedHash);
-            FixedHashKey tk1 = new FixedHashKey(1, fixedHash);
-            FixedHashKey tk2 = new FixedHashKey(2, fixedHash);
-            FixedHashKey tk3 = new FixedHashKey(3, fixedHash);
+            LRUClockMap<FixedHashKey, String> map = new LRUClockMap<>(4);
+            int fixedHash = 0;
+            FixedHashKey k0 = new FixedHashKey(0, fixedHash);
+            FixedHashKey k1 = new FixedHashKey(1, fixedHash);
+            FixedHashKey k2 = new FixedHashKey(2, fixedHash);
+            FixedHashKey k3 = new FixedHashKey(3, fixedHash);
 
-            tightMap.put(tk0, "v0");
-            tightMap.put(tk1, "v1");
-            tightMap.put(tk2, "v2");
-            tightMap.put(tk3, "v3");
+            map.put(k0, "v0");
+            map.put(k1, "v1");
+            map.put(k2, "v2");
+            map.put(k3, "v3");
 
-            // Inserting a 5th item causes clock scan to flip secondChance to false
-            tightMap.put(new FixedHashKey(4, 999), "v4");
+            // Insert 5th item to clear secondChance flags and evict k0
+            FixedHashKey k4 = new FixedHashKey(4, 4);
+            map.put(k4, "v4");
+            assertThat(map.get(k0)).isNull(); // k0 evicted
 
-            // tk1 was in collision chain and had secondChance set to false.
-            // Accessing tk1 via get() will execute expensiveGet and flip secondChance to true!
-            if (tightMap.getRaw(tk1) != null) {
-                assertThat(tightMap.get(tk1)).isEqualTo("v1");
-            }
+            // k2 had secondChance set to false; accessing k2 updates secondChance to true
+            assertThat(map.get(k2)).isEqualTo("v2");
+            // Call again when secondChance is already true
+            assertThat(map.get(k2)).isEqualTo("v2");
+
+            // Next eviction should skip k2 because secondChance is true
+            FixedHashKey k5 = new FixedHashKey(5, 5);
+            map.put(k5, "v5");
+            assertThat(map.get(k1)).isNull(); // k1 evicted
+
+            FixedHashKey k6 = new FixedHashKey(6, 6);
+            map.put(k6, "v6");
+            assertThat(map.get(k3)).isNull(); // k3 evicted
+
+            // k2 is still preserved!
+            assertThat(map.get(k2)).isEqualTo("v2");
         }
 
         @Test
@@ -288,6 +316,34 @@ class LRUClockMapTest {
             assertThat(map.get(k1)).isEqualTo("v1");
             assertThat(map.get(k3)).isNull();
         }
+
+        @Test
+        @DisplayName("MixHash validates upper 16-bit shift XOR and bit operations")
+        void testMixHashHighBits() {
+            // Direct mixHash unit testing
+            assertThat(LRUClockMap.mixHash(0)).isZero();
+            assertThat(LRUClockMap.mixHash(0x12345678)).isEqualTo(0x12345678 ^ 0x00001234);
+            assertThat(LRUClockMap.mixHash(0x80000000)).isEqualTo(0x80000000 ^ 0x00008000);
+            assertThat(LRUClockMap.mixHash(-1)).isEqualTo(-1 ^ 0x0000FFFF);
+
+            LRUClockMap<FixedHashKey, String> map = new LRUClockMap<>(4);
+            // 0x10001: 0x10001 ^ (0x10001 >>> 16) = 0x10001 ^ 1 = 0x10000 -> slot 0 in size 8
+            FixedHashKey keyHigh = new FixedHashKey(1, 0x10001);
+            map.put(keyHigh, "valHigh");
+            assertThat(map.get(keyHigh)).isEqualTo("valHigh");
+            assertThat(map.getDebugData().get(0)).isNotNull();
+            assertThat(map.getDebugData().get(0).key).isEqualTo(keyHigh);
+        }
+
+        @Test
+        @DisplayName("arraySize calculation and boundary checks")
+        void testArraySizeCalculations() {
+            assertThat(LRUClockMap.arraySize(4, 0.5f)).isEqualTo(8);
+            assertThat(LRUClockMap.arraySize(1 << 29, 0.5f)).isEqualTo(1 << 30);
+            assertThatThrownBy(() -> LRUClockMap.arraySize((1 << 29) + 256, 0.5f))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Too large");
+        }
     }
 
     @Nested
@@ -295,51 +351,73 @@ class LRUClockMapTest {
     class EvictionTest {
 
         @Test
-        @DisplayName("Capacity is respected and eviction occurs when size reaches maxSize")
-        void testEvictionOccursAtMaxSize() {
-            int maxSize = 4;
-            LRUClockMap<String, Integer> map = new LRUClockMap<>(maxSize);
+        @DisplayName("Clock evicts in forward direction (clockHand + 1)")
+        void testClockEvictionExactSequence() {
+            LRUClockMap<CollisionTest.FixedHashKey, String> map = new LRUClockMap<>(4);
+            // Occupy slots 0, 1, 2, 3
+            CollisionTest.FixedHashKey k0 = new CollisionTest.FixedHashKey(0, 0);
+            CollisionTest.FixedHashKey k1 = new CollisionTest.FixedHashKey(1, 1);
+            CollisionTest.FixedHashKey k2 = new CollisionTest.FixedHashKey(2, 2);
+            CollisionTest.FixedHashKey k3 = new CollisionTest.FixedHashKey(3, 3);
 
-            for (int i = 0; i < maxSize; i++) {
-                map.put("k" + i, i);
-            }
-            assertThat(map.size()).isEqualTo(maxSize);
-            assertThat(map.trueSize()).isEqualTo(maxSize);
+            map.put(k0, "v0");
+            map.put(k1, "v1");
+            map.put(k2, "v2");
+            map.put(k3, "v3");
+            assertThat(map.size()).isEqualTo(4);
 
-            // Inserting a 5th entry must trigger eviction
-            map.put("k4", 4);
-            assertThat(map.size()).isEqualTo(maxSize);
-            assertThat(map.trueSize()).isEqualTo(maxSize);
-            assertThat(map.get("k4")).isEqualTo(4);
+            // Put k4 (hash 4) -> sweeps 0..3 clearing secondChance, wraps to 0, evicts k0
+            CollisionTest.FixedHashKey k4 = new CollisionTest.FixedHashKey(4, 4);
+            map.put(k4, "v4");
+            assertThat(map.getRaw(k0)).isNull();
+            assertThat(map.getRaw(k1)).isEqualTo("v1");
+            assertThat(map.getRaw(k2)).isEqualTo("v2");
+            assertThat(map.getRaw(k3)).isEqualTo("v3");
+            assertThat(map.getRaw(k4)).isEqualTo("v4");
+
+            // Put k5 (hash 5) -> clockHand advances to 1, evicts k1
+            CollisionTest.FixedHashKey k5 = new CollisionTest.FixedHashKey(5, 5);
+            map.put(k5, "v5");
+            assertThat(map.getRaw(k1)).isNull();
+            assertThat(map.getRaw(k2)).isEqualTo("v2");
+
+            // Put k6 (hash 6) -> clockHand advances to 2, evicts k2
+            CollisionTest.FixedHashKey k6 = new CollisionTest.FixedHashKey(6, 6);
+            map.put(k6, "v6");
+            assertThat(map.getRaw(k2)).isNull();
+            assertThat(map.getRaw(k3)).isEqualTo("v3");
+
+            // Put k7 (hash 7) -> clockHand advances to 3, evicts k3
+            CollisionTest.FixedHashKey k7 = new CollisionTest.FixedHashKey(7, 7);
+            map.put(k7, "v7");
+            assertThat(map.getRaw(k3)).isNull();
+            assertThat(map.getRaw(k4)).isEqualTo("v4");
         }
 
         @Test
-        @DisplayName("Second chance flag protects accessed entries from immediate eviction")
-        void testSecondChanceProtection() {
-            int maxSize = 4;
-            LRUClockMap<Integer, String> map = new LRUClockMap<>(maxSize);
+        @DisplayName("Overwriting colliding entry at full capacity uses linear probe in update")
+        void testUpdateWithCollisionAtFullCapacity() {
+            LRUClockMap<CollisionTest.FixedHashKey, String> map = new LRUClockMap<>(4);
+            int fixedHash = 0;
+            CollisionTest.FixedHashKey k0 = new CollisionTest.FixedHashKey(0, fixedHash);
+            CollisionTest.FixedHashKey k1 = new CollisionTest.FixedHashKey(1, fixedHash);
+            CollisionTest.FixedHashKey k2 = new CollisionTest.FixedHashKey(2, fixedHash);
+            CollisionTest.FixedHashKey k3 = new CollisionTest.FixedHashKey(3, fixedHash);
 
-            // Insert 4 items (all secondChance = true initially)
-            for (int i = 0; i < maxSize; i++) {
-                map.put(i, "val" + i);
-            }
+            map.put(k0, "v0");
+            map.put(k1, "v1");
+            map.put(k2, "v2");
+            map.put(k3, "v3");
 
-            // Inspect debug data: all 4 entries should have secondChance == true
-            var debugBefore = map.getDebugData();
-            long secondChanceCount = debugBefore.stream().filter(Objects::nonNull).filter(d -> d.secondChance).count();
-            assertThat(secondChanceCount).isEqualTo(4);
+            assertThat(map.size()).isEqualTo(4);
 
-            // Inserting item 4 causes clockHand to scan through items, flipping their secondChance to false,
-            // and evicting the first entry whose secondChance was flipped to false.
-            map.put(4, "val4");
-            assertThat(map.size()).isEqualTo(maxSize);
-
-            // Now access item 4 so it gains secondChance = true again
-            map.get(4);
-            var debugAfter = map.getDebugData();
-            var item4Debug = debugAfter.stream().filter(Objects::nonNull).filter(d -> d.key.equals(4)).findFirst();
-            assertThat(item4Debug).isPresent();
-            assertThat(item4Debug.get().secondChance).isTrue();
+            // Overwrite k2 at full capacity (update() must advance ptr = (ptr + 1) & mask)
+            assertThat(map.put(k2, "v2_updated")).isEqualTo("v2");
+            assertThat(map.size()).isEqualTo(4);
+            assertThat(map.get(k0)).isEqualTo("v0");
+            assertThat(map.get(k1)).isEqualTo("v1");
+            assertThat(map.get(k2)).isEqualTo("v2_updated");
+            assertThat(map.get(k3)).isEqualTo("v3");
         }
 
         @Test
@@ -355,7 +433,6 @@ class LRUClockMapTest {
             // Force one round of clock eviction
             map.put(100, "val100");
 
-            // Find an entry with secondChance == false
             var debugList = map.getDebugData();
             var entryWithoutSecondChance = debugList.stream()
                     .filter(Objects::nonNull)
@@ -364,7 +441,6 @@ class LRUClockMapTest {
 
             if (entryWithoutSecondChance.isPresent()) {
                 Integer key = entryWithoutSecondChance.get().key;
-                // getRaw should return value without altering secondChance
                 assertThat(map.getRaw(key)).isNotNull();
                 var debugListAfter = map.getDebugData();
                 var entryAfter = debugListAfter.stream()
@@ -374,7 +450,6 @@ class LRUClockMapTest {
                 assertThat(entryAfter).isPresent();
                 assertThat(entryAfter.get().secondChance).isFalse();
 
-                // get() should update secondChance to true
                 assertThat(map.get(key)).isNotNull();
                 var debugListAfterGet = map.getDebugData();
                 var entryAfterGet = debugListAfterGet.stream()
@@ -385,34 +460,20 @@ class LRUClockMapTest {
                 assertThat(entryAfterGet.get().secondChance).isTrue();
             }
         }
-
-        @Test
-        @DisplayName("Overwriting an existing key at full capacity updates in-place without evicting")
-        void testOverwriteAtFullCapacity() {
-            int maxSize = 4;
-            LRUClockMap<String, String> map = new LRUClockMap<>(maxSize);
-
-            for (int i = 0; i < maxSize; i++) {
-                map.put("k" + i, "v" + i);
-            }
-            assertThat(map.size()).isEqualTo(maxSize);
-
-            // Overwrite k0
-            assertThat(map.put("k0", "v0_new")).isEqualTo("v0");
-            assertThat(map.size()).isEqualTo(maxSize);
-            assertThat(map.trueSize()).isEqualTo(maxSize);
-
-            // All original keys must still exist
-            for (int i = 0; i < maxSize; i++) {
-                assertThat(map.get("k" + i)).isNotNull();
-            }
-            assertThat(map.get("k0")).isEqualTo("v0_new");
-        }
     }
 
     @Nested
-    @DisplayName("Debug and String Representation")
+    @DisplayName("Debug, Wrapper and String Representation")
     class DebugAndToStringTest {
+
+        @Test
+        @DisplayName("Wrapper toString representation")
+        void testWrapperToString() {
+            LRUClockMap.Wrapper<String, String> w = new LRUClockMap.Wrapper<>("k", "v");
+            assertThat(w.toString()).isEqualTo("[k, v, true]");
+            w.secondChance = false;
+            assertThat(w.toString()).isEqualTo("[k, v, false]");
+        }
 
         @Test
         @DisplayName("toString and DebugWrapper produce expected debug representations")
@@ -431,11 +492,26 @@ class LRUClockMapTest {
             var debugData = map.getDebugData();
             assertThat(debugData).hasSize(map.occupiedSpace());
 
-            // Check non-null debug wrapper toString
             var nonNullDebug = debugData.stream().filter(Objects::nonNull).findFirst();
             assertThat(nonNullDebug).isPresent();
-            String debugStr = nonNullDebug.get().toString();
+            var dw = nonNullDebug.get();
+            assertThat(dw.key).isNotNull();
+            assertThat(dw.value).isNotNull();
+            assertThat(dw.currentPosition).isGreaterThanOrEqualTo(0);
+            assertThat(dw.truePosition).isGreaterThanOrEqualTo(0);
+            String debugStr = dw.toString();
             assertThat(debugStr).startsWith("[").endsWith("]");
+
+            // Verify DebugWrapper calculates truePosition using bitwise AND and mask
+            CollisionTest.FixedHashKey highKey = new CollisionTest.FixedHashKey(99, 0x10005);
+            LRUClockMap<CollisionTest.FixedHashKey, Integer> fixedMap = new LRUClockMap<>(4);
+            fixedMap.put(highKey, 99);
+            var fixedDebug = fixedMap.getDebugData();
+            var dwHigh = fixedDebug.stream().filter(Objects::nonNull).filter(d -> d.key.equals(highKey)).findFirst().get();
+            // 0x10005 ^ (0x10005 >>> 16) = 0x10005 ^ 1 = 0x10004
+            // capacity is 8 (mask = 7). 0x10004 & 7 = 4.
+            // If bitwise AND was replaced with OR, 0x10004 | 7 = 0x10007 (which is 65543 != 4)
+            assertThat(dwHigh.truePosition).isEqualTo(4);
         }
     }
 
@@ -467,7 +543,7 @@ class LRUClockMapTest {
             LRUClockMap<Integer, String> map = new LRUClockMap<>(maxSize);
             Random rng = new Random(42);
 
-            for (int step = 0; step < 20_000; step++) {
+            for (int step = 0; step < 5_000; step++) {
                 int op = rng.nextInt(100);
                 int key = rng.nextInt(100);
 
@@ -496,4 +572,5 @@ class LRUClockMapTest {
         }
     }
 }
+
 

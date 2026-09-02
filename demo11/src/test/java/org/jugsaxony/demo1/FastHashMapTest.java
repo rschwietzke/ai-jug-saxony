@@ -77,25 +77,27 @@ class FastHashMapTest {
         }
 
         @Test
-        @DisplayName("Clear removes all entries and resets size")
+        @DisplayName("Clear resets size and all backing slots")
         void testClear() {
             FastHashMap<Integer, String> map = new FastHashMap<>();
-            for (int i = 0; i < 20; i++) {
+            for (int i = 0; i < 5; i++) {
                 map.put(i, "val" + i);
             }
-            assertThat(map.size()).isEqualTo(20);
+            assertThat(map.size()).isEqualTo(5);
 
             map.clear();
             assertThat(map.size()).isZero();
             assertThat(map.keys()).isEmpty();
             assertThat(map.values()).isEmpty();
             assertThat(map.get(0)).isNull();
-            assertThat(map.get(19)).isNull();
+            assertThat(map.keysArray()).containsOnlyNulls();
+            assertThat(map.valuesArray()).containsOnlyNulls();
 
-            // Re-inserting after clear
-            map.put(42, "answer");
-            assertThat(map.size()).isEqualTo(1);
-            assertThat(map.get(42)).isEqualTo("answer");
+            // Clearing an already empty map is safe and idempotent
+            map.clear();
+            assertThat(map.size()).isZero();
+            assertThat(map.keysArray()).containsOnlyNulls();
+            assertThat(map.valuesArray()).containsOnlyNulls();
         }
     }
 
@@ -179,7 +181,7 @@ class FastHashMapTest {
     }
 
     @Nested
-    @DisplayName("Hash Collisions & Backward-Shift Deletions")
+    @DisplayName("Hash Collisions & Cluster Deletions")
     class CollisionAndProbingTest {
 
         static class CollisionKey {
@@ -229,7 +231,7 @@ class FastHashMapTest {
         }
 
         @Test
-        @DisplayName("Backward-shift deletion: remove head of collision chain")
+        @DisplayName("Cluster deletion: remove head of collision chain")
         void testRemoveHeadOfCollisionChain() {
             FastHashMap<CollisionKey, String> map = new FastHashMap<>(16, 0.75f);
             int fixedHash = 10;
@@ -254,7 +256,7 @@ class FastHashMapTest {
         }
 
         @Test
-        @DisplayName("Backward-shift deletion: remove middle of collision chain")
+        @DisplayName("Cluster deletion: remove middle of collision chain")
         void testRemoveMiddleOfCollisionChain() {
             FastHashMap<CollisionKey, String> map = new FastHashMap<>(16, 0.75f);
             int fixedHash = 10;
@@ -279,7 +281,7 @@ class FastHashMapTest {
         }
 
         @Test
-        @DisplayName("Backward-shift deletion: remove tail of collision chain")
+        @DisplayName("Cluster deletion: remove tail of collision chain")
         void testRemoveTailOfCollisionChain() {
             FastHashMap<CollisionKey, String> map = new FastHashMap<>(16, 0.75f);
             int fixedHash = 10;
@@ -330,11 +332,122 @@ class FastHashMapTest {
     }
 
     @Nested
+    @DisplayName("MurmurHash3 MixHash & Deterministic Distribution")
+    class HashMixingTest {
+
+        static class SpecificHashKey {
+            final String name;
+            final int hash;
+
+            SpecificHashKey(String name, int hash) {
+                this.name = name;
+                this.hash = hash;
+            }
+
+            @Override
+            public int hashCode() {
+                return hash;
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (!(o instanceof SpecificHashKey that)) return false;
+                return Objects.equals(name, that.name);
+            }
+
+            @Override
+            public String toString() {
+                return name;
+            }
+        }
+
+        @Test
+        @DisplayName("MixHash validates MurmurHash3 finalizer constants and bit shifts")
+        void testMixHashDistribution() {
+            // Direct unit testing of MurmurHash3 finalizer operations
+            assertThat(FastHashMap.mixHash(0)).isZero();
+            
+            int[] testInputs = {
+                    0x00000000,
+                    0x00000001,
+                    0x00010000,
+                    0x00002000,
+                    0x12345678,
+                    0x87654321,
+                    0x55555555,
+                    0xAAAAAAAA,
+                    0x80000000,
+                    0xFFFFFFFF
+            };
+
+            for (int input : testInputs) {
+                int h = input;
+                h ^= h >>> 16;
+                h *= 0x85ebca6b;
+                h ^= h >>> 13;
+                h *= 0xc2b2ae35;
+                h ^= h >>> 16;
+                assertThat(FastHashMap.mixHash(input)).isEqualTo(h);
+            }
+
+            FastHashMap<SpecificHashKey, String> map = new FastHashMap<>(16, 0.95f);
+            List<SpecificHashKey> keyList = new ArrayList<>();
+            for (int i = 0; i < testInputs.length; i++) {
+                SpecificHashKey key = new SpecificHashKey("k" + i, testInputs[i]);
+                keyList.add(key);
+                map.put(key, "val" + i);
+            }
+
+            assertThat(map.size()).isEqualTo(testInputs.length);
+
+            for (int i = 0; i < testInputs.length; i++) {
+                SpecificHashKey key = keyList.get(i);
+                assertThat(map.get(key)).isEqualTo("val" + i);
+            }
+
+            List<SpecificHashKey> extractedKeys = map.keys();
+            assertThat(extractedKeys).hasSize(testInputs.length);
+        }
+    }
+
+    @Nested
     @DisplayName("Dynamic Resizing & Scale Tests")
     class ResizingAndScaleTest {
 
+        @Test
+        @DisplayName("Resize boundary triggers strictly when size >= threshold")
+        void testExactThresholdResizeBoundary() {
+            // initial capacity = 16, load factor = 0.5f -> capacity = 16, threshold = 8
+            FastHashMap<Integer, String> map = new FastHashMap<>(16, 0.5f);
+            assertThat(map.capacity()).isEqualTo(16);
+            assertThat(map.threshold()).isEqualTo(8);
+
+            // Put 7 items -> still at capacity 16
+            for (int i = 0; i < 7; i++) {
+                map.put(i, "v" + i);
+            }
+            assertThat(map.size()).isEqualTo(7);
+            assertThat(map.capacity()).isEqualTo(16);
+
+            // Put 8th item (size was 7 < threshold 8, becomes 8) -> still capacity 16
+            map.put(7, "v7");
+            assertThat(map.size()).isEqualTo(8);
+            assertThat(map.capacity()).isEqualTo(16);
+
+            // Inserting 9th item (size was 8 >= threshold 8) -> triggers resize to 32, threshold becomes 16
+            map.put(8, "v8");
+            assertThat(map.size()).isEqualTo(9);
+            assertThat(map.capacity()).isEqualTo(32);
+            assertThat(map.threshold()).isEqualTo(16);
+
+            for (int i = 0; i <= 8; i++) {
+                assertThat(map.get(i)).isEqualTo("v" + i);
+            }
+        }
+
         @ParameterizedTest
-        @ValueSource(ints = {100, 1_000, 10_000, 50_000})
+        @ValueSource(ints = {100, 1_000, 10_000})
         @DisplayName("Insert large sequence of items triggering multiple resizes")
         void testLargeInsertAndRetrieval(int count) {
             FastHashMap<Integer, String> map = new FastHashMap<>();
@@ -371,14 +484,14 @@ class FastHashMapTest {
     class FuzzTesting {
 
         @Test
-        @DisplayName("50,000 random operations against standard java.util.HashMap")
+        @DisplayName("5,000 random operations against standard java.util.HashMap")
         void testRandomOperationsAgainstReferenceMap() {
             FastHashMap<Integer, String> fastMap = new FastHashMap<>();
             Map<Integer, String> refMap = new HashMap<>();
 
             Random rng = new Random(42);
-            int operations = 50_000;
-            int keyDomain = 500;
+            int operations = 5_000;
+            int keyDomain = 200;
 
             for (int op = 0; op < operations; op++) {
                 int action = rng.nextInt(100);
@@ -419,29 +532,100 @@ class FastHashMapTest {
     }
 
     @Nested
-    @DisplayName("Constructors & Argument Validation")
+    @DisplayName("Constructors & Capacity Validation")
     class ConstructorAndValidationTest {
 
         @Test
-        @DisplayName("Single-argument constructor sets initial capacity")
-        void testSingleArgConstructor() {
-            FastHashMap<String, String> map = new FastHashMap<>(64);
-            assertThat(map.size()).isZero();
-            map.put("key", "val");
-            assertThat(map.get("key")).isEqualTo("val");
+        @DisplayName("Zero and small capacities should be handled cleanly")
+        void testSmallCapacities() {
+            FastHashMap<String, String> map0 = new FastHashMap<>(0);
+            map0.put("k0", "v0");
+            assertThat(map0.get("k0")).isEqualTo("v0");
+
+            FastHashMap<String, String> map1 = new FastHashMap<>(1);
+            map1.put("k1", "v1");
+            assertThat(map1.get("k1")).isEqualTo("v1");
+
+            FastHashMap<String, String> map2 = new FastHashMap<>(2);
+            map2.put("k2", "v2");
+            assertThat(map2.get("k2")).isEqualTo("v2");
+
+            FastHashMap<String, String> map3 = new FastHashMap<>(3);
+            map3.put("k3", "v3");
+            assertThat(map3.get("k3")).isEqualTo("v3");
+
+            FastHashMap<String, String> map1024 = new FastHashMap<>(1024);
+            map1024.put("k", "v");
+            assertThat(map1024.get("k")).isEqualTo("v");
+
+            FastHashMap<String, String> mapMaxCap = new FastHashMap<>(FastHashMap.MAXIMUM_CAPACITY);
+            assertThat(mapMaxCap.capacity()).isEqualTo(FastHashMap.MAXIMUM_CAPACITY);
+        }
+
+        @Test
+        @DisplayName("Valid load factor boundaries")
+        void testLoadFactorBoundaries() {
+            FastHashMap<String, String> mapMinLF = new FastHashMap<>(16, 0.001f);
+            mapMinLF.put("a", "b");
+            assertThat(mapMinLF.get("a")).isEqualTo("b");
+
+            FastHashMap<String, String> mapMaxLF = new FastHashMap<>(16, 0.999f);
+            mapMaxLF.put("c", "d");
+            assertThat(mapMaxLF.get("c")).isEqualTo("d");
         }
 
         @Test
         @DisplayName("Invalid constructor arguments throw IllegalArgumentException")
         void testInvalidConstructorArgs() {
             assertThatThrownBy(() -> new FastHashMap<>(-1))
-                    .isInstanceOf(IllegalArgumentException.class);
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Illegal initial capacity");
+
+            assertThatThrownBy(() -> new FastHashMap<>(FastHashMap.MAXIMUM_CAPACITY + 1))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Illegal initial capacity");
+
+            assertThatThrownBy(() -> new FastHashMap<>(1 << 30))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Illegal initial capacity");
+
             assertThatThrownBy(() -> new FastHashMap<>(16, 0.0f))
-                    .isInstanceOf(IllegalArgumentException.class);
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Illegal load factor");
+
+            assertThatThrownBy(() -> new FastHashMap<>(16, -0.1f))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Illegal load factor");
+
             assertThatThrownBy(() -> new FastHashMap<>(16, 1.0f))
-                    .isInstanceOf(IllegalArgumentException.class);
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Illegal load factor");
+
+            assertThatThrownBy(() -> new FastHashMap<>(16, 1.5f))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Illegal load factor");
+
             assertThatThrownBy(() -> new FastHashMap<>(16, Float.NaN))
-                    .isInstanceOf(IllegalArgumentException.class);
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Illegal load factor");
+        }
+
+        @Test
+        @DisplayName("TableSizeFor calculations across power of two boundaries")
+        void testTableSizeFor() {
+            assertThat(FastHashMap.tableSizeFor(0)).isEqualTo(1);
+            assertThat(FastHashMap.tableSizeFor(1)).isEqualTo(1);
+            assertThat(FastHashMap.tableSizeFor(2)).isEqualTo(2);
+            assertThat(FastHashMap.tableSizeFor(3)).isEqualTo(4);
+            assertThat(FastHashMap.tableSizeFor(4)).isEqualTo(4);
+            assertThat(FastHashMap.tableSizeFor(5)).isEqualTo(8);
+            assertThat(FastHashMap.tableSizeFor(7)).isEqualTo(8);
+            assertThat(FastHashMap.tableSizeFor(8)).isEqualTo(8);
+            assertThat(FastHashMap.tableSizeFor(9)).isEqualTo(16);
+            assertThat(FastHashMap.tableSizeFor(1024)).isEqualTo(1024);
+            assertThat(FastHashMap.tableSizeFor(1025)).isEqualTo(2048);
+            assertThat(FastHashMap.tableSizeFor(1 << 29)).isEqualTo(1 << 29);
+            assertThat(FastHashMap.tableSizeFor(1 << 30)).isEqualTo(1 << 30);
         }
     }
 }

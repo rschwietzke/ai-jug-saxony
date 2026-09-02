@@ -67,7 +67,7 @@ public class LRUClockMap<K, V>
      * When secondChance is true we skip it when the clock 
      * is checked. If it is false, we dispose the entry.
      */
-    private static class Wrapper<K, V> 
+    static class Wrapper<K, V> 
     {
         final K key;
         V value;
@@ -123,7 +123,7 @@ public class LRUClockMap<K, V>
      * @param h the original hash
      * @return the mixed hash
      */
-    private int mixHash(final int h) 
+    static int mixHash(final int h) 
     {
         return h ^ (h >>> 16);
     }
@@ -535,12 +535,8 @@ public class LRUClockMap<K, V>
      * @param x a long integer smaller than or equal to 2<sup>62</sup>.
      * @return the least power of two greater than or equal to the specified value.
      */
-    private static long nextPowerOfTwo(long x) 
+    static long nextPowerOfTwo(long x) 
     {
-        if ( x == 0 ) 
-        {
-            return 1;
-        }
         x--;
         x |= x >> 1;
         x |= x >> 2;
@@ -558,7 +554,7 @@ public class LRUClockMap<K, V>
      * @return the minimum possible size for a backing array.
      * @throws IllegalArgumentException if the necessary size is larger than 2<sup>30</sup>.
      */
-    private static int arraySize( final int expected, final float f ) 
+    static int arraySize( final int expected, final float f ) 
     {
         final long s = Math.max(2, nextPowerOfTwo((long)Math.ceil(expected / f)));
         if (s > (1 << 30)) 
