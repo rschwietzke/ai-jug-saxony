@@ -18,17 +18,6 @@ public class GlobalJmhReportGenerator {
             String unit
     ) {}
 
-    public static final Map<String, String> MODEL_NAMES = Map.of(
-            "demo0", "Demo 0 (Baseline / FastRandom)",
-            "demo1", "Demo 1 (Gemini 3.7 Flash High / Antigravity)",
-            "demo2", "Demo 2 (Kimi K3)",
-            "demo3", "Demo 3 (OpenAI 5.6 Sol Max)",
-            "demo4", "Demo 4 (Gemma 4 31B Thinking)",
-            "demo5", "Demo 5 (Deepseek V4 Flash Max)",
-            "demo6", "Demo 6 (Claude Opus 5 Ultra)",
-            "demo7", "Demo 7 (Qwen 38 max XHigh)",
-            "demo8", "Demo 8 (Gemini 3.7 Flash High / Kilo Code)",
-            "javaMap", "java.util.HashMap (JDK Baseline)"
     );
 
     public static List<BenchmarkEntry> parseJmhJson(File jsonFile) throws IOException {

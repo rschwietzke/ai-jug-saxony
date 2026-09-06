@@ -11,7 +11,6 @@ import java.util.*;
 
 /**
  * Global Memory Footprint & Layout Analyzer (JOL)
- * Analyzes and compares memory footprint across demo0 through demo8 and java.util.HashMap.
  */
 public class GlobalJolReport {
 

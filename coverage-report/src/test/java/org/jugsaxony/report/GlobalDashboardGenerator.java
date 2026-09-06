@@ -234,7 +234,7 @@ public class GlobalDashboardGenerator {
         }
 
         // Copy PIT reports per module if available
-        String[] modDirs = {"demo0", "demo1", "demo2", "demo3", "demo4", "demo5", "demo6", "demo7", "demo8", "demo11"};
+        String[] modDirs = {"demo0", "demo1", "demo2", "demo3", "demo4", "demo5", "demo6", "demo7", "demo8", "demo9", "demo11"};
         for (String modDirName : modDirs) {
             File modPit = new File(rootProjectDir, modDirName + "/target/pit-reports");
             File destModPit = new File(outputDir, "pit-reports/" + modDirName);
@@ -452,14 +452,13 @@ public class GlobalDashboardGenerator {
             out.println();
             out.println("- 🧪 **Unit Tests**: [Surefire Aggregated Report](surefire.html) (100% passing tests)");
             out.println("- 🎯 **Code Coverage**: [JaCoCo Aggregate Coverage Report](coverage-aggregate/index.html)");
-            out.println("- 🧬 **Mutation Testing**: [PIT Mutation Reports](pit-reports/index.html) in submodules `demo0`–`demo8`, `demo11`");
+            out.println("- 🧬 **Mutation Testing**: [PIT Mutation Reports](pit-reports/index.html) in submodules `demo0`–`demo9`, `demo11`");
             out.println("- 💾 **Memory Footprint & Layout**: [JOL Memory Report](jol-report.html) / [Markdown](jol-report.md)");
             out.println("- ⚡ **Microbenchmarks & Throughput**: [JMH Benchmark Report](jmh-report.html) / [Markdown](jmh-report.md)");
             out.println();
             out.println("## 💡 Key Architectural Takeaways");
             out.println();
             out.println("1. **FastHashMap — Flat Arrays vs Entry Nodes**:");
-            out.println("   - Models using **flat parallel arrays** (`demo1`, `demo2`, `demo3`, `demo6`, `demo11`) achieve **~25% smaller memory footprint** (~77–80 B/entry vs 104 B/entry for `HashMap`) and generate **zero intermediate Node objects**, eliminating GC churn.");
             out.println("   - Models using **Node/Entry chains** (`demo5`, `demo7`, `demo8`) match `HashMap`'s linked collision structure with 40,002 objects at N=10,000.");
             out.println("2. **FastHashMap — Put Speedup**:");
             out.println("   - AI implementations achieve up to **1.46x higher throughput on `put` operations** than standard JDK `java.util.HashMap`.");

@@ -22,6 +22,9 @@ Qwenn 38 max XHigh via Kilo Code, VSCode
 # Demo 8
 Gemini 3.7 Flash High with Kilo Code in VSCode
 
+# Demo 9
+Gemini 3.8 Flash High Antigravity
+
 
 # Demo11
 Demo1 - Gemini 3.7 Flash High with Kilo Code in VSCode

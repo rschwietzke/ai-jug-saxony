@@ -1,5 +1,5 @@
-DO NO CHECK ANYTHING OUTSIDE OF THE DEMO8 FOLDER!!!
-Your folder (FOLDER) to work in is "demo8"
+DO NO CHECK ANYTHING OUTSIDE OF THE DEMO9 FOLDER!!!
+Your folder (FOLDER) to work in is "demo9"
 
 
 i want to create a new implementation of  am open hashing map and all requires tests. the following methid signature has to be supported. K and V are the generics.
