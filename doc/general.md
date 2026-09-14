@@ -2,7 +2,7 @@
 Gemini 3.7 Flash High with Antigravity in VSCode
 
 # Demo2
-Kimi K3 via Kilo Code, VSCode
+Kimi K3 via Kilo Code Max, VSCode
 
 # Demo 3
 OpenAI 5.6 Sol Max via Kilo Code, VSCode
@@ -24,7 +24,6 @@ Gemini 3.7 Flash High with Kilo Code in VSCode
 
 # Demo 9
 Gemini 3.8 Flash High Antigravity
-
 
 # Demo11
 Demo1 - Gemini 3.7 Flash High with Kilo Code in VSCode

@@ -31,3 +31,12 @@ create proper and sufficient test cases
 
 DO NO CHECK ANYTHING OUTSIDE OF THE FOLDER!!!
 ---
+
+Do not look at anything outside of the FOLDER demo6/ !!!
+
+You will find untested code in the package com.xceptance
+
+* Write unit tests for it.
+* Extract all archtectural knowledge and what one must know to understand this into dedicated documentation in doc/
+* Write a proposal for an improved implementation doc/XLT-DATA.md. DO NO IMPLEMENT THIS PROPOSAL!
+
