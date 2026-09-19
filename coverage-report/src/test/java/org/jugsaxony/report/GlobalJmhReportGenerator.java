@@ -29,8 +29,7 @@ public class GlobalJmhReportGenerator {
             Map.entry("demo7", "Demo 7 (Qwen 38 max XHigh)"),
             Map.entry("demo8", "Demo 8 (Gemini 3.7 Flash High / Kilo Code)"),
             Map.entry("demo9", "Demo 9 (Gemini 3.8 Flash High / Antigravity)"),
-            Map.entry("demo11", "Demo 11 (Gemini 3.7 Flash High / Antigravity Rework)"),
-            Map.entry("javaMap", "java.util.HashMap (JDK Baseline)")
+            Map.entry("demo11", "Demo 11 (Gemini 3.7 Flash High / Antigravity Rework)")
     );
 
     public static List<BenchmarkEntry> parseJmhJson(File jsonFile) throws IOException {
@@ -77,6 +76,10 @@ public class GlobalJmhReportGenerator {
                     targetId = parts[1];
                 }
 
+                if ("javaMap".equals(targetId)) {
+                    continue;
+                }
+
                 String modelName = MODEL_NAMES.getOrDefault(targetId, targetId);
                 entries.add(new BenchmarkEntry(benchmark, operation, targetId, modelName, score, scoreError, unit));
             }
@@ -115,7 +118,7 @@ public class GlobalJmhReportGenerator {
         try (PrintWriter out = new PrintWriter(new FileWriter(targetFile))) {
             out.println("# JMH Microbenchmark Cross-Project Comparison Report");
             out.println();
-            out.println("Throughput benchmark results comparing all AI model implementations against `java.util.HashMap` (Size = 1,000 items).");
+            out.println("Throughput benchmark results comparing all AI model implementations against `demo0` baseline (Size = 1,000 items).");
             out.println();
 
             for (Map.Entry<String, List<BenchmarkEntry>> group : byOp.entrySet()) {
@@ -124,14 +127,14 @@ public class GlobalJmhReportGenerator {
                 list.sort((a, b) -> Double.compare(b.score(), a.score())); // Highest throughput first
 
                 double baselineScore = list.stream()
-                        .filter(e -> "javaMap".equals(e.targetId()))
+                        .filter(e -> "demo0".equals(e.targetId()))
                         .mapToDouble(BenchmarkEntry::score)
                         .findFirst()
                         .orElse(1.0);
 
                 out.println("## Operation: `" + op + "`");
                 out.println();
-                out.println("| Rank | Implementation | Model | Throughput (ops/µs) | Margin (±) | Speedup vs HashMap |");
+                out.println("| Rank | Implementation | Model | Throughput (ops/µs) | Margin (±) | Speedup vs Demo 0 |");
                 out.println("| :--- | :--- | :--- | :--- | :--- | :--- |");
 
                 int rank = 1;
@@ -208,7 +211,7 @@ public class GlobalJmhReportGenerator {
             out.println("<div class=\"container\">");
             out.println("    <div class=\"header\">");
             out.println("        <h1>⚡ JMH Cross-Project Performance Report</h1>");
-            out.println("        <p>Throughput & Speedup Comparison of 9 AI-Generated Maps vs java.util.HashMap</p>");
+            out.println("        <p>Throughput & Speedup Comparison of AI-Generated Maps vs Demo 0 Baseline</p>");
             out.println("    </div>");
 
             for (Map.Entry<String, List<BenchmarkEntry>> group : byOp.entrySet()) {
@@ -217,7 +220,7 @@ public class GlobalJmhReportGenerator {
                 list.sort((a, b) -> Double.compare(b.score(), a.score()));
 
                 double maxScore = list.stream().mapToDouble(BenchmarkEntry::score).max().orElse(1.0);
-                double baselineScore = list.stream().filter(e -> "javaMap".equals(e.targetId())).mapToDouble(BenchmarkEntry::score).findFirst().orElse(1.0);
+                double baselineScore = list.stream().filter(e -> "demo0".equals(e.targetId())).mapToDouble(BenchmarkEntry::score).findFirst().orElse(1.0);
 
                 out.println("    <div class=\"card\">");
                 out.printf("        <h2>Operation: <code>%s</code></h2>%n", op);
@@ -229,7 +232,7 @@ public class GlobalJmhReportGenerator {
                 out.println("                    <th>Model</th>");
                 out.println("                    <th class=\"numeric\">Throughput (ops/µs)</th>");
                 out.println("                    <th class=\"numeric\">Margin (±)</th>");
-                out.println("                    <th class=\"numeric\">Speedup vs HashMap</th>");
+                out.println("                    <th class=\"numeric\">Speedup vs Demo 0</th>");
                 out.println("                </tr>");
                 out.println("            </thead>");
                 out.println("            <tbody>");

@@ -10,8 +10,6 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -35,7 +33,6 @@ public class GlobalJmhBenchmark {
     private org.jugsaxony.demo6.FastHashMap<String, String> demo6Map;
     private org.jugsaxony.demo7.FastHashMap<String, String> demo7Map;
     private org.jugsaxony.demo8.FastHashMap<String, String> demo8Map;
-    private Map<String, String> javaMap;
 
     private String[] existingKeys;
     private String[] missingKeys;
@@ -53,7 +50,6 @@ public class GlobalJmhBenchmark {
         demo6Map = new org.jugsaxony.demo6.FastHashMap<>();
         demo7Map = new org.jugsaxony.demo7.FastHashMap<>();
         demo8Map = new org.jugsaxony.demo8.FastHashMap<>();
-        javaMap = new HashMap<>();
 
         existingKeys = new String[size];
         missingKeys = new String[size];
@@ -74,7 +70,6 @@ public class GlobalJmhBenchmark {
             demo6Map.put(existingKeys[i], values[i]);
             demo7Map.put(existingKeys[i], values[i]);
             demo8Map.put(existingKeys[i], values[i]);
-            javaMap.put(existingKeys[i], values[i]);
         }
     }
 
@@ -145,13 +140,6 @@ public class GlobalJmhBenchmark {
         bh.consume(demo8Map.get(existingKeys[idx]));
     }
 
-    @Benchmark
-    public void getHit_javaMap(Blackhole bh) {
-        int idx = (keyIndex++) % size;
-        if (idx < 0) idx = -idx;
-        bh.consume(javaMap.get(existingKeys[idx]));
-    }
-
     // ==========================================
     // GET MISS BENCHMARKS
     // ==========================================
@@ -219,13 +207,6 @@ public class GlobalJmhBenchmark {
         bh.consume(demo8Map.get(missingKeys[idx]));
     }
 
-    @Benchmark
-    public void getMiss_javaMap(Blackhole bh) {
-        int idx = (keyIndex++) % size;
-        if (idx < 0) idx = -idx;
-        bh.consume(javaMap.get(missingKeys[idx]));
-    }
-
     // ==========================================
     // PUT BENCHMARKS
     // ==========================================
@@ -291,13 +272,6 @@ public class GlobalJmhBenchmark {
         int idx = (keyIndex++) % size;
         if (idx < 0) idx = -idx;
         bh.consume(demo8Map.put(existingKeys[idx], values[idx]));
-    }
-
-    @Benchmark
-    public void put_javaMap(Blackhole bh) {
-        int idx = (keyIndex++) % size;
-        if (idx < 0) idx = -idx;
-        bh.consume(javaMap.put(existingKeys[idx], values[idx]));
     }
 
     public static void main(String[] args) throws Exception {

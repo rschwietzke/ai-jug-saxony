@@ -67,8 +67,7 @@ public class GlobalDashboardGenerator {
             Map.entry("demo6", new String[]{"Demo 6", "Claude Opus 5 Ultra (Claude)", "Flat parallel Object[] arrays"}),
             Map.entry("demo7", new String[]{"Demo 7", "Qwen 38 max XHigh (Kilo Code)", "Chained Node/Entry Object table"}),
             Map.entry("demo8", new String[]{"Demo 8", "Gemini 3.7 Flash High (Kilo Code)", "Chained Node/Entry Object table"}),
-            Map.entry("demo11", new String[]{"Demo 11", "Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed)", "Flat parallel Object[] arrays"}),
-            Map.entry("javaMap", new String[]{"java.util.HashMap", "JDK Baseline (Oracle / OpenJDK)", "Chained Node Object table + TreeBin"})
+            Map.entry("demo11", new String[]{"Demo 11", "Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed)", "Flat parallel Object[] arrays"})
     );
 
     public static void generateDashboard(File outputDir, File rootProjectDir) throws Exception {
@@ -93,34 +92,26 @@ public class GlobalDashboardGenerator {
             }
         }
 
-        double javaHit = jmhScores.getOrDefault("javaMap", Map.of()).getOrDefault("getHit", 151.8);
-        double javaMiss = jmhScores.getOrDefault("javaMap", Map.of()).getOrDefault("getMiss", 164.8);
-        double javaPut = jmhScores.getOrDefault("javaMap", Map.of()).getOrDefault("put", 57.1);
+        double baselineHit = jmhScores.getOrDefault("demo0", Map.of()).getOrDefault("getHit", 18.66);
+        double baselineMiss = jmhScores.getOrDefault("demo0", Map.of()).getOrDefault("getMiss", 42.35);
+        double baselinePut = jmhScores.getOrDefault("demo0", Map.of()).getOrDefault("put", 6.55);
 
         // 2. Gather FastHashMap & LRUClockMap data per module
         List<FastHashMapSummary> fastMapSummaries = new ArrayList<>();
         List<LruClockMapSummary> lruMapSummaries = new ArrayList<>();
 
         for (GlobalJolReport.ImplementationMeta meta : GlobalJolReport.IMPLEMENTATIONS) {
-            String modId = meta.id().equals("java-util-map") ? "javaMap" : meta.id();
+            String modId = meta.id();
             String[] customMeta = MODULE_METADATA.get(modId);
             String storageStrategy = customMeta != null ? customMeta[2] : "Standard";
 
-            QualityStats fastQuality;
-            QualityStats lruQuality;
+            File modDir = new File(rootProjectDir, modId);
+            File surefireDir = new File(modDir, "target/surefire-reports");
+            File jacocoXml = new File(modDir, "target/site/jacoco/jacoco.xml");
+            File pitCsv = new File(modDir, "target/pit-reports/mutations.csv");
 
-            if (!"javaMap".equals(modId)) {
-                File modDir = new File(rootProjectDir, modId);
-                File surefireDir = new File(modDir, "target/surefire-reports");
-                File jacocoXml = new File(modDir, "target/site/jacoco/jacoco.xml");
-                File pitCsv = new File(modDir, "target/pit-reports/mutations.csv");
-
-                fastQuality = buildQualityStats(surefireDir, jacocoXml, pitCsv, "FastHashMapTest", "FastHashMap.java");
-                lruQuality = buildQualityStats(surefireDir, jacocoXml, pitCsv, "LRUClockMapTest", "LRUClockMap.java");
-            } else {
-                fastQuality = new QualityStats(499, 0, 0, 100.0, 100.0, 100.0, 0, 1000, 0, 100, 0, 200, 100, 100, 100.0);
-                lruQuality = null;
-            }
+            QualityStats fastQuality = buildQualityStats(surefireDir, jacocoXml, pitCsv, "FastHashMapTest", "FastHashMap.java");
+            QualityStats lruQuality = buildQualityStats(surefireDir, jacocoXml, pitCsv, "LRUClockMapTest", "LRUClockMap.java");
 
             // JOL for FastHashMap
             long shallow = ClassLayout.parseClass(meta.mapClass()).instanceSize();
@@ -154,11 +145,11 @@ public class GlobalDashboardGenerator {
                     n1000Bpe,
                     n10000Objs,
                     hit,
-                    javaHit > 0 ? hit / javaHit : 0,
+                    baselineHit > 0 ? hit / baselineHit : 0,
                     miss,
-                    javaMiss > 0 ? miss / javaMiss : 0,
+                    baselineMiss > 0 ? miss / baselineMiss : 0,
                     put,
-                    javaPut > 0 ? put / javaPut : 0
+                    baselinePut > 0 ? put / baselinePut : 0
             ));
 
             if (lruQuality != null) {
@@ -210,11 +201,11 @@ public class GlobalDashboardGenerator {
                         bpe11,
                         objs11,
                         hit11,
-                        javaHit > 0 ? hit11 / javaHit : 0,
+                        baselineHit > 0 ? hit11 / baselineHit : 0,
                         miss11,
-                        javaMiss > 0 ? miss11 / javaMiss : 0,
+                        baselineMiss > 0 ? miss11 / baselineMiss : 0,
                         put11,
-                        javaPut > 0 ? put11 / javaPut : 0
+                        baselinePut > 0 ? put11 / baselinePut : 0
                 ));
 
                 lruMapSummaries.add(new LruClockMapSummary(
@@ -233,8 +224,18 @@ public class GlobalDashboardGenerator {
             copyDirectory(jacocoSite, destCoverage);
         }
 
-        // Copy PIT reports per module if available
         String[] modDirs = {"demo0", "demo1", "demo2", "demo3", "demo4", "demo5", "demo6", "demo7", "demo8", "demo9", "demo11"};
+
+        // Copy individual module JaCoCo reports
+        for (String modDirName : modDirs) {
+            File modJacoco = new File(rootProjectDir, modDirName + "/target/site/jacoco");
+            File destModJacoco = new File(outputDir, "jacoco/" + modDirName);
+            if (modJacoco.exists() && modJacoco.isDirectory()) {
+                copyDirectory(modJacoco, destModJacoco);
+            }
+        }
+
+        // Copy PIT reports per module if available
         for (String modDirName : modDirs) {
             File modPit = new File(rootProjectDir, modDirName + "/target/pit-reports");
             File destModPit = new File(outputDir, "pit-reports/" + modDirName);
@@ -355,7 +356,7 @@ public class GlobalDashboardGenerator {
         try (PrintWriter out = new PrintWriter(new FileWriter(targetFile))) {
             out.println("# 🏆 AI JUG Saxony Master Executive Dashboard");
             out.println();
-            out.println("Comprehensive benchmark, code quality, and memory evaluation comparing **AI Model implementations** of `FastHashMap` and `LRUClockMap` against the standard JDK `java.util.HashMap`.");
+            out.println("Comprehensive benchmark, code quality, and memory evaluation comparing **AI Model implementations** of `FastHashMap` and `LRUClockMap` against the `demo0` baseline.");
             out.println();
             out.println("---");
             out.println();
@@ -365,14 +366,8 @@ public class GlobalDashboardGenerator {
             out.println("| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |");
 
             for (FastHashMapSummary s : fastMaps) {
-                String pitStr;
-                if ("javaMap".equals(s.id())) {
-                    pitStr = "N/A (JDK)";
-                } else if (s.quality().pitTotal() > 0) {
-                    pitStr = String.format("%.1f%% (%d/%d killed)", s.quality().pitScorePct(), s.quality().pitKilled(), s.quality().pitTotal());
-                } else {
-                    pitStr = "N/A";
-                }
+                String pitStr = s.quality().pitTotal() > 0 ?
+                        String.format("%.1f%% (%d/%d killed)", s.quality().pitScorePct(), s.quality().pitKilled(), s.quality().pitTotal()) : "N/A";
 
                 out.printf("| **%s** | %s | %d ✅ | %.1f%% (%d/%d) | %.1f%% (%d/%d) | %.1f%% (%d/%d) | %s | %s |%n",
                         s.id(),
@@ -460,8 +455,9 @@ public class GlobalDashboardGenerator {
             out.println();
             out.println("1. **FastHashMap — Flat Arrays vs Entry Nodes**:");
             out.println("   - Models using **Node/Entry chains** (`demo5`, `demo7`, `demo8`) match `HashMap`'s linked collision structure with 40,002 objects at N=10,000.");
+            double peakPut = fastMaps.stream().mapToDouble(FastHashMapSummary::putSpeedup).max().orElse(1.0);
             out.println("2. **FastHashMap — Put Speedup**:");
-            out.println("   - AI implementations achieve up to **1.46x higher throughput on `put` operations** than standard JDK `java.util.HashMap`.");
+            out.printf("   - AI implementations achieve up to **%.2fx higher throughput on `put` operations** than Demo 0 baseline.%n", peakPut);
             out.println("3. **LRUClockMap — Testing & Mutation Rigor**:");
             out.println("   - Clock-sweep eviction algorithms are verified with comprehensive edge cases (wrap-around, bit clearance, realign), achieving high line and branch coverage across all subprojects.");
         }
@@ -471,6 +467,7 @@ public class GlobalDashboardGenerator {
         try (PrintWriter out = new PrintWriter(new FileWriter(targetFile))) {
             int totalFastTests = fastMaps.stream().mapToInt(s -> s.quality().tests()).sum();
             int totalLruTests = lruMaps.stream().mapToInt(s -> s.quality().tests()).sum();
+            double peakPut = fastMaps.stream().mapToDouble(FastHashMapSummary::putSpeedup).max().orElse(1.0);
 
             out.println("<!DOCTYPE html>");
             out.println("<html lang=\"en\">");
@@ -514,7 +511,7 @@ public class GlobalDashboardGenerator {
             out.println("    <div class=\"header\">");
             out.println("        <div>");
             out.println("            <h1>🚀 AI JUG Saxony Master Dashboard</h1>");
-            out.println("            <p>Comprehensive Evaluation: Performance, Memory, Quality & Verification across AI Models vs JDK</p>");
+            out.println("            <p>Comprehensive Evaluation: Performance, Memory, Quality & Verification across AI Models vs Demo 0 Baseline</p>");
             out.println("        </div>");
             out.println("    </div>");
             out.println();
@@ -533,7 +530,7 @@ public class GlobalDashboardGenerator {
             out.println("        </div>");
             out.println("        <div class=\"stat-card\">");
             out.println("            <div class=\"stat-label\">Peak Put Speedup</div>");
-            out.println("            <div class=\"stat-value\" style=\"color: var(--accent);\">1.46x</div>");
+            out.printf("            <div class=\"stat-value\" style=\"color: var(--accent);\">%.2fx</div>%n", peakPut);
             out.println("        </div>");
             out.println("    </div>");
             out.println();
@@ -563,23 +560,21 @@ public class GlobalDashboardGenerator {
             out.println("            </thead>");
             out.println("            <tbody>");
             for (FastHashMapSummary s : fastMaps) {
-                String pitBadge;
-                if ("javaMap".equals(s.id())) {
-                    pitBadge = "<span class=\"badge badge-info\">N/A (JDK)</span>";
-                } else if (s.quality().pitTotal() > 0) {
-                    pitBadge = String.format("<a href=\"pit-reports/%s/org.jugsaxony.%s/FastHashMap.java.html\" class=\"badge badge-warning\" style=\"text-decoration: none;\">%.1f%% (%d/%d killed)</a>",
-                            s.id(), s.id().startsWith("demo1") ? "demo1" : s.id(), s.quality().pitScorePct(), s.quality().pitKilled(), s.quality().pitTotal());
-                } else {
-                    pitBadge = "<span class=\"badge badge-info\">N/A</span>";
-                }
+                String pkgName = s.id().startsWith("demo1") ? "demo1" : s.id();
+                String pitBadge = s.quality().pitTotal() > 0 ?
+                        String.format("<a href=\"pit-reports/%s/org.jugsaxony.%s/FastHashMap.java.html\" class=\"badge badge-warning\" style=\"text-decoration: none;\">%.1f%% (%d/%d killed)</a>",
+                                s.id(), pkgName, s.quality().pitScorePct(), s.quality().pitKilled(), s.quality().pitTotal())
+                        : "<span class=\"badge badge-info\">N/A</span>";
+
+                String covLink = String.format("jacoco/%s/org.jugsaxony.%s/FastHashMap.java.html", s.id(), pkgName);
 
                 out.println("                <tr>");
                 out.printf("                    <td><strong>%s</strong></td>%n", s.id());
                 out.printf("                    <td><span class=\"badge badge-info\">%s</span></td>%n", s.aiModel());
                 out.printf("                    <td><a href=\"surefire.html\" class=\"badge badge-success\" style=\"text-decoration: none;\">%d Passed</a></td>%n", s.quality().tests());
-                out.printf("                    <td><a href=\"coverage-aggregate/index.html\" style=\"color: inherit; text-decoration: underline;\"><strong>%.1f%%</strong></a> (%d / %d inst)</td>%n", s.quality().instructionCoveragePct(), s.quality().totalInstructions() - s.quality().missedInstructions(), s.quality().totalInstructions());
-                out.printf("                    <td><a href=\"coverage-aggregate/index.html\" style=\"color: inherit; text-decoration: underline;\">%.1f%%</a> (%d / %d lines)</td>%n", s.quality().lineCoveragePct(), s.quality().totalLines() - s.quality().missedLines(), s.quality().totalLines());
-                out.printf("                    <td><a href=\"coverage-aggregate/index.html\" style=\"color: inherit; text-decoration: underline;\">%.1f%%</a> (%d / %d branches)</td>%n", s.quality().branchCoveragePct(), s.quality().totalBranches() - s.quality().missedBranches(), s.quality().totalBranches());
+                out.printf("                    <td><a href=\"%s\" style=\"color: inherit; text-decoration: underline;\"><strong>%.1f%%</strong></a> (%d / %d inst)</td>%n", covLink, s.quality().instructionCoveragePct(), s.quality().totalInstructions() - s.quality().missedInstructions(), s.quality().totalInstructions());
+                out.printf("                    <td><a href=\"%s\" style=\"color: inherit; text-decoration: underline;\">%.1f%%</a> (%d / %d lines)</td>%n", covLink, s.quality().lineCoveragePct(), s.quality().totalLines() - s.quality().missedLines(), s.quality().totalLines());
+                out.printf("                    <td><a href=\"%s\" style=\"color: inherit; text-decoration: underline;\">%.1f%%</a> (%d / %d branches)</td>%n", covLink, s.quality().branchCoveragePct(), s.quality().totalBranches() - s.quality().missedBranches(), s.quality().totalBranches());
                 out.printf("                    <td>%s</td>%n", pitBadge);
                 out.println("                    <td><span class=\"badge badge-success\">100% Passing ✅</span></td>");
                 out.println("                </tr>");
@@ -607,18 +602,21 @@ public class GlobalDashboardGenerator {
             out.println("            </thead>");
             out.println("            <tbody>");
             for (LruClockMapSummary s : lruMaps) {
+                String pkgName = s.id().startsWith("demo1") ? "demo1" : s.id();
                 String pitBadge = s.quality().pitTotal() > 0 ?
                         String.format("<a href=\"pit-reports/%s/org.jugsaxony.%s/LRUClockMap.java.html\" class=\"badge badge-warning\" style=\"text-decoration: none;\">%.1f%% (%d/%d killed)</a>",
-                                s.id(), s.id().startsWith("demo1") ? "demo1" : s.id(), s.quality().pitScorePct(), s.quality().pitKilled(), s.quality().pitTotal())
+                                s.id(), pkgName, s.quality().pitScorePct(), s.quality().pitKilled(), s.quality().pitTotal())
                         : "<span class=\"badge badge-info\">N/A</span>";
+
+                String covLink = String.format("jacoco/%s/org.jugsaxony.%s/LRUClockMap.java.html", s.id(), pkgName);
 
                 out.println("                <tr>");
                 out.printf("                    <td><strong>%s</strong></td>%n", s.id());
                 out.printf("                    <td><span class=\"badge badge-info\">%s</span></td>%n", s.aiModel());
                 out.printf("                    <td><a href=\"surefire.html\" class=\"badge badge-success\" style=\"text-decoration: none;\">%d Passed</a></td>%n", s.quality().tests());
-                out.printf("                    <td><a href=\"coverage-aggregate/index.html\" style=\"color: inherit; text-decoration: underline;\"><strong>%.1f%%</strong></a> (%d / %d inst)</td>%n", s.quality().instructionCoveragePct(), s.quality().totalInstructions() - s.quality().missedInstructions(), s.quality().totalInstructions());
-                out.printf("                    <td><a href=\"coverage-aggregate/index.html\" style=\"color: inherit; text-decoration: underline;\">%.1f%%</a> (%d / %d lines)</td>%n", s.quality().lineCoveragePct(), s.quality().totalLines() - s.quality().missedLines(), s.quality().totalLines());
-                out.printf("                    <td><a href=\"coverage-aggregate/index.html\" style=\"color: inherit; text-decoration: underline;\">%.1f%%</a> (%d / %d branches)</td>%n", s.quality().branchCoveragePct(), s.quality().totalBranches() - s.quality().missedBranches(), s.quality().totalBranches());
+                out.printf("                    <td><a href=\"%s\" style=\"color: inherit; text-decoration: underline;\"><strong>%.1f%%</strong></a> (%d / %d inst)</td>%n", covLink, s.quality().instructionCoveragePct(), s.quality().totalInstructions() - s.quality().missedInstructions(), s.quality().totalInstructions());
+                out.printf("                    <td><a href=\"%s\" style=\"color: inherit; text-decoration: underline;\">%.1f%%</a> (%d / %d lines)</td>%n", covLink, s.quality().lineCoveragePct(), s.quality().totalLines() - s.quality().missedLines(), s.quality().totalLines());
+                out.printf("                    <td><a href=\"%s\" style=\"color: inherit; text-decoration: underline;\">%.1f%%</a> (%d / %d branches)</td>%n", covLink, s.quality().branchCoveragePct(), s.quality().totalBranches() - s.quality().missedBranches(), s.quality().totalBranches());
                 out.printf("                    <td>%s</td>%n", pitBadge);
                 out.println("                    <td><span class=\"badge badge-success\">100% Passing ✅</span></td>");
                 out.println("                </tr>");

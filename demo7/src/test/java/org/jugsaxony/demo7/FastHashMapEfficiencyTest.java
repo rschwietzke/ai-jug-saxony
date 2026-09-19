@@ -32,7 +32,7 @@ public class FastHashMapEfficiencyTest {
 
     @Test
     public void testMemoryFootprintPopulated() {
-        int[] sizes = {100, 1_000, 10_000};
+        int[] sizes = { 0, 10, 100, 1_000, 10_000, 100_000 };
 
         for (int n : sizes) {
             FastHashMap<Integer, Integer> fastMap = new FastHashMap<>();

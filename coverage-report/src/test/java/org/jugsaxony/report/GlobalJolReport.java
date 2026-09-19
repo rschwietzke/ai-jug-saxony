@@ -79,11 +79,6 @@ public class GlobalJolReport {
                 public Object create() { return new org.jugsaxony.demo8.FastHashMap<String, Integer>(); }
                 @SuppressWarnings("unchecked")
                 public void put(Object map, Object key, Object value) { ((org.jugsaxony.demo8.FastHashMap<String, Integer>) map).put((String) key, (Integer) value); }
-            }),
-            new ImplementationMeta("java-util-map", "java.util.HashMap", "JDK Baseline", java.util.HashMap.class, new MapFactory() {
-                public Object create() { return new java.util.HashMap<String, Integer>(); }
-                @SuppressWarnings("unchecked")
-                public void put(Object map, Object key, Object value) { ((java.util.HashMap<String, Integer>) map).put((String) key, (Integer) value); }
             })
     );
 
@@ -160,7 +155,7 @@ public class GlobalJolReport {
         try (PrintWriter out = new PrintWriter(new FileWriter(targetFile))) {
             out.println("# Java Object Layout (JOL) Cross-Project Memory Footprint Report");
             out.println();
-            out.println("Comprehensive memory layout and footprint analysis comparing all AI model map implementations against `java.util.HashMap`.");
+            out.println("Comprehensive memory layout and footprint analysis comparing all FastHashMap implementations.");
             out.println();
             out.println("## 1. Footprint & Efficiency Comparison");
             out.println();
@@ -247,7 +242,7 @@ public class GlobalJolReport {
             out.println("<div class=\"container\">");
             out.println("    <div class=\"header\">");
             out.println("        <h1>🧠 JOL Cross-Project Memory Footprint Report</h1>");
-            out.println("        <p>Evaluating Memory Layout, Footprint & Object Overhead for 9 AI Implementations vs java.util.HashMap</p>");
+            out.println("        <p>Evaluating Memory Layout, Footprint & Object Overhead for FastHashMap Implementations</p>");
             out.println("    </div>");
 
             out.println("    <div class=\"card\">");

@@ -20,6 +20,8 @@
         <module>demo6</module>
         <module>demo7</module>
         <module>demo8</module>
+        <module>demo9</module>
+        <module>demo11</module>
         <module>coverage-report</module>
     </modules>
 
@@ -82,6 +84,16 @@
             <dependency>
                 <groupId>org.jugsaxony</groupId>
                 <artifactId>demo8</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jugsaxony</groupId>
+                <artifactId>demo9</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jugsaxony</groupId>
+                <artifactId>demo11</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

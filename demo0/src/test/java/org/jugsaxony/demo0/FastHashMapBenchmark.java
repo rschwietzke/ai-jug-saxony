@@ -104,10 +104,10 @@ public class FastHashMapBenchmark {
 
         // Pre-size both maps so initial allocation and load factors are controlled and
         // comparable:
-        // - FastHashMap capacity is calculated for fill factor 0.5f.
+        // - FastHashMap capacity is calculated for fill factor 0.5f (if supported).
         // - HashMap capacity is calculated for default load factor 0.75f without
         // triggering a resize.
-        fastMap = new FastHashMap<>(size, 0.5f);
+        fastMap = createFastMap(size);
         javaMap = new HashMap<>((int) Math.ceil(size / 0.75f) + 1);
 
         existingKeys = new String[size];
@@ -170,6 +170,15 @@ public class FastHashMapBenchmark {
     public String updateJavaMap() {
         int idx = index++ & mask;
         return javaMap.put(existingKeys[idx], values[idx]);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <K, V> FastHashMap<K, V> createFastMap(int size) {
+        try {
+            return (FastHashMap<K, V>) FastHashMap.class.getConstructor(int.class, float.class).newInstance(size, 0.5f);
+        } catch (Exception e) {
+            return new FastHashMap<>();
+        }
     }
 
     // ---------------------------------------------------------------------------------------------
