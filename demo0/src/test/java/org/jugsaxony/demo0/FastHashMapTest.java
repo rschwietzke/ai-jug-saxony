@@ -15,19 +15,65 @@
  */
 package org.jugsaxony.demo0;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import it.unimi.dsi.util.FastRandom;
 
 public class FastHashMapTest
 {
+    @Test 
+    public void ctr()
+    {
+        final FastHashMap<String, Integer> f = new FastHashMap<>();
+        assertEquals(0, f.size());
+    }
+
+    @Test 
+    public void ctrParams()
+    {
+        final FastHashMap<String, Integer> f = new FastHashMap<>(31, 0.54f);
+        assertEquals(0, f.size());
+    }
+
+    @Test 
+    public void ctrParams_FillTooSmall()
+    {
+        var ex = assertThrows(IllegalArgumentException.class, () -> new FastHashMap<>(31, -0.54f));
+        assertEquals("FillFactor must be in (0, 1)", ex.getMessage());
+    }
+
+    @Test 
+    public void ctrParams_FillTooBig()
+    {
+        var ex = assertThrows(IllegalArgumentException.class, () -> new FastHashMap<>(31, 1.54f));
+        assertEquals("FillFactor must be in (0, 1)", ex.getMessage());
+    }
+
+    @Test 
+    public void ctrParams_Size0()
+    {
+        var ex = assertThrows(IllegalArgumentException.class, () -> new FastHashMap<>(0, 0.54f));
+        assertEquals("Size must be positive!", ex.getMessage());
+    }
+
+    @Test 
+    public void ctrParams_SizeTooSmall()
+    {
+        var ex = assertThrows(IllegalArgumentException.class, () -> new FastHashMap<>(-31, 0.54f));
+        assertEquals("Size must be positive!", ex.getMessage());
+    }
+
     @Test
     public void happyPath()
     {
@@ -161,6 +207,142 @@ public class FastHashMapTest
         f.put("b", 7);
         assertEquals(Integer.valueOf(7), f.get("b"));
         assertEquals(Integer.valueOf(6), f.get("d"));
+    }
+
+    @Test 
+    public void removeEmpty()
+    {
+        final FastHashMap<String, Integer> f = new FastHashMap<>(3, 0.5f);
+        assertNull(f.remove("a"));
+    }
+
+    @Test 
+    public void removeTwice()
+    {
+        final FastHashMap<String, String> f = new FastHashMap<>(3, 0.5f);
+        f.put("a", "a1");
+        assertEquals("a1", f.remove("a"));
+        assertNull(f.remove("a"));
+    }
+
+    @Test
+    public void rehashing()
+    {
+        // we will provoke rehashing and check the outcome afterwards
+        final FastHashMap<Integer, String> f = new FastHashMap<>(4, 0.37f);
+        for (int i = 0; i < 17711; i++)
+        {
+            f.put(i, "abc" + String.valueOf(i));
+            assertEquals(i + 1 , f.size());    
+        }
+
+        for (int i = 0; i < 17711; i++)
+        {
+            assertEquals("abc" + String.valueOf(i), f.get(i));   
+        }
+    }
+
+    @Test
+    public void rehashingWithTombstones()
+    {
+        final FastHashMap<Integer, String> f = new FastHashMap<>(7, 0.37f);
+        for (int i = 0; i < 8; i++)
+        {
+            f.put(i, "abc" + String.valueOf(i));
+            assertEquals(1, f.size());    
+
+            f.remove(i);
+            assertEquals(0, f.size());    
+        }
+
+        for (int i = 0; i < 21; i++)
+        {
+            f.put(i, "abc" + String.valueOf(i));
+            assertEquals(i + 1 , f.size());    
+
+            for (int h = 0; h <= i; h++)
+            {
+                assertEquals("abc" + String.valueOf(h), f.get(h));   
+            }
+        }
+    }
+
+    @Test
+    public void rehashingWithCollisions()
+    {
+        // always have two collisions per key
+        final var f = new FastHashMap<MockKey<String>, String>(13, 0.5f);
+
+        var size = 0;
+        for (int i = 0; i < 1651; i++)
+        {
+            f.put(new MockKey<String>(i, "k1" + i), "v1" + i);
+            size++;
+            assertEquals(size , f.size());    
+
+            f.put(new MockKey<String>(i, "k2" + i), "v2" + i);
+            size++;
+            assertEquals(size , f.size());    
+        }
+
+        for (int i = 0; i < 1651; i++)
+        {
+            var k1 = new MockKey<String>(i, "k1" + i);
+            assertEquals("v1" + i, f.get(k1));    
+
+            var k2 = new MockKey<String>(i, "k2" + i);
+            assertEquals("v2" + i, f.get(k2));    
+        }
+    }
+
+    @Test
+    public void rehashingWithCollisionsAndTombstones()
+    {
+        // always have two collisions per key
+        final var f = new FastHashMap<MockKey<String>, String>(13, 0.5f);
+
+        final var random = FastRandom.get(187612L);
+        final var storedData = new HashMap<MockKey<String>, String>();
+
+        int i = 0;
+        while (i < 1651)
+        {
+            var k1 = new MockKey<String>(i, "k1" + i);
+            var k2 = new MockKey<String>(i, "k2" + i);
+            var k3 = new MockKey<String>(i, "k3" + i);
+            var k4 = new MockKey<String>(i, "k4" + i);
+
+            storedData.put(k1, "v1" + k1.toString());
+            storedData.put(k2, "v2" + k1.toString());
+            storedData.put(k3, "v3" + k1.toString());
+            storedData.put(k4, "v4" + k1.toString());
+
+            f.put(k1, "v1" + k1.toString());
+            f.put(k2, "v2" + k1.toString());
+            f.put(k3, "v3" + k1.toString());
+            f.put(k4, "v4" + k1.toString());
+
+            var k = switch(random.nextInt(1, 4))
+            {
+                case 1 -> k1;
+                case 2 -> k2;
+                case 3 -> k3;
+                default -> k4;
+            };
+
+            f.remove(k);
+            storedData.remove(k);
+
+            // different distances between our entries
+            i += random.nextInt(1, 3);
+        }
+
+        assertEquals(storedData.size(), f.size());
+
+        for (var e : storedData.entrySet())
+        {
+            assertEquals(e.getValue(), f.get(e.getKey()));    
+        }
     }
 
     @Test
@@ -315,6 +497,40 @@ public class FastHashMapTest
         assertEquals(0, m.values().size());
     }
 
+    @Test
+    public void powerOfTwo()
+    {
+        assertEquals(1, FastHashMap.nextPowerOfTwo(0));
+        assertEquals(1, FastHashMap.nextPowerOfTwo(1));
+        assertEquals(2, FastHashMap.nextPowerOfTwo(2));
+        assertEquals(4, FastHashMap.nextPowerOfTwo(3));
+        assertEquals(4, FastHashMap.nextPowerOfTwo(4));
+        assertEquals(8, FastHashMap.nextPowerOfTwo(5));
+        assertEquals(8, FastHashMap.nextPowerOfTwo(6));
+        assertEquals(8, FastHashMap.nextPowerOfTwo(7));
+        assertEquals(8, FastHashMap.nextPowerOfTwo(8));
+        assertEquals(128, FastHashMap.nextPowerOfTwo(100));
+        assertEquals(1024, FastHashMap.nextPowerOfTwo(999));
+        assertEquals(2048, FastHashMap.nextPowerOfTwo(1025));
+    }
+
+    @Test
+    public void arraySize()
+    {
+        assertEquals(2, FastHashMap.arraySize(1, 0.5f));
+        assertEquals(16, FastHashMap.arraySize(8, 0.5f));
+        assertEquals(32, FastHashMap.arraySize(10, 0.5f));
+
+        assertEquals(2, FastHashMap.arraySize(1, 0.75f));
+        assertEquals(16, FastHashMap.arraySize(8, 0.75f));
+        assertEquals(16, FastHashMap.arraySize(10, 0.75f));
+        assertEquals(32, FastHashMap.arraySize(15, 0.75f));
+
+        assertThrows(IllegalArgumentException.class,
+            () -> FastHashMap.arraySize(Integer.MAX_VALUE - 817, 0.5f)
+        );
+    }
+
     static class MockKey<T extends Comparable<T>> implements Comparable<MockKey<T>>
     {
         public final T key;
@@ -353,4 +569,3 @@ public class FastHashMapTest
 
     }
 }
-

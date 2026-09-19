@@ -15,10 +15,11 @@
  */
 package org.jugsaxony.demo0;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,7 +29,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import it.unimi.dsi.util.FastRandom;
 
@@ -61,6 +62,24 @@ public class LRUClockMapTest
         {
             new LRUClockMap<>(3);
             fail("Expected IllegalArgumentException for maxSize < 4");
+        }
+        catch (IllegalArgumentException e)
+        {
+            assertEquals("MaxSize must be at least 4", e.getMessage());
+        }
+    }
+
+        /**
+     * Tests that the constructor throws an IllegalArgumentException when maxSize is less than 4.
+     */
+    @Test
+    public void testConstructor_throwsExceptionForMaxSize0()
+    {
+        // The LRUClockMap constructor enforces a minimum maxSize of 4.
+        try
+        {
+            new LRUClockMap<>(0);
+            fail("Expected IllegalArgumentException for size 0");
         }
         catch (IllegalArgumentException e)
         {
@@ -857,5 +876,49 @@ public class LRUClockMapTest
         {
             return key; // "[value=" + value + ", hashCode=" + hashCode + ", realHash=" + (hashCode ^ (hashCode >>> 16)) + "]";
         }
+    }
+
+
+    // Test some of the debug helpers
+    @Test
+    public void toStringTest()
+    {
+        var m = new LRUClockMap<String, String>(4);
+        m.put("a", "b");
+
+        assertEquals("""
+            LRUClockMap{
+            0 FREE,
+            1 [a, b, 97, true, 1],
+            2 FREE,
+            3 FREE,
+            4 FREE,
+            5 FREE,
+            6 FREE,
+            7 FREE,
+            clockHand: 0,
+            size: 1,
+            maxSize: 4
+            }"""
+            , m.toString());
+    }
+
+    @Test
+    public void getDebugData()
+    {
+        var m = new LRUClockMap<String, String>(4);
+        m.put("a", "b");
+
+        var data = m.getDebugData();
+        assertEquals(8, data.size());
+        
+        assertNull(data.get(0));
+        assertEquals("[a, b, 97, true, 1]", data.get(1).toString());
+        assertNull(data.get(2));
+        assertNull(data.get(3));
+        assertNull(data.get(4));
+        assertNull(data.get(5));
+        assertNull(data.get(6));
+        assertNull(data.get(7));
     }
 }

@@ -23,13 +23,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- JUnit Vintage for JUnit 4 test compatibility -->
-        <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <!-- AssertJ -->
         <dependency>
             <groupId>org.assertj</groupId>

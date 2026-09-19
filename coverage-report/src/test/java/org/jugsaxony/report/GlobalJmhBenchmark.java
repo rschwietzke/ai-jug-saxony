@@ -325,7 +325,7 @@ public class GlobalJmhBenchmark {
             builder.warmupIterations(1)
                    .warmupTime(org.openjdk.jmh.runner.options.TimeValue.milliseconds(500))
                    .measurementIterations(1)
-                   .measurementTime(org.openjdk.jmh.runner.options.TimeValue.milliseconds(500))
+                   .measurementTime(org.openjdk.jmh.runner.options.TimeValue.milliseconds(500));
         }
 
         Options opt = builder.build();
