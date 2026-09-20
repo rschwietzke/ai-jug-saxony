@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporting Utilities Suite Coverage — demo3 (OpenAI 5.6 Sol Max (Kilo Code))</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --primary: #0284c7;
+            --primary-glow: rgba(2, 132, 199, 0.12);
+            --success: #16a34a;
+            --warning: #d97706;
+            --danger: #dc2626;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 2rem 1.5rem; line-height: 1.5; }
+        .container { max-width: 1300px; margin: 0 auto; }
+        .breadcrumb { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem; }
+        .breadcrumb a { color: var(--primary); text-decoration: none; font-weight: 500; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .header { border-bottom: 1px solid var(--card-border); padding-bottom: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem; }
+        .header h1 { margin: 0; font-size: 1.85rem; font-weight: 800; letter-spacing: -0.025em; color: #0f172a; }
+        .header p { margin: 0.4rem 0 0 0; color: var(--text-muted); font-size: 0.95rem; }
+        .quick-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; }
+        .action-btn { background: var(--card-bg); border: 1px solid var(--card-border); color: #334155; padding: 0.5rem 1rem; border-radius: 8px; text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.4rem; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+        .action-btn:hover { background: #f8fafc; border-color: var(--primary); color: var(--primary); }
+        .notice-banner { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 2rem; color: #0369a1; font-size: 0.9rem; line-height: 1.5; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+        .stat-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 1.25rem; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .stat-label { color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
+        .stat-value { font-size: 1.85rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 0.25rem 0; }
+        .stat-sub { font-size: 0.8rem; color: var(--text-muted); }
+        .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 1.75rem; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--card-border); flex-wrap: wrap; gap: 0.5rem; }
+        .card-header h2 { margin: 0; font-size: 1.3rem; font-weight: 700; color: #0f172a; }
+        table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; font-size: 0.9rem; }
+        th, td { padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid var(--card-border); }
+        th { background: #f8fafc; font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+        tr:hover td { background: #f8fafc; }
+        tr.total-row td { background: #f1f5f9; font-weight: 700; border-top: 2px solid #cbd5e1; font-size: 0.92rem; }
+        .numeric { text-align: right; font-variant-numeric: tabular-nums; font-family: 'JetBrains Mono', monospace; }
+        .badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.55rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+        .badge-success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .badge-info { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }
+        .badge-warning { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+        .progress-bar-container { width: 80px; height: 7px; background: #e2e8f0; border-radius: 4px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 8px; }
+        .progress-bar-fill { height: 100%; background: #16a34a; border-radius: 4px; }
+        .pkg-tag { font-size: 0.78rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+        .source-link { color: var(--primary); text-decoration: underline; font-weight: 600; font-size: 0.85rem; }
+        .source-link:hover { color: #0369a1; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="breadcrumb">
+        <a href="../../index.html">Master Dashboard</a> &gt; 
+        <a href="../../xlt-util.html">Reporting Utilities</a> &gt; 
+        <a href="index.html">JaCoCo (demo3)</a> &gt; 
+        <span>com.xceptance.xlt.report.util Suite</span>
+    </div>
+    <div class="header">
+        <div>
+            <h1>🧰 Reporting Utilities Suite Coverage — demo3</h1>
+            <p>Unified verification report covering all 5 high-throughput reporting utility classes across 4 package directories. AI Model: <strong>OpenAI 5.6 Sol Max (Kilo Code)</strong></p>
+        </div>
+        <div class="quick-actions">
+            <a href="../../xlt-util.html" class="action-btn">← Back to Utilities Matrix</a>
+            <a href="../../index.html" class="action-btn">🏠 Master Dashboard</a>
+            <a href="index.html" class="action-btn">📁 Full JaCoCo Report</a>
+        </div>
+    </div>
+    <div class="notice-banner">
+        💡 <strong>Unified Reporting Utilities Suite:</strong> In JaCoCo's standard report layout, classes are separated into individual package folders (<code>com.xceptance.xlt.report.util</code>, <code>lucene</code>, <code>misc</code>, and <code>rework</code>). This view aggregates all 5 utility classes into a single coverage dashboard with direct links to JaCoCo source code listings.
+    </div>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Instruction Coverage</div>
+            <div class="stat-value" style="color: var(--success);">99.6%</div>
+            <div class="stat-sub">6,208 of 6,230 instructions covered</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Line Coverage</div>
+            <div class="stat-value" style="color: var(--success);">98.9%</div>
+            <div class="stat-sub">690 of 698 lines covered</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Branch Coverage</div>
+            <div class="stat-value" style="color: var(--success);">95.9%</div>
+            <div class="stat-sub">209 of 218 branches covered</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Utility Classes</div>
+            <div class="stat-value" style="color: #7c3aed;">5</div>
+            <div class="stat-sub">Across 4 subpackages</div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <h2>Detailed Class-Level Coverage Breakdown</h2>
+            <span style="font-size: 0.85rem; color: var(--text-muted);">Click on any class name or "View Source" to inspect line-by-line coverage</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Class</th>
+                    <th>Package</th>
+                    <th class="numeric">Instruction Coverage</th>
+                    <th class="numeric">Line Coverage</th>
+                    <th class="numeric">Branch Coverage</th>
+                    <th style="text-align: center;">JaCoCo Source</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><a href="com.xceptance.xlt.report.util/RuntimeHistogram.java.html" style="color: var(--primary); font-weight: 700; text-decoration: underline;">RuntimeHistogram</a></td>
+                    <td><span class="pkg-tag">com.xceptance.xlt.report.util</span></td>
+                    <td class="numeric"><div class="progress-bar-container"><div class="progress-bar-fill" style="width: 100.0%; background: #16a34a;"></div></div> <strong>100.0%</strong> <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(358/358)</span></td>
+                    <td class="numeric">100.0% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(75/75)</span></td>
+                    <td class="numeric">100.0% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(36/36)</span></td>
+                    <td style="text-align: center;"><a href="com.xceptance.xlt.report.util/RuntimeHistogram.java.html" class="source-link">View Source ↗</a></td>
+                </tr>
+                <tr>
+                    <td><a href="com.xceptance.xlt.report.util.lucene/BitUtil.java.html" style="color: var(--primary); font-weight: 700; text-decoration: underline;">BitUtil</a></td>
+                    <td><span class="pkg-tag">com.xceptance.xlt.report.util.lucene</span></td>
+                    <td class="numeric"><div class="progress-bar-container"><div class="progress-bar-fill" style="width: 100.0%; background: #16a34a;"></div></div> <strong>100.0%</strong> <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(4667/4667)</span></td>
+                    <td class="numeric">100.0% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(387/387)</span></td>
+                    <td class="numeric">100.0% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(86/86)</span></td>
+                    <td style="text-align: center;"><a href="com.xceptance.xlt.report.util.lucene/BitUtil.java.html" class="source-link">View Source ↗</a></td>
+                </tr>
+                <tr>
+                    <td><a href="com.xceptance.xlt.report.util.misc/BitCompression.java.html" style="color: var(--primary); font-weight: 700; text-decoration: underline;">BitCompression</a></td>
+                    <td><span class="pkg-tag">com.xceptance.xlt.report.util.misc</span></td>
+                    <td class="numeric"><div class="progress-bar-container"><div class="progress-bar-fill" style="width: 100.0%; background: #16a34a;"></div></div> <strong>100.0%</strong> <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(54/54)</span></td>
+                    <td class="numeric">100.0% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(8/8)</span></td>
+                    <td class="numeric"><span style="color: var(--text-muted);">- (0 branches)</span></td>
+                    <td style="text-align: center;"><a href="com.xceptance.xlt.report.util.misc/BitCompression.java.html" class="source-link">View Source ↗</a></td>
+                </tr>
+                <tr>
+                    <td><a href="com.xceptance.xlt.report.util.rework/IntTimeSeries.java.html" style="color: var(--primary); font-weight: 700; text-decoration: underline;">IntTimeSeries</a></td>
+                    <td><span class="pkg-tag">com.xceptance.xlt.report.util.rework</span></td>
+                    <td class="numeric"><div class="progress-bar-container"><div class="progress-bar-fill" style="width: 98.7%; background: #16a34a;"></div></div> <strong>98.7%</strong> <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(602/610)</span></td>
+                    <td class="numeric">99.1% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(113/114)</span></td>
+                    <td class="numeric">97.2% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(35/36)</span></td>
+                    <td style="text-align: center;"><a href="com.xceptance.xlt.report.util.rework/IntTimeSeries.java.html" class="source-link">View Source ↗</a></td>
+                </tr>
+                <tr>
+                    <td><a href="com.xceptance.xlt.report.util.rework/IntTimeSeriesEntry.java.html" style="color: var(--primary); font-weight: 700; text-decoration: underline;">IntTimeSeriesEntry</a></td>
+                    <td><span class="pkg-tag">com.xceptance.xlt.report.util.rework</span></td>
+                    <td class="numeric"><div class="progress-bar-container"><div class="progress-bar-fill" style="width: 97.4%; background: #16a34a;"></div></div> <strong>97.4%</strong> <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(527/541)</span></td>
+                    <td class="numeric">93.9% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(107/114)</span></td>
+                    <td class="numeric">86.7% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(52/60)</span></td>
+                    <td style="text-align: center;"><a href="com.xceptance.xlt.report.util.rework/IntTimeSeriesEntry.java.html" class="source-link">View Source ↗</a></td>
+                </tr>
+                <tr class="total-row">
+                    <td>Total Suite Coverage</td>
+                    <td><span class="pkg-tag">4 packages / 5 classes</span></td>
+                    <td class="numeric"><div class="progress-bar-container"><div class="progress-bar-fill" style="width: 99.6%; background: #16a34a;"></div></div> <strong>99.6%</strong> <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(6208/6230)</span></td>
+                    <td class="numeric">98.9% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(690/698)</span></td>
+                    <td class="numeric">95.9% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(209/218)</span></td>
+                    <td style="text-align: center;"><span style="color: var(--text-muted); font-size: 0.8rem;">Suite Aggregate</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

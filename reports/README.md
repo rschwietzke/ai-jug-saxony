@@ -80,18 +80,35 @@ Comprehensive benchmark, code quality, memory footprint, and mutation evaluation
 
 | Module | AI Model / Implementation | Unit Tests | Instruction Coverage | Line Coverage | Branch Coverage | PIT Mutation Score | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **demo0** | Baseline / Reference (FastRandom) | 92 ✅ (0.84s) | 58.3% (3635/6230) | 45.3% (316/698) | 59.2% (129/218) | N/A | 100% Passing ✅ |
-| **demo1** | Gemini 3.7 Flash High (Antigravity) | 103 ✅ (1.79s) | 99.7% (6212/6230) | 99.1% (692/698) | 96.8% (211/218) | N/A | 100% Passing ✅ |
-| **demo2** | Kimi K3 (Kilo Code) | 95 ✅ (0.33s) | 57.7% (3592/6230) | 43.6% (304/698) | 54.1% (118/218) | N/A | 100% Passing ✅ |
-| **demo3** | OpenAI 5.6 Sol Max (Kilo Code) | 40 ✅ (0.28s) | 99.6% (6208/6230) | 98.9% (690/698) | 95.9% (209/218) | N/A | 100% Passing ✅ |
-| **demo4** | Gemma 4 31B Thinking (Kilo Code) | 15 ✅ (0.22s) | 52.2% (3252/6230) | 33.4% (233/698) | 36.2% (79/218) | N/A | 100% Passing ✅ |
-| **demo5** | Deepseek V4 Flash Max (Kilo Code) | 71 ✅ (0.80s) | 97.9% (6097/6230) | 97.3% (679/698) | 87.6% (191/218) | N/A | 100% Passing ✅ |
-| **demo6** | Claude Opus 5 Ultra (Claude) | 203 ✅ (2.13s) | 100.0% (6230/6230) | 100.0% (698/698) | 100.0% (218/218) | N/A | 100% Passing ✅ |
-| **demo7** | Qwen 38 max XHigh (Kilo Code) | 106 ✅ (0.63s) | 100.0% (6228/6230) | 99.9% (697/698) | 99.5% (217/218) | N/A | 100% Passing ✅ |
-| **demo8** | Gemini 3.7 Flash High (Kilo Code) | 45 ✅ (0.27s) | 99.8% (6220/6230) | 99.3% (693/698) | 97.2% (212/218) | N/A | 100% Passing ✅ |
-| **demo9** | Gemini 3.8 Flash High (Antigravity) | 86 ✅ (1.45s) | 99.7% (6214/6230) | 98.9% (690/698) | 95.9% (209/218) | N/A | 100% Passing ✅ |
-| **demo11** | Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed) | 113 ✅ (1.74s) | 100.0% (6230/6230) | 100.0% (698/698) | 100.0% (218/218) | N/A | 100% Passing ✅ |
-| **demo12** | Gemini 3.8 Flash High (Antigravity Rework - 100% Mutation Killed) | 117 ✅ (1.96s) | 100.0% (6230/6230) | 100.0% (698/698) | 100.0% (218/218) | N/A | 100% Passing ✅ |
+| **demo0** | Baseline / Reference (FastRandom) | 92 ✅ (0.84s) | [58.3% (3635/6230)](jacoco/demo0/xlt-util-coverage.html) | [45.3% (316/698)](jacoco/demo0/xlt-util-coverage.html) | [59.2% (129/218)](jacoco/demo0/xlt-util-coverage.html) | N/A | 100% Passing ✅ |
+| **demo1** | Gemini 3.7 Flash High (Antigravity) | 103 ✅ (1.79s) | [99.7% (6212/6230)](jacoco/demo1/xlt-util-coverage.html) | [99.1% (692/698)](jacoco/demo1/xlt-util-coverage.html) | [96.8% (211/218)](jacoco/demo1/xlt-util-coverage.html) | N/A | 100% Passing ✅ |
+| **demo2** | Kimi K3 (Kilo Code) | 95 ✅ (0.33s) | [57.7% (3592/6230)](jacoco/demo2/xlt-util-coverage.html) | [43.6% (304/698)](jacoco/demo2/xlt-util-coverage.html) | [54.1% (118/218)](jacoco/demo2/xlt-util-coverage.html) | N/A | 100% Passing ✅ |
+| **demo3** | OpenAI 5.6 Sol Max (Kilo Code) | 40 ✅ (0.28s) | [99.6% (6208/6230)](jacoco/demo3/xlt-util-coverage.html) | [98.9% (690/698)](jacoco/demo3/xlt-util-coverage.html) | [95.9% (209/218)](jacoco/demo3/xlt-util-coverage.html) | N/A | 100% Passing ✅ |
+| **demo4** | Gemma 4 31B Thinking (Kilo Code) | 15 ✅ (0.22s) | [52.2% (3252/6230)](jacoco/demo4/xlt-util-coverage.html) | [33.4% (233/698)](jacoco/demo4/xlt-util-coverage.html) | [36.2% (79/218)](jacoco/demo4/xlt-util-coverage.html) | N/A | 100% Passing ✅ |
+| **demo5** | Deepseek V4 Flash Max (Kilo Code) | 71 ✅ (0.80s) | [97.9% (6097/6230)](jacoco/demo5/xlt-util-coverage.html) | [97.3% (679/698)](jacoco/demo5/xlt-util-coverage.html) | [87.6% (191/218)](jacoco/demo5/xlt-util-coverage.html) | N/A | 100% Passing ✅ |
+| **demo6** | Claude Opus 5 Ultra (Claude) | 203 ✅ (2.13s) | [100.0% (6230/6230)](jacoco/demo6/xlt-util-coverage.html) | [100.0% (698/698)](jacoco/demo6/xlt-util-coverage.html) | [100.0% (218/218)](jacoco/demo6/xlt-util-coverage.html) | N/A | 100% Passing ✅ |
+| **demo7** | Qwen 38 max XHigh (Kilo Code) | 106 ✅ (0.63s) | [100.0% (6228/6230)](jacoco/demo7/xlt-util-coverage.html) | [99.9% (697/698)](jacoco/demo7/xlt-util-coverage.html) | [99.5% (217/218)](jacoco/demo7/xlt-util-coverage.html) | N/A | 100% Passing ✅ |
+| **demo8** | Gemini 3.7 Flash High (Kilo Code) | 45 ✅ (0.27s) | [99.8% (6220/6230)](jacoco/demo8/xlt-util-coverage.html) | [99.3% (693/698)](jacoco/demo8/xlt-util-coverage.html) | [97.2% (212/218)](jacoco/demo8/xlt-util-coverage.html) | N/A | 100% Passing ✅ |
+| **demo9** | Gemini 3.8 Flash High (Antigravity) | 86 ✅ (1.45s) | [99.7% (6214/6230)](jacoco/demo9/xlt-util-coverage.html) | [98.9% (690/698)](jacoco/demo9/xlt-util-coverage.html) | [95.9% (209/218)](jacoco/demo9/xlt-util-coverage.html) | N/A | 100% Passing ✅ |
+| **demo11** | Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed) | 113 ✅ (1.74s) | [100.0% (6230/6230)](jacoco/demo11/xlt-util-coverage.html) | [100.0% (698/698)](jacoco/demo11/xlt-util-coverage.html) | [100.0% (218/218)](jacoco/demo11/xlt-util-coverage.html) | N/A | 100% Passing ✅ |
+| **demo12** | Gemini 3.8 Flash High (Antigravity Rework - 100% Mutation Killed) | 117 ✅ (1.96s) | [100.0% (6230/6230)](jacoco/demo12/xlt-util-coverage.html) | [100.0% (698/698)](jacoco/demo12/xlt-util-coverage.html) | [100.0% (218/218)](jacoco/demo12/xlt-util-coverage.html) | N/A | 100% Passing ✅ |
+
+### 📊 com.xceptance.xlt.report.util — Class-Level Instruction Coverage Matrix
+
+| Module | AI Model / Implementation | RuntimeHistogram | BitUtil | BitCompression | IntTimeSeries | IntTimeSeriesEntry | Total Suite |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **demo0** | Baseline / Reference (FastRandom) | 98.3% | 44.8% | 100.0% | 98.5% | 99.6% | **58.3%** |
+| **demo1** | Gemini 3.7 Flash High (Antigravity) | 100.0% | 100.0% | 100.0% | 98.7% | 98.2% | **99.7%** |
+| **demo2** | Kimi K3 (Kilo Code) | 100.0% | 44.8% | 100.0% | 98.7% | 90.4% | **57.7%** |
+| **demo3** | OpenAI 5.6 Sol Max (Kilo Code) | 100.0% | 100.0% | 100.0% | 98.7% | 97.4% | **99.6%** |
+| **demo4** | Gemma 4 31B Thinking (Kilo Code) | 76.0% | 47.9% | 100.0% | 53.9% | 66.5% | **52.2%** |
+| **demo5** | Deepseek V4 Flash Max (Kilo Code) | 100.0% | 97.7% | 100.0% | 98.7% | 96.7% | **97.9%** |
+| **demo6** | Claude Opus 5 Ultra (Claude) | 100.0% | 100.0% | 100.0% | 100.0% | 100.0% | **100.0%** |
+| **demo7** | Qwen 38 max XHigh (Kilo Code) | 100.0% | 100.0% | 100.0% | 100.0% | 99.6% | **100.0%** |
+| **demo8** | Gemini 3.7 Flash High (Kilo Code) | 100.0% | 100.0% | 100.0% | 100.0% | 98.2% | **99.8%** |
+| **demo9** | Gemini 3.8 Flash High (Antigravity) | 100.0% | 100.0% | 100.0% | 100.0% | 97.0% | **99.7%** |
+| **demo11** | Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed) | 100.0% | 100.0% | 100.0% | 100.0% | 100.0% | **100.0%** |
+| **demo12** | Gemini 3.8 Flash High (Antigravity Rework - 100% Mutation Killed) | 100.0% | 100.0% | 100.0% | 100.0% | 100.0% | **100.0%** |
 
 ---
 
@@ -103,4 +120,4 @@ Comprehensive benchmark, code quality, memory footprint, and mutation evaluation
 - 💾 **Memory Footprint & Layout**: [JOL Memory Report](jol-report.html) / [Markdown](jol-report.md)
 - ⚡ **Microbenchmarks & Perf Counters**: [JMH Benchmark Report](jmh-report.html) / [Markdown](jmh-report.md)
 
-Generated automatically by `GlobalDashboardGenerator` on 2026-09-20T18:27:23.252474932Z
+Generated automatically by `GlobalDashboardGenerator` on 2026-09-20T19:56:19.752584220Z

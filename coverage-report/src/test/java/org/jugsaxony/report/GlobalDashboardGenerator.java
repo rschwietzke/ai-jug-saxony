@@ -89,12 +89,46 @@ public class GlobalDashboardGenerator {
             QualityStats quality
     ) {}
 
+    public record XltClassMeta(String className, String packageName, String sourceFileName, String htmlRelPath) {}
+
+    public static final List<XltClassMeta> XLT_CLASSES = List.of(
+            new XltClassMeta("RuntimeHistogram", "com.xceptance.xlt.report.util", "RuntimeHistogram.java", "com.xceptance.xlt.report.util/RuntimeHistogram.java.html"),
+            new XltClassMeta("BitUtil", "com.xceptance.xlt.report.util.lucene", "BitUtil.java", "com.xceptance.xlt.report.util.lucene/BitUtil.java.html"),
+            new XltClassMeta("BitCompression", "com.xceptance.xlt.report.util.misc", "BitCompression.java", "com.xceptance.xlt.report.util.misc/BitCompression.java.html"),
+            new XltClassMeta("IntTimeSeries", "com.xceptance.xlt.report.util.rework", "IntTimeSeries.java", "com.xceptance.xlt.report.util.rework/IntTimeSeries.java.html"),
+            new XltClassMeta("IntTimeSeriesEntry", "com.xceptance.xlt.report.util.rework", "IntTimeSeriesEntry.java", "com.xceptance.xlt.report.util.rework/IntTimeSeriesEntry.java.html")
+    );
+
+    public record XltClassCoverage(
+            String className,
+            String packageName,
+            String sourceFileName,
+            String htmlRelPath,
+            double instructionCoveragePct,
+            int missedInstructions,
+            int coveredInstructions,
+            int totalInstructions,
+            double lineCoveragePct,
+            int missedLines,
+            int coveredLines,
+            int totalLines,
+            double branchCoveragePct,
+            int missedBranches,
+            int coveredBranches,
+            int totalBranches
+    ) {}
+
     public record ReportUtilSummary(
             String id,
             String name,
             String aiModel,
-            QualityStats quality
-    ) {}
+            QualityStats quality,
+            List<XltClassCoverage> classCoverages
+    ) {
+        public ReportUtilSummary(String id, String name, String aiModel, QualityStats quality) {
+            this(id, name, aiModel, quality, List.of());
+        }
+    }
 
     public static final Map<String, String[]> MODULE_METADATA = Map.ofEntries(
             Map.entry("demo0", new String[]{"Demo 0", "Baseline / Reference (FastRandom)", "Flat parallel Object[] arrays"}),
@@ -165,11 +199,18 @@ public class GlobalDashboardGenerator {
             File modDir = new File(rootProjectDir, modId);
             File surefireDir = new File(modDir, "target/surefire-reports");
             File jacocoXml = new File(modDir, "target/site/jacoco/jacoco.xml");
+            if (!jacocoXml.exists()) {
+                jacocoXml = new File(outputDir, "jacoco/" + modId + "/jacoco.xml");
+            }
             File pitCsv = new File(modDir, "target/pit-reports/mutations.csv");
+            if (!pitCsv.exists()) {
+                pitCsv = new File(outputDir, "pit-reports/" + modId + "/mutations.csv");
+            }
 
             QualityStats fastQuality = buildQualityStats(surefireDir, jacocoXml, pitCsv, "FastHashMapTest", "FastHashMap.java");
             QualityStats lruQuality = buildQualityStats(surefireDir, jacocoXml, pitCsv, "LRUClockMapTest", "LRUClockMap.java");
             QualityStats xltQuality = buildXltQualityStats(surefireDir, jacocoXml, pitCsv);
+            List<XltClassCoverage> xltClasses = buildXltClassCoverages(jacocoXml);
 
             // JOL for FastHashMap
             long shallow = 0;
@@ -244,7 +285,8 @@ public class GlobalDashboardGenerator {
                         modId,
                         meta.name(),
                         meta.model(),
-                        xltQuality
+                        xltQuality,
+                        xltClasses
                 ));
             }
         }
@@ -265,12 +307,21 @@ public class GlobalDashboardGenerator {
             copyDirectory(oldTargetReports, destJacoco);
         }
 
-        // Copy individual module JaCoCo reports
+        // Copy individual module JaCoCo reports and generate unified xlt-util coverage page
         for (String modDirName : modDirs) {
             File modJacoco = new File(rootProjectDir, modDirName + "/target/site/jacoco");
             File destModJacoco = new File(outputDir, "jacoco/" + modDirName);
             if (modJacoco.exists() && modJacoco.isDirectory()) {
                 copyDirectory(modJacoco, destModJacoco);
+            }
+            final String currentMod = modDirName;
+            ReportUtilSummary repSummary = reportUtilSummaries.stream()
+                    .filter(s -> s.id().equals(currentMod))
+                    .findFirst()
+                    .orElse(null);
+            if (destModJacoco.exists() && repSummary != null) {
+                generateXltUtilCoveragePage(destModJacoco, repSummary);
+                injectXltNoticeBanner(destModJacoco);
             }
         }
 
@@ -433,6 +484,265 @@ public class GlobalDashboardGenerator {
                 pit[1],
                 pitPct
         );
+    }
+
+    private static List<XltClassCoverage> buildXltClassCoverages(File jacocoXml) {
+        List<XltClassCoverage> list = new ArrayList<>();
+        if (!jacocoXml.exists()) {
+            return list;
+        }
+        for (XltClassMeta meta : XLT_CLASSES) {
+            int[] covInst = parseSourceCoverage(jacocoXml, meta.sourceFileName(), "INSTRUCTION");
+            int[] covBranch = parseSourceCoverage(jacocoXml, meta.sourceFileName(), "BRANCH");
+            int[] covLine = parseSourceCoverage(jacocoXml, meta.sourceFileName(), "LINE");
+
+            int totalInst = covInst[0] + covInst[1];
+            double instPct = totalInst > 0 ? (covInst[1] * 100.0) / totalInst : 0.0;
+
+            int totalBranch = covBranch[0] + covBranch[1];
+            double branchPct = totalBranch > 0 ? (covBranch[1] * 100.0) / totalBranch : (totalInst > 0 ? 100.0 : 0.0);
+
+            int totalLine = covLine[0] + covLine[1];
+            double linePct = totalLine > 0 ? (covLine[1] * 100.0) / totalLine : 0.0;
+
+            list.add(new XltClassCoverage(
+                    meta.className(),
+                    meta.packageName(),
+                    meta.sourceFileName(),
+                    meta.htmlRelPath(),
+                    instPct,
+                    covInst[0],
+                    covInst[1],
+                    totalInst,
+                    linePct,
+                    covLine[0],
+                    covLine[1],
+                    totalLine,
+                    branchPct,
+                    covBranch[0],
+                    covBranch[1],
+                    totalBranch
+            ));
+        }
+        return list;
+    }
+
+    private static void generateXltUtilCoveragePage(File destModJacoco, ReportUtilSummary summary) {
+        if (!destModJacoco.exists()) {
+            destModJacoco.mkdirs();
+        }
+        File targetFile = new File(destModJacoco, "xlt-util-coverage.html");
+        try (PrintWriter out = new PrintWriter(new FileWriter(targetFile))) {
+            QualityStats q = summary.quality();
+            String modId = summary.id();
+            String modelName = summary.aiModel();
+
+            String instColor = q.instructionCoveragePct() >= 90.0 ? "var(--success)" : (q.instructionCoveragePct() < 70.0 ? "var(--warning)" : "var(--primary)");
+            String lineColor = q.lineCoveragePct() >= 90.0 ? "var(--success)" : (q.lineCoveragePct() < 70.0 ? "var(--warning)" : "var(--primary)");
+            String branchColor = q.branchCoveragePct() >= 90.0 ? "var(--success)" : (q.branchCoveragePct() < 70.0 ? "var(--warning)" : "var(--primary)");
+
+            out.println("<!DOCTYPE html>");
+            out.println("<html lang=\"en\">");
+            out.println("<head>");
+            out.println("    <meta charset=\"UTF-8\">");
+            out.println("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">");
+            out.printf("    <title>Reporting Utilities Suite Coverage — %s (%s)</title>%n", modId, modelName);
+            out.println("    <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">");
+            out.println("    <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>");
+            out.println("    <link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap\" rel=\"stylesheet\">");
+            out.println("    <style>");
+            out.println("        :root {");
+            out.println("            --bg: #f8fafc;");
+            out.println("            --card-bg: #ffffff;");
+            out.println("            --card-border: #e2e8f0;");
+            out.println("            --text: #0f172a;");
+            out.println("            --text-muted: #64748b;");
+            out.println("            --primary: #0284c7;");
+            out.println("            --primary-glow: rgba(2, 132, 199, 0.12);");
+            out.println("            --success: #16a34a;");
+            out.println("            --warning: #d97706;");
+            out.println("            --danger: #dc2626;");
+            out.println("        }");
+            out.println("        * { box-sizing: border-box; }");
+            out.println("        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 2rem 1.5rem; line-height: 1.5; }");
+            out.println("        .container { max-width: 1300px; margin: 0 auto; }");
+            out.println("        .breadcrumb { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem; }");
+            out.println("        .breadcrumb a { color: var(--primary); text-decoration: none; font-weight: 500; }");
+            out.println("        .breadcrumb a:hover { text-decoration: underline; }");
+            out.println("        .header { border-bottom: 1px solid var(--card-border); padding-bottom: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem; }");
+            out.println("        .header h1 { margin: 0; font-size: 1.85rem; font-weight: 800; letter-spacing: -0.025em; color: #0f172a; }");
+            out.println("        .header p { margin: 0.4rem 0 0 0; color: var(--text-muted); font-size: 0.95rem; }");
+            out.println("        .quick-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; }");
+            out.println("        .action-btn { background: var(--card-bg); border: 1px solid var(--card-border); color: #334155; padding: 0.5rem 1rem; border-radius: 8px; text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.4rem; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }");
+            out.println("        .action-btn:hover { background: #f8fafc; border-color: var(--primary); color: var(--primary); }");
+            out.println("        .notice-banner { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 2rem; color: #0369a1; font-size: 0.9rem; line-height: 1.5; }");
+            out.println("        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }");
+            out.println("        .stat-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 1.25rem; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }");
+            out.println("        .stat-label { color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }");
+            out.println("        .stat-value { font-size: 1.85rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 0.25rem 0; }");
+            out.println("        .stat-sub { font-size: 0.8rem; color: var(--text-muted); }");
+            out.println("        .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 1.75rem; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }");
+            out.println("        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--card-border); flex-wrap: wrap; gap: 0.5rem; }");
+            out.println("        .card-header h2 { margin: 0; font-size: 1.3rem; font-weight: 700; color: #0f172a; }");
+            out.println("        table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; font-size: 0.9rem; }");
+            out.println("        th, td { padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid var(--card-border); }");
+            out.println("        th { background: #f8fafc; font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }");
+            out.println("        tr:hover td { background: #f8fafc; }");
+            out.println("        tr.total-row td { background: #f1f5f9; font-weight: 700; border-top: 2px solid #cbd5e1; font-size: 0.92rem; }");
+            out.println("        .numeric { text-align: right; font-variant-numeric: tabular-nums; font-family: 'JetBrains Mono', monospace; }");
+            out.println("        .badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.55rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; font-family: 'JetBrains Mono', monospace; }");
+            out.println("        .badge-success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }");
+            out.println("        .badge-info { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }");
+            out.println("        .badge-warning { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }");
+            out.println("        .progress-bar-container { width: 80px; height: 7px; background: #e2e8f0; border-radius: 4px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 8px; }");
+            out.println("        .progress-bar-fill { height: 100%; background: #16a34a; border-radius: 4px; }");
+            out.println("        .pkg-tag { font-size: 0.78rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }");
+            out.println("        .source-link { color: var(--primary); text-decoration: underline; font-weight: 600; font-size: 0.85rem; }");
+            out.println("        .source-link:hover { color: #0369a1; }");
+            out.println("    </style>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<div class=\"container\">");
+
+            // Breadcrumbs
+            out.println("    <div class=\"breadcrumb\">");
+            out.println("        <a href=\"../../index.html\">Master Dashboard</a> &gt; ");
+            out.println("        <a href=\"../../xlt-util.html\">Reporting Utilities</a> &gt; ");
+            out.printf("        <a href=\"index.html\">JaCoCo (%s)</a> &gt; %n", modId);
+            out.println("        <span>com.xceptance.xlt.report.util Suite</span>");
+            out.println("    </div>");
+
+            // Header
+            out.println("    <div class=\"header\">");
+            out.println("        <div>");
+            out.printf("            <h1>🧰 Reporting Utilities Suite Coverage — %s</h1>%n", modId);
+            out.printf("            <p>Unified verification report covering all 5 high-throughput reporting utility classes across 4 package directories. AI Model: <strong>%s</strong></p>%n", modelName);
+            out.println("        </div>");
+            out.println("        <div class=\"quick-actions\">");
+            out.println("            <a href=\"../../xlt-util.html\" class=\"action-btn\">← Back to Utilities Matrix</a>");
+            out.println("            <a href=\"../../index.html\" class=\"action-btn\">🏠 Master Dashboard</a>");
+            out.println("            <a href=\"index.html\" class=\"action-btn\">📁 Full JaCoCo Report</a>");
+            out.println("        </div>");
+            out.println("    </div>");
+
+            // Notice
+            out.println("    <div class=\"notice-banner\">");
+            out.println("        💡 <strong>Unified Reporting Utilities Suite:</strong> In JaCoCo's standard report layout, classes are separated into individual package folders (<code>com.xceptance.xlt.report.util</code>, <code>lucene</code>, <code>misc</code>, and <code>rework</code>). This view aggregates all 5 utility classes into a single coverage dashboard with direct links to JaCoCo source code listings.");
+            out.println("    </div>");
+
+            // Stats grid
+            int coveredInst = q.totalInstructions() - q.missedInstructions();
+            int coveredLines = q.totalLines() - q.missedLines();
+            int coveredBranches = q.totalBranches() - q.missedBranches();
+
+            out.println("    <div class=\"stats-grid\">");
+            out.println("        <div class=\"stat-card\">");
+            out.println("            <div class=\"stat-label\">Instruction Coverage</div>");
+            out.printf("            <div class=\"stat-value\" style=\"color: %s;\">%.1f%%</div>%n", instColor, q.instructionCoveragePct());
+            out.printf("            <div class=\"stat-sub\">%,d of %,d instructions covered</div>%n", coveredInst, q.totalInstructions());
+            out.println("        </div>");
+            out.println("        <div class=\"stat-card\">");
+            out.println("            <div class=\"stat-label\">Line Coverage</div>");
+            out.printf("            <div class=\"stat-value\" style=\"color: %s;\">%.1f%%</div>%n", lineColor, q.lineCoveragePct());
+            out.printf("            <div class=\"stat-sub\">%,d of %,d lines covered</div>%n", coveredLines, q.totalLines());
+            out.println("        </div>");
+            out.println("        <div class=\"stat-card\">");
+            out.println("            <div class=\"stat-label\">Branch Coverage</div>");
+            out.printf("            <div class=\"stat-value\" style=\"color: %s;\">%.1f%%</div>%n", branchColor, q.branchCoveragePct());
+            out.printf("            <div class=\"stat-sub\">%,d of %,d branches covered</div>%n", coveredBranches, q.totalBranches());
+            out.println("        </div>");
+            out.println("        <div class=\"stat-card\">");
+            out.println("            <div class=\"stat-label\">Utility Classes</div>");
+            out.printf("            <div class=\"stat-value\" style=\"color: #7c3aed;\">%d</div>%n", summary.classCoverages().size());
+            out.println("            <div class=\"stat-sub\">Across 4 subpackages</div>");
+            out.println("        </div>");
+            out.println("    </div>");
+
+            // Class table
+            out.println("    <div class=\"card\">");
+            out.println("        <div class=\"card-header\">");
+            out.println("            <h2>Detailed Class-Level Coverage Breakdown</h2>");
+            out.println("            <span style=\"font-size: 0.85rem; color: var(--text-muted);\">Click on any class name or \"View Source\" to inspect line-by-line coverage</span>");
+            out.println("        </div>");
+            out.println("        <table>");
+            out.println("            <thead>");
+            out.println("                <tr>");
+            out.println("                    <th>Class</th>");
+            out.println("                    <th>Package</th>");
+            out.println("                    <th class=\"numeric\">Instruction Coverage</th>");
+            out.println("                    <th class=\"numeric\">Line Coverage</th>");
+            out.println("                    <th class=\"numeric\">Branch Coverage</th>");
+            out.println("                    <th style=\"text-align: center;\">JaCoCo Source</th>");
+            out.println("                </tr>");
+            out.println("            </thead>");
+            out.println("            <tbody>");
+
+            for (XltClassCoverage c : summary.classCoverages()) {
+                double fillWidth = Math.min(100.0, Math.max(0.0, c.instructionCoveragePct()));
+                String fillStyle = c.instructionCoveragePct() >= 90.0 ? "background: #16a34a;" : (c.instructionCoveragePct() < 70.0 ? "background: #d97706;" : "background: #0284c7;");
+
+                String branchText = c.totalBranches() > 0 ?
+                        String.format("%.1f%% <span style=\"font-size: 0.75rem; color: var(--text-muted); font-weight: normal;\">(%d/%d)</span>", c.branchCoveragePct(), c.coveredBranches(), c.totalBranches()) :
+                        "<span style=\"color: var(--text-muted);\">- (0 branches)</span>";
+
+                out.println("                <tr>");
+                out.printf("                    <td><a href=\"%s\" style=\"color: var(--primary); font-weight: 700; text-decoration: underline;\">%s</a></td>%n", c.htmlRelPath(), c.className());
+                out.printf("                    <td><span class=\"pkg-tag\">%s</span></td>%n", c.packageName());
+                out.printf("                    <td class=\"numeric\"><div class=\"progress-bar-container\"><div class=\"progress-bar-fill\" style=\"width: %.1f%%; %s\"></div></div> <strong>%.1f%%</strong> <span style=\"font-size: 0.75rem; color: var(--text-muted); font-weight: normal;\">(%d/%d)</span></td>%n",
+                        fillWidth, fillStyle, c.instructionCoveragePct(), c.coveredInstructions(), c.totalInstructions());
+                out.printf("                    <td class=\"numeric\">%.1f%% <span style=\"font-size: 0.75rem; color: var(--text-muted); font-weight: normal;\">(%d/%d)</span></td>%n",
+                        c.lineCoveragePct(), c.coveredLines(), c.totalLines());
+                out.printf("                    <td class=\"numeric\">%s</td>%n", branchText);
+                out.printf("                    <td style=\"text-align: center;\"><a href=\"%s\" class=\"source-link\">View Source ↗</a></td>%n", c.htmlRelPath());
+                out.println("                </tr>");
+            }
+
+            // Total row
+            double totalFillWidth = Math.min(100.0, Math.max(0.0, q.instructionCoveragePct()));
+            String totalFillStyle = q.instructionCoveragePct() >= 90.0 ? "background: #16a34a;" : (q.instructionCoveragePct() < 70.0 ? "background: #d97706;" : "background: #0284c7;");
+
+            out.println("                <tr class=\"total-row\">");
+            out.println("                    <td>Total Suite Coverage</td>");
+            out.println("                    <td><span class=\"pkg-tag\">4 packages / 5 classes</span></td>");
+            out.printf("                    <td class=\"numeric\"><div class=\"progress-bar-container\"><div class=\"progress-bar-fill\" style=\"width: %.1f%%; %s\"></div></div> <strong>%.1f%%</strong> <span style=\"font-size: 0.75rem; color: var(--text-muted); font-weight: normal;\">(%d/%d)</span></td>%n",
+                    totalFillWidth, totalFillStyle, q.instructionCoveragePct(), coveredInst, q.totalInstructions());
+            out.printf("                    <td class=\"numeric\">%.1f%% <span style=\"font-size: 0.75rem; color: var(--text-muted); font-weight: normal;\">(%d/%d)</span></td>%n",
+                    q.lineCoveragePct(), coveredLines, q.totalLines());
+            out.printf("                    <td class=\"numeric\">%.1f%% <span style=\"font-size: 0.75rem; color: var(--text-muted); font-weight: normal;\">(%d/%d)</span></td>%n",
+                    q.branchCoveragePct(), coveredBranches, q.totalBranches());
+            out.println("                    <td style=\"text-align: center;\"><span style=\"color: var(--text-muted); font-size: 0.8rem;\">Suite Aggregate</span></td>");
+            out.println("                </tr>");
+
+            out.println("            </tbody>");
+            out.println("        </table>");
+            out.println("    </div>");
+
+            out.println("</div>");
+            out.println("</body>");
+            out.println("</html>");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void injectXltNoticeBanner(File destModJacoco) {
+        File subPkgIndex = new File(destModJacoco, "com.xceptance.xlt.report.util/index.html");
+        if (!subPkgIndex.exists()) return;
+        try {
+            String content = Files.readString(subPkgIndex.toPath());
+            if (!content.contains("xlt-util-coverage.html")) {
+                String target = "<h1>com.xceptance.xlt.report.util</h1>";
+                String banner = "<h1>com.xceptance.xlt.report.util</h1>" +
+                        "<div style=\"background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 12px 16px; margin: 16px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13.5px; color: #0369a1; line-height: 1.5;\">" +
+                        "ℹ️ <strong>Package Suite Notice:</strong> JaCoCo organizes packages separately, so this folder only shows classes in the package root (<code>RuntimeHistogram</code>). " +
+                        "<a href=\"../xlt-util-coverage.html\" style=\"color: #0284c7; font-weight: 700; text-decoration: underline; margin-left: 6px;\">View Complete Reporting Utilities Suite Coverage (RuntimeHistogram, BitUtil, BitCompression, IntTimeSeries) →</a>" +
+                        "</div>";
+                if (content.contains(target)) {
+                    content = content.replace(target, banner);
+                    Files.writeString(subPkgIndex.toPath(), content);
+                }
+            }
+        } catch (Exception ignored) {}
     }
 
     private static int[] parseSourceCoverage(File jacocoXml, String sourceFileName, String counterType) {
@@ -691,7 +1001,7 @@ public class GlobalDashboardGenerator {
                 String pitStr = s.quality().pitTotal() > 0 ? String.format("%.1f%% (%d/%d killed)", s.quality().pitScorePct(), s.quality().pitKilled(), s.quality().pitTotal()) : "N/A";
                 String timeStr = s.quality().executionTimeSeconds() > 0 ? String.format(" (%.2fs)", s.quality().executionTimeSeconds()) : "";
 
-                out.printf("| **%s** | %s | %d ✅%s | %.1f%% (%d/%d) | %.1f%% (%d/%d) | %.1f%% (%d/%d) | %s | %s |%n",
+                out.printf("| **%s** | %s | %d ✅%s | [%.1f%% (%d/%d)](jacoco/%s/xlt-util-coverage.html) | [%.1f%% (%d/%d)](jacoco/%s/xlt-util-coverage.html) | [%.1f%% (%d/%d)](jacoco/%s/xlt-util-coverage.html) | %s | %s |%n",
                         s.id(),
                         s.aiModel(),
                         s.quality().tests(),
@@ -699,14 +1009,52 @@ public class GlobalDashboardGenerator {
                         s.quality().instructionCoveragePct(),
                         s.quality().totalInstructions() - s.quality().missedInstructions(),
                         s.quality().totalInstructions(),
+                        s.id(),
                         s.quality().lineCoveragePct(),
                         s.quality().totalLines() - s.quality().missedLines(),
                         s.quality().totalLines(),
+                        s.id(),
                         s.quality().branchCoveragePct(),
                         s.quality().totalBranches() - s.quality().missedBranches(),
                         s.quality().totalBranches(),
+                        s.id(),
                         pitStr,
                         "100% Passing ✅"
+                );
+            }
+
+            out.println();
+            out.println("### 📊 com.xceptance.xlt.report.util — Class-Level Instruction Coverage Matrix");
+            out.println();
+            out.println("| Module | AI Model / Implementation | RuntimeHistogram | BitUtil | BitCompression | IntTimeSeries | IntTimeSeriesEntry | Total Suite |");
+            out.println("| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |");
+
+            for (ReportUtilSummary s : reportUtils) {
+                Map<String, XltClassCoverage> covMap = new HashMap<>();
+                for (XltClassCoverage c : s.classCoverages()) {
+                    covMap.put(c.className(), c);
+                }
+                XltClassCoverage rh = covMap.get("RuntimeHistogram");
+                XltClassCoverage bu = covMap.get("BitUtil");
+                XltClassCoverage bc = covMap.get("BitCompression");
+                XltClassCoverage its = covMap.get("IntTimeSeries");
+                XltClassCoverage itse = covMap.get("IntTimeSeriesEntry");
+
+                String rhStr = rh != null ? String.format("%.1f%%", rh.instructionCoveragePct()) : "-";
+                String buStr = bu != null ? String.format("%.1f%%", bu.instructionCoveragePct()) : "-";
+                String bcStr = bc != null ? String.format("%.1f%%", bc.instructionCoveragePct()) : "-";
+                String itsStr = its != null ? String.format("%.1f%%", its.instructionCoveragePct()) : "-";
+                String itseStr = itse != null ? String.format("%.1f%%", itse.instructionCoveragePct()) : "-";
+
+                out.printf("| **%s** | %s | %s | %s | %s | %s | %s | **%.1f%%** |%n",
+                        s.id(),
+                        s.aiModel(),
+                        rhStr,
+                        buStr,
+                        bcStr,
+                        itsStr,
+                        itseStr,
+                        s.quality().instructionCoveragePct()
                 );
             }
 
@@ -1199,7 +1547,7 @@ public class GlobalDashboardGenerator {
                                     s.id(), s.quality().pitScorePct(), s.quality().pitKilled(), s.quality().pitTotal())
                             : "<span class=\"badge badge-info\">N/A</span>";
 
-                    String covLink = String.format("jacoco/%s/com.xceptance.xlt.report.util/index.html", s.id());
+                    String covLink = String.format("jacoco/%s/xlt-util-coverage.html", s.id());
                     String timeBadge = s.quality().executionTimeSeconds() > 0 ?
                             String.format("<span class=\"badge badge-time\">⏱️ %.2fs</span>", s.quality().executionTimeSeconds()) : "";
 
@@ -1233,6 +1581,63 @@ public class GlobalDashboardGenerator {
 
                 out.println("            </tbody>");
                 out.println("        </table>");
+
+                // Class-Level Coverage Breakdown Matrix for Reporting Utilities
+                out.println("        <div class=\"subtable-wrapper\">");
+                out.println("            <div class=\"subtable-title\">");
+                out.println("                <span>📊 Class-Level Coverage Breakdown Matrix (All 5 Reporting Utilities)</span>");
+                out.println("                <span style=\"font-size: 0.8rem; font-weight: 500; color: var(--text-muted);\">Instruction Coverage per Class & Direct Links to JaCoCo Source Code</span>");
+                out.println("            </div>");
+                out.println("            <table>");
+                out.println("                <thead>");
+                out.println("                    <tr>");
+                out.println("                        <th>Module</th>");
+                out.println("                        <th>AI Model / Implementation</th>");
+                out.println("                        <th class=\"numeric\">RuntimeHistogram</th>");
+                out.println("                        <th class=\"numeric\">BitUtil</th>");
+                out.println("                        <th class=\"numeric\">BitCompression</th>");
+                out.println("                        <th class=\"numeric\">IntTimeSeries</th>");
+                out.println("                        <th class=\"numeric\">IntTimeSeriesEntry</th>");
+                out.println("                        <th class=\"numeric\">Total Suite</th>");
+                out.println("                    </tr>");
+                out.println("                </thead>");
+                out.println("                <tbody>");
+
+                for (ReportUtilSummary s : reportUtils) {
+                    Map<String, XltClassCoverage> covMap = new HashMap<>();
+                    for (XltClassCoverage c : s.classCoverages()) {
+                        covMap.put(c.className(), c);
+                    }
+
+                    out.println("                    <tr>");
+                    out.printf("                        <td><strong>%s</strong></td>%n", s.id());
+                    out.printf("                        <td><span class=\"badge badge-info\">%s</span></td>%n", s.aiModel());
+
+                    for (String cname : List.of("RuntimeHistogram", "BitUtil", "BitCompression", "IntTimeSeries", "IntTimeSeriesEntry")) {
+                        XltClassCoverage c = covMap.get(cname);
+                        if (c != null) {
+                            String cellContent;
+                            if (c.instructionCoveragePct() >= 99.9) {
+                                cellContent = String.format("<a href=\"jacoco/%s/%s\" class=\"badge badge-success\" style=\"text-decoration:none;\">%.1f%%</a>", s.id(), c.htmlRelPath(), c.instructionCoveragePct());
+                            } else if (c.instructionCoveragePct() < 80.0) {
+                                cellContent = String.format("<a href=\"jacoco/%s/%s\" style=\"color: #b45309; font-weight: 700; text-decoration: underline;\">%.1f%%</a> <span style=\"font-size: 0.72rem; color: var(--text-muted);\">(%d/%d)</span>", s.id(), c.htmlRelPath(), c.instructionCoveragePct(), c.coveredInstructions(), c.totalInstructions());
+                            } else {
+                                cellContent = String.format("<a href=\"jacoco/%s/%s\" style=\"color: #0284c7; text-decoration: underline;\">%.1f%%</a> <span style=\"font-size: 0.72rem; color: var(--text-muted);\">(%d/%d)</span>", s.id(), c.htmlRelPath(), c.instructionCoveragePct(), c.coveredInstructions(), c.totalInstructions());
+                            }
+                            out.printf("                        <td class=\"numeric\">%s</td>%n", cellContent);
+                        } else {
+                            out.println("                        <td class=\"numeric\">-</td>");
+                        }
+                    }
+
+                    out.printf("                        <td class=\"numeric\"><strong><a href=\"jacoco/%s/xlt-util-coverage.html\" style=\"color: var(--primary); text-decoration: underline;\">%.1f%%</a></strong></td>%n", s.id(), s.quality().instructionCoveragePct());
+                    out.println("                    </tr>");
+                }
+
+                out.println("                </tbody>");
+                out.println("            </table>");
+                out.println("        </div>");
+
                 out.println("    </div>");
             }
 
