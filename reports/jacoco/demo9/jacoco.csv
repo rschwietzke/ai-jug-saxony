@@ -1,0 +1,12 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+demo9,org.jugsaxony.demo9,LRUClockMap.DebugWrapper,0,49,0,0,0,8,0,2,0,2
+demo9,org.jugsaxony.demo9,LRUClockMap.Wrapper,0,22,0,0,0,6,0,2,0,2
+demo9,org.jugsaxony.demo9,LRUClockMap,0,649,0,62,0,154,0,52,0,21
+demo9,org.jugsaxony.demo9,FastHashMap,19,502,4,48,4,117,3,38,0,15
+demo9,com.xceptance.xlt.report.util.misc,BitCompression,0,54,0,0,0,8,0,2,0,2
+demo9,com.xceptance.xlt.report.util.rework,IntTimeSeries.HistogramBucket,0,20,0,0,0,2,0,2,0,2
+demo9,com.xceptance.xlt.report.util.rework,IntTimeSeriesEntry,16,525,8,52,8,106,8,38,0,16
+demo9,com.xceptance.xlt.report.util.rework,IntTimeSeries,0,572,1,35,0,106,1,42,0,25
+demo9,com.xceptance.xlt.report.util.rework,IntTimeSeries.Statistics,0,18,0,0,0,6,0,1,0,1
+demo9,com.xceptance.xlt.report.util,RuntimeHistogram,0,358,0,36,0,75,0,31,0,13
+demo9,com.xceptance.xlt.report.util.lucene,BitUtil,0,4667,0,86,0,387,0,59,0,16

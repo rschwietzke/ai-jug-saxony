@@ -282,38 +282,38 @@ public class GlobalJmhReportGenerator {
             out.println("    <title>JMH Cross-Project Performance Report - AI JUG Saxony</title>");
             out.println("    <style>");
             out.println("        :root {");
-            out.println("            --bg: #0f172a; --card-bg: #1e293b; --card-border: #334155;");
-            out.println("            --text: #f8fafc; --text-muted: #94a3b8; --border: #334155;");
-            out.println("            --primary: #38bdf8; --success: #34d399; --accent: #a78bfa;");
-            out.println("            --warning: #fbbf24; --danger: #f87171;");
+            out.println("            --bg: #f8fafc; --card-bg: #ffffff; --card-border: #e2e8f0;");
+            out.println("            --text: #0f172a; --text-muted: #64748b; --border: #e2e8f0;");
+            out.println("            --primary: #0284c7; --success: #16a34a; --accent: #7c3aed;");
+            out.println("            --warning: #d97706; --danger: #dc2626;");
             out.println("        }");
             out.println("        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 2rem; line-height: 1.5; }");
             out.println("        .container { max-width: 1400px; margin: 0 auto; }");
             out.println("        .header { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; }");
-            out.println("        .header h1 { margin: 0 0 0.5rem 0; font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }");
+            out.println("        .header h1 { margin: 0 0 0.5rem 0; font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, #0f172a, #334155); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }");
             out.println("        .header p { margin: 0; color: var(--text-muted); font-size: 1.1rem; }");
-            out.println("        .card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--card-border); padding: 1.75rem; margin-bottom: 2rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); }");
-            out.println("        h2 { font-size: 1.5rem; margin-top: 0; margin-bottom: 1.25rem; color: #f1f5f9; display: flex; align-items: center; justify-content: space-between; }");
+            out.println("        .card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--card-border); padding: 1.75rem; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }");
+            out.println("        h2 { font-size: 1.5rem; margin-top: 0; margin-bottom: 1.25rem; color: #0f172a; display: flex; align-items: center; justify-content: space-between; }");
             out.println("        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 1rem; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }");
             out.println("        th, td { padding: 0.85rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }");
-            out.println("        th { background: #0f172a; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }");
-            out.println("        tr:hover td { background: rgba(56, 189, 248, 0.05); }");
+            out.println("        th { background: #f8fafc; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }");
+            out.println("        tr:hover td { background: #f8fafc; }");
             out.println("        tr:last-child td { border-bottom: none; }");
             out.println("        .badge { display: inline-flex; align-items: center; padding: 0.2rem 0.55rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }");
-            out.println("        .badge-winner { background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3); }");
-            out.println("        .badge-primary { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }");
-            out.println("        .badge-perf { background: rgba(167, 139, 250, 0.15); color: #c084fc; border: 1px solid rgba(167, 139, 250, 0.3); }");
+            out.println("        .badge-winner { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }");
+            out.println("        .badge-primary { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }");
+            out.println("        .badge-perf { background: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff; }");
             out.println("        .numeric { text-align: right; font-variant-numeric: tabular-nums; }");
-            out.println("        .bar-container { background: #334155; border-radius: 4px; width: 90px; height: 10px; display: inline-block; margin-right: 8px; vertical-align: middle; overflow: hidden; }");
-            out.println("        .bar-fill { background: linear-gradient(90deg, #38bdf8, #818cf8); height: 100%; border-radius: 4px; }");
-            out.println("        .speedup-fast { color: #34d399; font-weight: 700; }");
-            out.println("        .speedup-slow { color: #f87171; }");
+            out.println("        .bar-container { background: #e2e8f0; border-radius: 4px; width: 90px; height: 10px; display: inline-block; margin-right: 8px; vertical-align: middle; overflow: hidden; }");
+            out.println("        .bar-fill { background: linear-gradient(90deg, #0284c7, #6366f1); height: 100%; border-radius: 4px; }");
+            out.println("        .speedup-fast { color: #16a34a; font-weight: 700; }");
+            out.println("        .speedup-slow { color: #dc2626; }");
             out.println("        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }");
-            out.println("        .kpi-card { background: #0f172a; padding: 1rem 1.25rem; border-radius: 8px; border: 1px solid var(--border); }");
+            out.println("        .kpi-card { background: #f8fafc; padding: 1rem 1.25rem; border-radius: 8px; border: 1px solid var(--border); }");
             out.println("        .kpi-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }");
-            out.println("        .kpi-val { font-size: 1.4rem; font-weight: 700; color: #f8fafc; }");
+            out.println("        .kpi-val { font-size: 1.4rem; font-weight: 700; color: #0f172a; }");
             out.println("        .kpi-sub { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem; }");
-            out.println("        .perf-tag { font-size: 0.75rem; padding: 0.15rem 0.4rem; border-radius: 4px; background: rgba(255,255,255,0.08); font-family: monospace; }");
+            out.println("        .perf-tag { font-size: 0.75rem; padding: 0.15rem 0.4rem; border-radius: 4px; background: #f1f5f9; border: 1px solid #e2e8f0; color: #334155; font-family: monospace; }");
             out.println("    </style>");
             out.println("</head>");
             out.println("<body>");
@@ -355,19 +355,19 @@ public class GlobalJmhReportGenerator {
                                 list.get(0).score(), list.get(0).targetId(), String.format("%.2fx vs demo0", list.get(0).score() / baselineScore));
                     }
                     if (topIpc != null) {
-                        out.printf("            <div class=\"kpi-card\"><div class=\"kpi-label\">Highest IPC</div><div class=\"kpi-val\" style=\"color:#38bdf8;\">%.2f <span style=\"font-size:0.9rem;\">insns/clk</span></div><div class=\"kpi-sub\">%s</div></div>%n",
+                        out.printf("            <div class=\"kpi-card\"><div class=\"kpi-label\">Highest IPC</div><div class=\"kpi-val\" style=\"color:#0284c7;\">%.2f <span style=\"font-size:0.9rem;\">insns/clk</span></div><div class=\"kpi-sub\">%s</div></div>%n",
                                 topIpc.ipc(), topIpc.targetId());
                     }
                     if (lowestCycles != null) {
-                        out.printf("            <div class=\"kpi-card\"><div class=\"kpi-label\">Lowest Cycles/op</div><div class=\"kpi-val\" style=\"color:#34d399;\">%.1f <span style=\"font-size:0.9rem;\">cycles</span></div><div class=\"kpi-sub\">%s</div></div>%n",
+                        out.printf("            <div class=\"kpi-card\"><div class=\"kpi-label\">Lowest Cycles/op</div><div class=\"kpi-val\" style=\"color:#16a34a;\">%.1f <span style=\"font-size:0.9rem;\">cycles</span></div><div class=\"kpi-sub\">%s</div></div>%n",
                                 lowestCycles.cycles(), lowestCycles.targetId());
                     }
                     if (lowestL1 != null) {
-                        out.printf("            <div class=\"kpi-card\"><div class=\"kpi-label\">Lowest L1 Miss %%</div><div class=\"kpi-val\" style=\"color:#a78bfa;\">%.2f%%</div><div class=\"kpi-sub\">%s</div></div>%n",
+                        out.printf("            <div class=\"kpi-card\"><div class=\"kpi-label\">Lowest L1 Miss %%</div><div class=\"kpi-val\" style=\"color:#7c3aed;\">%.2f%%</div><div class=\"kpi-sub\">%s</div></div>%n",
                                 lowestL1.l1DcacheMissRate(), lowestL1.targetId());
                     }
                     if (lowestBranchMiss != null) {
-                        out.printf("            <div class=\"kpi-card\"><div class=\"kpi-label\">Lowest Branch Miss %%</div><div class=\"kpi-val\" style=\"color:#fbbf24;\">%.2f%%</div><div class=\"kpi-sub\">%s</div></div>%n",
+                        out.printf("            <div class=\"kpi-card\"><div class=\"kpi-label\">Lowest Branch Miss %%</div><div class=\"kpi-val\" style=\"color:#d97706;\">%.2f%%</div><div class=\"kpi-sub\">%s</div></div>%n",
                                 lowestBranchMiss.branchMissRate(), lowestBranchMiss.targetId());
                     }
                     out.println("        </div>");

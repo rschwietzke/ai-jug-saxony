@@ -297,10 +297,10 @@ public class GlobalDashboardGenerator {
         writeHtmlDashboard(new File(outputDir, "xlt-util.html"), fastMapSummaries, lruMapSummaries, reportUtilSummaries, "xlt-util");
     }
 
-    private record TestExecutionInfo(int tests, double executionTimeSeconds) {}
+    private record TestExecutionInfo(int tests, double executionTimeSeconds, int failures, int errors) {}
 
     private static TestExecutionInfo parseTestExecution(File surefireDir, String testPattern, boolean isPrefix) {
-        if (!surefireDir.exists() || !surefireDir.isDirectory()) return new TestExecutionInfo(0, 0.0);
+        if (!surefireDir.exists() || !surefireDir.isDirectory()) return new TestExecutionInfo(0, 0.0, 0, 0);
         File[] files = surefireDir.listFiles((dir, name) -> {
             if (!name.startsWith("TEST-") || !name.endsWith(".xml")) return false;
             if (isPrefix) {
@@ -309,54 +309,64 @@ public class GlobalDashboardGenerator {
                 return name.contains(testPattern);
             }
         });
-        if (files == null) return new TestExecutionInfo(0, 0.0);
+        if (files == null) return new TestExecutionInfo(0, 0.0, 0, 0);
 
         int totalTests = 0;
         double totalTime = 0.0;
+        int totalFailures = 0;
+        int totalErrors = 0;
+
         Pattern tcPat = Pattern.compile("<testcase\\b[^>]*\\btime=\"([0-9.]+)\"");
-        Pattern suitePat = Pattern.compile("<testsuite\\b[^>]*\\btime=\"([0-9.]+)\"[^>]*\\btests=\"([0-9]+)\"");
-        Pattern altSuitePat = Pattern.compile("<testsuite\\b[^>]*\\btests=\"([0-9]+)\"[^>]*\\btime=\"([0-9.]+)\"");
+        Pattern suiteTestsPat = Pattern.compile("\\btests=\"([0-9]+)\"");
+        Pattern suiteTimePat = Pattern.compile("\\btime=\"([0-9.]+)\"");
+        Pattern suiteFailuresPat = Pattern.compile("\\bfailures=\"([0-9]+)\"");
+        Pattern suiteErrorsPat = Pattern.compile("\\berrors=\"([0-9]+)\"");
 
         for (File f : files) {
             try {
                 String content = Files.readString(f.toPath());
-                Matcher tcMatcher = tcPat.matcher(content);
-                int tcCount = 0;
-                double fileTcTime = 0.0;
-                while (tcMatcher.find()) {
-                    tcCount++;
+                int fileTests = 0;
+                double fileTime = 0.0;
+                int fileFailures = 0;
+                int fileErrors = 0;
+
+                Matcher mTests = suiteTestsPat.matcher(content);
+                Matcher mTime = suiteTimePat.matcher(content);
+                Matcher mFail = suiteFailuresPat.matcher(content);
+                Matcher mErr = suiteErrorsPat.matcher(content);
+
+                if (mTests.find()) {
+                    fileTests = Integer.parseInt(mTests.group(1));
+                }
+                if (mTime.find()) {
                     try {
-                        fileTcTime += Double.parseDouble(tcMatcher.group(1));
+                        fileTime = Double.parseDouble(mTime.group(1));
                     } catch (NumberFormatException ignored) {}
                 }
+                if (mFail.find()) {
+                    fileFailures = Integer.parseInt(mFail.group(1));
+                }
+                if (mErr.find()) {
+                    fileErrors = Integer.parseInt(mErr.group(1));
+                }
 
-                if (tcCount > 0) {
-                    totalTests += tcCount;
-                    totalTime += fileTcTime;
-                } else {
-                    Matcher sm = suitePat.matcher(content);
-                    if (!sm.find()) {
-                        sm = altSuitePat.matcher(content);
-                        if (sm.find()) {
-                            int t = Integer.parseInt(sm.group(1));
-                            double tm = Double.parseDouble(sm.group(2));
-                            if (t > 0) {
-                                totalTests += t;
-                                totalTime += tm;
-                            }
-                        }
-                    } else {
-                        double tm = Double.parseDouble(sm.group(1));
-                        int t = Integer.parseInt(sm.group(2));
-                        if (t > 0) {
-                            totalTests += t;
-                            totalTime += tm;
-                        }
+                if (fileTests == 0) {
+                    Matcher tcMatcher = tcPat.matcher(content);
+                    while (tcMatcher.find()) {
+                        fileTests++;
+                        try {
+                            fileTime += Double.parseDouble(tcMatcher.group(1));
+                        } catch (NumberFormatException ignored) {}
                     }
                 }
+
+                totalTests += fileTests;
+                totalTime += fileTime;
+                totalFailures += fileFailures;
+                totalErrors += fileErrors;
             } catch (Exception ignored) {}
         }
-        return new TestExecutionInfo(totalTests, totalTime);
+        return new TestExecutionInfo(totalTests, totalTime, totalFailures, totalErrors);
     }
 
     private static QualityStats buildQualityStats(File surefireDir, File jacocoXml, File pitCsv, String testPattern, String sourceFileName) {
@@ -375,8 +385,8 @@ public class GlobalDashboardGenerator {
         return new QualityStats(
                 testInfo.tests(),
                 testInfo.executionTimeSeconds(),
-                0,
-                0,
+                testInfo.failures(),
+                testInfo.errors(),
                 instPct,
                 linePct,
                 branchPct,
@@ -408,8 +418,8 @@ public class GlobalDashboardGenerator {
         return new QualityStats(
                 testInfo.tests(),
                 testInfo.executionTimeSeconds(),
-                0,
-                0,
+                testInfo.failures(),
+                testInfo.errors(),
                 instPct,
                 linePct,
                 branchPct,
@@ -754,65 +764,65 @@ public class GlobalDashboardGenerator {
             out.println("    <link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap\" rel=\"stylesheet\">");
             out.println("    <style>");
             out.println("        :root {");
-            out.println("            --bg: #0f172a;");
-            out.println("            --card-bg: #1e293b;");
-            out.println("            --card-border: #334155;");
-            out.println("            --text: #f8fafc;");
-            out.println("            --text-muted: #94a3b8;");
-            out.println("            --primary: #38bdf8;");
-            out.println("            --primary-glow: rgba(56, 189, 248, 0.2);");
-            out.println("            --accent: #a855f7;");
-            out.println("            --accent-glow: rgba(168, 85, 247, 0.2);");
-            out.println("            --success: #22c55e;");
-            out.println("            --success-bg: rgba(34, 197, 94, 0.15);");
-            out.println("            --warning: #f59e0b;");
-            out.println("            --warning-bg: rgba(245, 158, 11, 0.15);");
-            out.println("            --time-bg: rgba(148, 163, 184, 0.12);");
+            out.println("            --bg: #f8fafc;");
+            out.println("            --card-bg: #ffffff;");
+            out.println("            --card-border: #e2e8f0;");
+            out.println("            --text: #0f172a;");
+            out.println("            --text-muted: #64748b;");
+            out.println("            --primary: #0284c7;");
+            out.println("            --primary-glow: rgba(2, 132, 199, 0.12);");
+            out.println("            --accent: #7c3aed;");
+            out.println("            --accent-glow: rgba(124, 58, 237, 0.12);");
+            out.println("            --success: #16a34a;");
+            out.println("            --success-bg: #dcfce7;");
+            out.println("            --warning: #d97706;");
+            out.println("            --warning-bg: #fef3c7;");
+            out.println("            --time-bg: #f1f5f9;");
             out.println("        }");
             out.println("        * { box-sizing: border-box; }");
             out.println("        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 2rem 1.5rem; line-height: 1.5; }");
             out.println("        .container { max-width: 1480px; margin: 0 auto; }");
             out.println("        .header { border-bottom: 1px solid var(--card-border); padding-bottom: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem; }");
-            out.println("        .header h1 { margin: 0; font-size: 2.1rem; font-weight: 800; letter-spacing: -0.025em; background: linear-gradient(135deg, #f8fafc 0%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }");
+            out.println("        .header h1 { margin: 0; font-size: 2.1rem; font-weight: 800; letter-spacing: -0.025em; background: linear-gradient(135deg, #0f172a 0%, #334155 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }");
             out.println("        .header p { margin: 0.5rem 0 0 0; color: var(--text-muted); font-size: 1.05rem; }");
             out.println("        .section-nav-banner { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem; margin-bottom: 2.25rem; }");
-            out.println("        .section-nav-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 1.25rem 1.5rem; text-decoration: none; color: inherit; transition: all 0.25s ease; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; }");
-            out.println("        .section-nav-card:hover { transform: translateY(-3px); border-color: var(--primary); box-shadow: 0 10px 25px -5px var(--primary-glow); }");
-            out.println("        .section-nav-card.active { border-color: var(--primary); background: linear-gradient(180deg, rgba(56, 189, 248, 0.1) 0%, var(--card-bg) 100%); }");
+            out.println("        .section-nav-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 1.25rem 1.5rem; text-decoration: none; color: inherit; transition: all 0.25s ease; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }");
+            out.println("        .section-nav-card:hover { transform: translateY(-2px); border-color: var(--primary); box-shadow: 0 8px 20px -4px var(--primary-glow); }");
+            out.println("        .section-nav-card.active { border-color: var(--primary); background: linear-gradient(180deg, #f0f9ff 0%, var(--card-bg) 100%); }");
             out.println("        .card-tag { font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.06em; color: var(--primary); margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.4rem; }");
-            out.println("        .card-title { font-size: 1.25rem; font-weight: 700; margin: 0 0 0.4rem 0; color: #f8fafc; }");
+            out.println("        .card-title { font-size: 1.25rem; font-weight: 700; margin: 0 0 0.4rem 0; color: #0f172a; }");
             out.println("        .card-desc { font-size: 0.875rem; color: var(--text-muted); margin: 0; }");
-            out.println("        .card-footer { margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.06); font-size: 0.8rem; font-weight: 600; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }");
+            out.println("        .card-footer { margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--card-border); font-size: 0.8rem; font-weight: 600; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }");
             out.println("        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1.25rem; margin-bottom: 2.25rem; }");
-            out.println("        .stat-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 1.25rem; text-align: center; }");
+            out.println("        .stat-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 1.25rem; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }");
             out.println("        .stat-value { font-size: 1.9rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 0.25rem 0; }");
             out.println("        .stat-sub { font-size: 0.8rem; color: var(--text-muted); }");
             out.println("        .stat-label { color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }");
             out.println("        .quick-actions { display: flex; gap: 0.75rem; margin-bottom: 2rem; flex-wrap: wrap; align-items: center; }");
-            out.println("        .action-btn { background: var(--card-bg); border: 1px solid var(--card-border); color: #e2e8f0; padding: 0.55rem 1.1rem; border-radius: 8px; text-decoration: none; font-size: 0.875rem; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; }");
-            out.println("        .action-btn:hover { background: #334155; border-color: var(--primary); color: #38bdf8; }");
-            out.println("        .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 1.75rem; margin-bottom: 2.25rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2); }");
-            out.println("        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 1rem; }");
-            out.println("        .section-header h2 { margin: 0; font-size: 1.45rem; font-weight: 700; display: flex; align-items: center; gap: 0.6rem; color: #f8fafc; }");
+            out.println("        .action-btn { background: var(--card-bg); border: 1px solid var(--card-border); color: #334155; padding: 0.55rem 1.1rem; border-radius: 8px; text-decoration: none; font-size: 0.875rem; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }");
+            out.println("        .action-btn:hover { background: #f8fafc; border-color: var(--primary); color: var(--primary); }");
+            out.println("        .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 1.75rem; margin-bottom: 2.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }");
+            out.println("        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--card-border); padding-bottom: 1rem; }");
+            out.println("        .section-header h2 { margin: 0; font-size: 1.45rem; font-weight: 700; display: flex; align-items: center; gap: 0.6rem; color: #0f172a; }");
             out.println("        .section-desc { color: var(--text-muted); font-size: 0.95rem; margin: 0.25rem 0 0 0; }");
-            out.println("        .subpage-link { font-size: 0.85rem; font-weight: 600; color: var(--primary); text-decoration: none; border: 1px solid var(--card-border); padding: 0.4rem 0.8rem; border-radius: 6px; background: rgba(56, 189, 248, 0.05); transition: all 0.2s; }");
-            out.println("        .subpage-link:hover { background: rgba(56, 189, 248, 0.15); border-color: var(--primary); }");
+            out.println("        .subpage-link { font-size: 0.85rem; font-weight: 600; color: var(--primary); text-decoration: none; border: 1px solid #bae6fd; padding: 0.4rem 0.8rem; border-radius: 6px; background: #f0f9ff; transition: all 0.2s; }");
+            out.println("        .subpage-link:hover { background: #e0f2fe; border-color: var(--primary); }");
             out.println("        table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem; }");
             out.println("        th, td { padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid var(--card-border); }");
-            out.println("        th { background: rgba(15, 23, 42, 0.6); font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }");
-            out.println("        tr:hover td { background: rgba(255, 255, 255, 0.02); }");
+            out.println("        th { background: #f8fafc; font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }");
+            out.println("        tr:hover td { background: #f8fafc; }");
             out.println("        .badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.65rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; font-family: 'JetBrains Mono', monospace; }");
-            out.println("        .badge-success { background: var(--success-bg); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }");
-            out.println("        .badge-info { background: rgba(56, 189, 248, 0.12); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }");
-            out.println("        .badge-warning { background: var(--warning-bg); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }");
-            out.println("        .badge-time { background: var(--time-bg); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.2); font-size: 0.73rem; }");
-            out.println("        .badge-perf { background: rgba(168, 85, 247, 0.12); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.3); }");
+            out.println("        .badge-success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }");
+            out.println("        .badge-info { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }");
+            out.println("        .badge-warning { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }");
+            out.println("        .badge-time { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; font-size: 0.73rem; }");
+            out.println("        .badge-perf { background: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff; }");
             out.println("        .numeric { text-align: right; font-variant-numeric: tabular-nums; font-family: 'JetBrains Mono', monospace; }");
-            out.println("        .speedup-fast { color: #4ade80; font-weight: 700; }");
-            out.println("        .speedup-slow { color: #f87171; }");
-            out.println("        .perf-tag { font-size: 0.8rem; padding: 0.15rem 0.4rem; border-radius: 4px; background: rgba(15, 23, 42, 0.5); font-family: 'JetBrains Mono', monospace; }");
+            out.println("        .speedup-fast { color: #16a34a; font-weight: 700; }");
+            out.println("        .speedup-slow { color: #dc2626; }");
+            out.println("        .perf-tag { font-size: 0.8rem; padding: 0.15rem 0.4rem; border-radius: 4px; background: #f1f5f9; border: 1px solid #e2e8f0; color: #334155; font-family: 'JetBrains Mono', monospace; }");
             out.println("        .subtable-wrapper { margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px dashed var(--card-border); }");
-            out.println("        .subtable-title { font-size: 1.05rem; font-weight: 700; margin: 0 0 0.75rem 0; color: #cbd5e1; display: flex; align-items: center; justify-content: space-between; }");
+            out.println("        .subtable-title { font-size: 1.05rem; font-weight: 700; margin: 0 0 0.75rem 0; color: #1e293b; display: flex; align-items: center; justify-content: space-between; }");
             out.println("    </style>");
             out.println("</head>");
             out.println("<body>");
@@ -880,7 +890,7 @@ public class GlobalDashboardGenerator {
             out.println("        </div>");
             out.println("        <div class=\"stat-card\">");
             out.println("            <div class=\"stat-label\">LRUClockMap Tests</div>");
-            out.printf("            <div class=\"stat-value\" style=\"color: #38bdf8;\">%d</div>%n", totalLruTests);
+            out.printf("            <div class=\"stat-value\" style=\"color: #0284c7;\">%d</div>%n", totalLruTests);
             out.printf("            <div class=\"stat-sub\">Total duration: %.2fs</div>%n", totalLruTime);
             out.println("        </div>");
             out.println("        <div class=\"stat-card\">");
@@ -890,7 +900,7 @@ public class GlobalDashboardGenerator {
             out.println("        </div>");
             out.println("        <div class=\"stat-card\">");
             out.println("            <div class=\"stat-label\">Peak Put Speedup</div>");
-            out.printf("            <div class=\"stat-value\" style=\"color: #f59e0b;\">%.2fx</div>%n", peakPut);
+            out.printf("            <div class=\"stat-value\" style=\"color: #d97706;\">%.2fx</div>%n", peakPut);
             out.println("            <div class=\"stat-sub\">vs demo0 baseline</div>");
             out.println("        </div>");
             out.println("    </div>");
@@ -949,15 +959,31 @@ public class GlobalDashboardGenerator {
                     String timeBadge = s.quality().executionTimeSeconds() > 0 ?
                             String.format("<span class=\"badge badge-time\">⏱️ %.2fs</span>", s.quality().executionTimeSeconds()) : "";
 
+                    int total = s.quality().tests();
+                    int fails = s.quality().failures() + s.quality().errors();
+                    int passed = Math.max(0, total - fails);
+                    String testBadge;
+                    String statusBadge;
+                    if (total == 0) {
+                        testBadge = "<span class=\"badge badge-info\">0 Tests</span>";
+                        statusBadge = "<span class=\"badge badge-info\">No Tests</span>";
+                    } else if (fails == 0) {
+                        testBadge = String.format("<a href=\"surefire.html\" class=\"badge badge-success\" style=\"text-decoration: none;\">%d Passed</a> %s", total, timeBadge);
+                        statusBadge = "<span class=\"badge badge-success\">100% Passing ✅</span>";
+                    } else {
+                        testBadge = String.format("<a href=\"surefire.html\" class=\"badge badge-warning\" style=\"text-decoration: none;\">%d/%d Passed</a> %s", passed, total, timeBadge);
+                        statusBadge = String.format("<span class=\"badge badge-warning\">⚠ %d Failed</span>", fails);
+                    }
+
                     out.println("                <tr>");
                     out.printf("                    <td><strong>%s</strong></td>%n", s.id());
                     out.printf("                    <td><span class=\"badge badge-info\">%s</span></td>%n", s.aiModel());
-                    out.printf("                    <td><a href=\"surefire.html\" class=\"badge badge-success\" style=\"text-decoration: none;\">%d Passed</a> %s</td>%n", s.quality().tests(), timeBadge);
-                    out.printf("                    <td><a href=\"%s\" style=\"color: #38bdf8; text-decoration: underline;\"><strong>%.1f%%</strong></a> (%d/%d)</td>%n", covLink, s.quality().instructionCoveragePct(), s.quality().totalInstructions() - s.quality().missedInstructions(), s.quality().totalInstructions());
+                    out.printf("                    <td>%s</td>%n", testBadge);
+                    out.printf("                    <td><a href=\"%s\" style=\"color: var(--primary); text-decoration: underline;\"><strong>%.1f%%</strong></a> (%d/%d)</td>%n", covLink, s.quality().instructionCoveragePct(), s.quality().totalInstructions() - s.quality().missedInstructions(), s.quality().totalInstructions());
                     out.printf("                    <td><a href=\"%s\" style=\"color: inherit; text-decoration: underline;\">%.1f%%</a> (%d/%d)</td>%n", covLink, s.quality().lineCoveragePct(), s.quality().totalLines() - s.quality().missedLines(), s.quality().totalLines());
                     out.printf("                    <td><a href=\"%s\" style=\"color: inherit; text-decoration: underline;\">%.1f%%</a> (%d/%d)</td>%n", covLink, s.quality().branchCoveragePct(), s.quality().totalBranches() - s.quality().missedBranches(), s.quality().totalBranches());
                     out.printf("                    <td>%s</td>%n", pitBadge);
-                    out.println("                    <td><span class=\"badge badge-success\">100% Passing ✅</span></td>");
+                    out.printf("                    <td>%s</td>%n", statusBadge);
                     out.println("                </tr>");
                 }
 
@@ -1103,15 +1129,31 @@ public class GlobalDashboardGenerator {
                     String timeBadge = s.quality().executionTimeSeconds() > 0 ?
                             String.format("<span class=\"badge badge-time\">⏱️ %.2fs</span>", s.quality().executionTimeSeconds()) : "";
 
+                    int total = s.quality().tests();
+                    int fails = s.quality().failures() + s.quality().errors();
+                    int passed = Math.max(0, total - fails);
+                    String testBadge;
+                    String statusBadge;
+                    if (total == 0) {
+                        testBadge = "<span class=\"badge badge-info\">0 Tests</span>";
+                        statusBadge = "<span class=\"badge badge-info\">No Tests</span>";
+                    } else if (fails == 0) {
+                        testBadge = String.format("<a href=\"surefire.html\" class=\"badge badge-success\" style=\"text-decoration: none;\">%d Passed</a> %s", total, timeBadge);
+                        statusBadge = "<span class=\"badge badge-success\">100% Passing ✅</span>";
+                    } else {
+                        testBadge = String.format("<a href=\"surefire.html\" class=\"badge badge-warning\" style=\"text-decoration: none;\">%d/%d Passed</a> %s", passed, total, timeBadge);
+                        statusBadge = String.format("<span class=\"badge badge-warning\">⚠ %d Failed</span>", fails);
+                    }
+
                     out.println("                <tr>");
                     out.printf("                    <td><strong>%s</strong></td>%n", s.id());
                     out.printf("                    <td><span class=\"badge badge-info\">%s</span></td>%n", s.aiModel());
-                    out.printf("                    <td><a href=\"surefire.html\" class=\"badge badge-success\" style=\"text-decoration: none;\">%d Passed</a> %s</td>%n", s.quality().tests(), timeBadge);
-                    out.printf("                    <td><a href=\"%s\" style=\"color: #38bdf8; text-decoration: underline;\"><strong>%.1f%%</strong></a> (%d/%d)</td>%n", covLink, s.quality().instructionCoveragePct(), s.quality().totalInstructions() - s.quality().missedInstructions(), s.quality().totalInstructions());
+                    out.printf("                    <td>%s</td>%n", testBadge);
+                    out.printf("                    <td><a href=\"%s\" style=\"color: var(--primary); text-decoration: underline;\"><strong>%.1f%%</strong></a> (%d/%d)</td>%n", covLink, s.quality().instructionCoveragePct(), s.quality().totalInstructions() - s.quality().missedInstructions(), s.quality().totalInstructions());
                     out.printf("                    <td><a href=\"%s\" style=\"color: inherit; text-decoration: underline;\">%.1f%%</a> (%d/%d)</td>%n", covLink, s.quality().lineCoveragePct(), s.quality().totalLines() - s.quality().missedLines(), s.quality().totalLines());
                     out.printf("                    <td><a href=\"%s\" style=\"color: inherit; text-decoration: underline;\">%.1f%%</a> (%d/%d)</td>%n", covLink, s.quality().branchCoveragePct(), s.quality().totalBranches() - s.quality().missedBranches(), s.quality().totalBranches());
                     out.printf("                    <td>%s</td>%n", pitBadge);
-                    out.println("                    <td><span class=\"badge badge-success\">100% Passing ✅</span></td>");
+                    out.printf("                    <td>%s</td>%n", statusBadge);
                     out.println("                </tr>");
                 }
 
@@ -1161,15 +1203,31 @@ public class GlobalDashboardGenerator {
                     String timeBadge = s.quality().executionTimeSeconds() > 0 ?
                             String.format("<span class=\"badge badge-time\">⏱️ %.2fs</span>", s.quality().executionTimeSeconds()) : "";
 
+                    int total = s.quality().tests();
+                    int fails = s.quality().failures() + s.quality().errors();
+                    int passed = Math.max(0, total - fails);
+                    String testBadge;
+                    String statusBadge;
+                    if (total == 0) {
+                        testBadge = "<span class=\"badge badge-info\">0 Tests</span>";
+                        statusBadge = "<span class=\"badge badge-info\">No Tests</span>";
+                    } else if (fails == 0) {
+                        testBadge = String.format("<a href=\"surefire.html\" class=\"badge badge-success\" style=\"text-decoration: none;\">%d Passed</a> %s", total, timeBadge);
+                        statusBadge = "<span class=\"badge badge-success\">100% Passing ✅</span>";
+                    } else {
+                        testBadge = String.format("<a href=\"surefire.html\" class=\"badge badge-warning\" style=\"text-decoration: none;\">%d/%d Passed</a> %s", passed, total, timeBadge);
+                        statusBadge = String.format("<span class=\"badge badge-warning\">⚠ %d Failed</span>", fails);
+                    }
+
                     out.println("                <tr>");
                     out.printf("                    <td><strong>%s</strong></td>%n", s.id());
                     out.printf("                    <td><span class=\"badge badge-info\">%s</span></td>%n", s.aiModel());
-                    out.printf("                    <td><a href=\"surefire.html\" class=\"badge badge-success\" style=\"text-decoration: none;\">%d Passed</a> %s</td>%n", s.quality().tests(), timeBadge);
-                    out.printf("                    <td><a href=\"%s\" style=\"color: #38bdf8; text-decoration: underline;\"><strong>%.1f%%</strong></a> (%d/%d)</td>%n", covLink, s.quality().instructionCoveragePct(), s.quality().totalInstructions() - s.quality().missedInstructions(), s.quality().totalInstructions());
+                    out.printf("                    <td>%s</td>%n", testBadge);
+                    out.printf("                    <td><a href=\"%s\" style=\"color: var(--primary); text-decoration: underline;\"><strong>%.1f%%</strong></a> (%d/%d)</td>%n", covLink, s.quality().instructionCoveragePct(), s.quality().totalInstructions() - s.quality().missedInstructions(), s.quality().totalInstructions());
                     out.printf("                    <td><a href=\"%s\" style=\"color: inherit; text-decoration: underline;\">%.1f%%</a> (%d/%d)</td>%n", covLink, s.quality().lineCoveragePct(), s.quality().totalLines() - s.quality().missedLines(), s.quality().totalLines());
                     out.printf("                    <td><a href=\"%s\" style=\"color: inherit; text-decoration: underline;\">%.1f%%</a> (%d/%d)</td>%n", covLink, s.quality().branchCoveragePct(), s.quality().totalBranches() - s.quality().missedBranches(), s.quality().totalBranches());
                     out.printf("                    <td>%s</td>%n", pitBadge);
-                    out.println("                    <td><span class=\"badge badge-success\">100% Passing ✅</span></td>");
+                    out.printf("                    <td>%s</td>%n", statusBadge);
                     out.println("                </tr>");
                 }
 

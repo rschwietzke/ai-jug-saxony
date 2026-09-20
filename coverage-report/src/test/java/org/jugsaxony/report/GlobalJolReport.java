@@ -250,7 +250,7 @@ public class GlobalJolReport {
             out.println("        .badge-flat { background: #ede9fe; color: #5b21b6; }");
             out.println("        .badge-node { background: #fee2e2; color: #991b1b; }");
             out.println("        .numeric { text-align: right; font-variant-numeric: tabular-nums; }");
-            out.println("        pre { background: #1e293b; color: #f8fafc; padding: 1rem; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; }");
+            out.println("        pre { background: #f8fafc; color: #0f172a; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; font-family: monospace; }");
             out.println("    </style>");
             out.println("</head>");
             out.println("<body>");
