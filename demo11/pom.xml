@@ -57,11 +57,17 @@
                 <artifactId>pitest-maven</artifactId>
                 <configuration>
                     <targetClasses>
+                        <param>org.jugsaxony.*</param>
                         <param>com.xceptance.xlt.report.util.*</param>
                     </targetClasses>
                     <targetTests>
+                        <param>org.jugsaxony.*</param>
                         <param>com.xceptance.xlt.report.util.*</param>
                     </targetTests>
+                    <excludedTestClasses>
+                        <param>*Benchmark*</param>
+                        <param>*EfficiencyTest*</param>
+                    </excludedTestClasses>
                 </configuration>
             </plugin>
         </plugins>

@@ -1,0 +1,2020 @@
+[
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getHit_demo0",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 61.122415635540314,
+            "scoreError" : 22.664140773043176,
+            "scoreConfidence" : [
+                38.458274862497134,
+                83.7865564085835
+            ],
+            "scorePercentiles" : {
+                "0.0" : 59.763836880209944,
+                "50.0" : 61.40295418161038,
+                "90.0" : 62.2004558448006,
+                "95.0" : 62.2004558448006,
+                "99.0" : 62.2004558448006,
+                "99.9" : 62.2004558448006,
+                "99.99" : 62.2004558448006,
+                "99.999" : 62.2004558448006,
+                "99.9999" : 62.2004558448006,
+                "100.0" : 62.2004558448006
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    59.763836880209944,
+                    62.2004558448006,
+                    61.40295418161038
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getHit_demo1",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 90.5327645164865,
+            "scoreError" : 88.15695319095751,
+            "scoreConfidence" : [
+                2.3758113255289857,
+                178.689717707444
+            ],
+            "scorePercentiles" : {
+                "0.0" : 85.64509147537923,
+                "50.0" : 90.64573135467022,
+                "90.0" : 95.30747071941,
+                "95.0" : 95.30747071941,
+                "99.0" : 95.30747071941,
+                "99.9" : 95.30747071941,
+                "99.99" : 95.30747071941,
+                "99.999" : 95.30747071941,
+                "99.9999" : 95.30747071941,
+                "100.0" : 95.30747071941
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    90.64573135467022,
+                    85.64509147537923,
+                    95.30747071941
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getHit_demo11",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 103.3323829835759,
+            "scoreError" : 10.993206260409657,
+            "scoreConfidence" : [
+                92.33917672316625,
+                114.32558924398555
+            ],
+            "scorePercentiles" : {
+                "0.0" : 102.64721522691036,
+                "50.0" : 103.57006136057727,
+                "90.0" : 103.77987236324007,
+                "95.0" : 103.77987236324007,
+                "99.0" : 103.77987236324007,
+                "99.9" : 103.77987236324007,
+                "99.99" : 103.77987236324007,
+                "99.999" : 103.77987236324007,
+                "99.9999" : 103.77987236324007,
+                "100.0" : 103.77987236324007
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    102.64721522691036,
+                    103.57006136057727,
+                    103.77987236324007
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getHit_demo12",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 103.07065668633896,
+            "scoreError" : 17.572388142914093,
+            "scoreConfidence" : [
+                85.49826854342487,
+                120.64304482925306
+            ],
+            "scorePercentiles" : {
+                "0.0" : 101.9642080014313,
+                "50.0" : 103.52597106684017,
+                "90.0" : 103.72179099074542,
+                "95.0" : 103.72179099074542,
+                "99.0" : 103.72179099074542,
+                "99.9" : 103.72179099074542,
+                "99.99" : 103.72179099074542,
+                "99.999" : 103.72179099074542,
+                "99.9999" : 103.72179099074542,
+                "100.0" : 103.72179099074542
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    101.9642080014313,
+                    103.52597106684017,
+                    103.72179099074542
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getHit_demo2",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 97.5843485253813,
+            "scoreError" : 86.68202029515754,
+            "scoreConfidence" : [
+                10.902328230223759,
+                184.26636882053884
+            ],
+            "scorePercentiles" : {
+                "0.0" : 93.66526923720477,
+                "50.0" : 96.21886362925392,
+                "90.0" : 102.8689127096852,
+                "95.0" : 102.8689127096852,
+                "99.0" : 102.8689127096852,
+                "99.9" : 102.8689127096852,
+                "99.99" : 102.8689127096852,
+                "99.999" : 102.8689127096852,
+                "99.9999" : 102.8689127096852,
+                "100.0" : 102.8689127096852
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    102.8689127096852,
+                    96.21886362925392,
+                    93.66526923720477
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getHit_demo3",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 104.10245298086294,
+            "scoreError" : 5.729217799244524,
+            "scoreConfidence" : [
+                98.37323518161841,
+                109.83167078010746
+            ],
+            "scorePercentiles" : {
+                "0.0" : 103.78715611552971,
+                "50.0" : 104.10498652155727,
+                "90.0" : 104.41521630550183,
+                "95.0" : 104.41521630550183,
+                "99.0" : 104.41521630550183,
+                "99.9" : 104.41521630550183,
+                "99.99" : 104.41521630550183,
+                "99.999" : 104.41521630550183,
+                "99.9999" : 104.41521630550183,
+                "100.0" : 104.41521630550183
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    103.78715611552971,
+                    104.10498652155727,
+                    104.41521630550183
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getHit_demo4",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 64.4912348118898,
+            "scoreError" : 8.230136108419051,
+            "scoreConfidence" : [
+                56.26109870347074,
+                72.72137092030884
+            ],
+            "scorePercentiles" : {
+                "0.0" : 64.00566194409392,
+                "50.0" : 64.57069678746699,
+                "90.0" : 64.89734570410847,
+                "95.0" : 64.89734570410847,
+                "99.0" : 64.89734570410847,
+                "99.9" : 64.89734570410847,
+                "99.99" : 64.89734570410847,
+                "99.999" : 64.89734570410847,
+                "99.9999" : 64.89734570410847,
+                "100.0" : 64.89734570410847
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    64.89734570410847,
+                    64.00566194409392,
+                    64.57069678746699
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getHit_demo5",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 124.88548224114373,
+            "scoreError" : 9.192010443330423,
+            "scoreConfidence" : [
+                115.69347179781332,
+                134.07749268447415
+            ],
+            "scorePercentiles" : {
+                "0.0" : 124.56541652960004,
+                "50.0" : 124.62476772670854,
+                "90.0" : 125.46626246712263,
+                "95.0" : 125.46626246712263,
+                "99.0" : 125.46626246712263,
+                "99.9" : 125.46626246712263,
+                "99.99" : 125.46626246712263,
+                "99.999" : 125.46626246712263,
+                "99.9999" : 125.46626246712263,
+                "100.0" : 125.46626246712263
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    124.62476772670854,
+                    125.46626246712263,
+                    124.56541652960004
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getHit_demo6",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 96.62244906563937,
+            "scoreError" : 95.88910232836938,
+            "scoreConfidence" : [
+                0.7333467372699971,
+                192.51155139400873
+            ],
+            "scorePercentiles" : {
+                "0.0" : 90.55452478113119,
+                "50.0" : 99.55242817445182,
+                "90.0" : 99.76039424133513,
+                "95.0" : 99.76039424133513,
+                "99.0" : 99.76039424133513,
+                "99.9" : 99.76039424133513,
+                "99.99" : 99.76039424133513,
+                "99.999" : 99.76039424133513,
+                "99.9999" : 99.76039424133513,
+                "100.0" : 99.76039424133513
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    90.55452478113119,
+                    99.76039424133513,
+                    99.55242817445182
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getHit_demo7",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 126.37792743640888,
+            "scoreError" : 133.27799776193186,
+            "scoreConfidence" : [
+                -6.900070325522975,
+                259.65592519834075
+            ],
+            "scorePercentiles" : {
+                "0.0" : 121.4555771879319,
+                "50.0" : 122.90639951663793,
+                "90.0" : 134.7718056046568,
+                "95.0" : 134.7718056046568,
+                "99.0" : 134.7718056046568,
+                "99.9" : 134.7718056046568,
+                "99.99" : 134.7718056046568,
+                "99.999" : 134.7718056046568,
+                "99.9999" : 134.7718056046568,
+                "100.0" : 134.7718056046568
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    134.7718056046568,
+                    122.90639951663793,
+                    121.4555771879319
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getHit_demo8",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 100.26572078570071,
+            "scoreError" : 6.220348992033315,
+            "scoreConfidence" : [
+                94.0453717936674,
+                106.48606977773402
+            ],
+            "scorePercentiles" : {
+                "0.0" : 99.89721934857401,
+                "50.0" : 100.32993987235463,
+                "90.0" : 100.57000313617351,
+                "95.0" : 100.57000313617351,
+                "99.0" : 100.57000313617351,
+                "99.9" : 100.57000313617351,
+                "99.99" : 100.57000313617351,
+                "99.999" : 100.57000313617351,
+                "99.9999" : 100.57000313617351,
+                "100.0" : 100.57000313617351
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    100.57000313617351,
+                    99.89721934857401,
+                    100.32993987235463
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getHit_demo9",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 106.9690935504435,
+            "scoreError" : 3.9851853483626396,
+            "scoreConfidence" : [
+                102.98390820208087,
+                110.95427889880614
+            ],
+            "scorePercentiles" : {
+                "0.0" : 106.80957598362075,
+                "50.0" : 106.87964157988732,
+                "90.0" : 107.21806308782242,
+                "95.0" : 107.21806308782242,
+                "99.0" : 107.21806308782242,
+                "99.9" : 107.21806308782242,
+                "99.99" : 107.21806308782242,
+                "99.999" : 107.21806308782242,
+                "99.9999" : 107.21806308782242,
+                "100.0" : 107.21806308782242
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    107.21806308782242,
+                    106.80957598362075,
+                    106.87964157988732
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getMiss_demo0",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 81.92705591852099,
+            "scoreError" : 16.910032364290128,
+            "scoreConfidence" : [
+                65.01702355423086,
+                98.83708828281112
+            ],
+            "scorePercentiles" : {
+                "0.0" : 81.34359774812313,
+                "50.0" : 81.4417274154751,
+                "90.0" : 82.99584259196473,
+                "95.0" : 82.99584259196473,
+                "99.0" : 82.99584259196473,
+                "99.9" : 82.99584259196473,
+                "99.99" : 82.99584259196473,
+                "99.999" : 82.99584259196473,
+                "99.9999" : 82.99584259196473,
+                "100.0" : 82.99584259196473
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    81.34359774812313,
+                    81.4417274154751,
+                    82.99584259196473
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getMiss_demo1",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 88.1377287985515,
+            "scoreError" : 9.045064984362059,
+            "scoreConfidence" : [
+                79.09266381418945,
+                97.18279378291356
+            ],
+            "scorePercentiles" : {
+                "0.0" : 87.59847794884463,
+                "50.0" : 88.24087706753092,
+                "90.0" : 88.57383137927897,
+                "95.0" : 88.57383137927897,
+                "99.0" : 88.57383137927897,
+                "99.9" : 88.57383137927897,
+                "99.99" : 88.57383137927897,
+                "99.999" : 88.57383137927897,
+                "99.9999" : 88.57383137927897,
+                "100.0" : 88.57383137927897
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    87.59847794884463,
+                    88.24087706753092,
+                    88.57383137927897
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getMiss_demo11",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 86.95775798320112,
+            "scoreError" : 11.469257368035361,
+            "scoreConfidence" : [
+                75.48850061516576,
+                98.42701535123648
+            ],
+            "scorePercentiles" : {
+                "0.0" : 86.43565273141063,
+                "50.0" : 86.78202815649117,
+                "90.0" : 87.65559306170155,
+                "95.0" : 87.65559306170155,
+                "99.0" : 87.65559306170155,
+                "99.9" : 87.65559306170155,
+                "99.99" : 87.65559306170155,
+                "99.999" : 87.65559306170155,
+                "99.9999" : 87.65559306170155,
+                "100.0" : 87.65559306170155
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    86.43565273141063,
+                    86.78202815649117,
+                    87.65559306170155
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getMiss_demo12",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 91.59684170833928,
+            "scoreError" : 17.182013751633363,
+            "scoreConfidence" : [
+                74.41482795670592,
+                108.77885545997265
+            ],
+            "scorePercentiles" : {
+                "0.0" : 90.97238901395951,
+                "50.0" : 91.13800438450308,
+                "90.0" : 92.68013172655525,
+                "95.0" : 92.68013172655525,
+                "99.0" : 92.68013172655525,
+                "99.9" : 92.68013172655525,
+                "99.99" : 92.68013172655525,
+                "99.999" : 92.68013172655525,
+                "99.9999" : 92.68013172655525,
+                "100.0" : 92.68013172655525
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    90.97238901395951,
+                    91.13800438450308,
+                    92.68013172655525
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getMiss_demo2",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 101.49819923700615,
+            "scoreError" : 25.782857442951737,
+            "scoreConfidence" : [
+                75.71534179405441,
+                127.28105667995789
+            ],
+            "scorePercentiles" : {
+                "0.0" : 99.93478823215575,
+                "50.0" : 101.87484655774406,
+                "90.0" : 102.68496292111867,
+                "95.0" : 102.68496292111867,
+                "99.0" : 102.68496292111867,
+                "99.9" : 102.68496292111867,
+                "99.99" : 102.68496292111867,
+                "99.999" : 102.68496292111867,
+                "99.9999" : 102.68496292111867,
+                "100.0" : 102.68496292111867
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    99.93478823215575,
+                    101.87484655774406,
+                    102.68496292111867
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getMiss_demo3",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 91.2260871109732,
+            "scoreError" : 14.921099650091683,
+            "scoreConfidence" : [
+                76.3049874608815,
+                106.14718676106489
+            ],
+            "scorePercentiles" : {
+                "0.0" : 90.28266114389345,
+                "50.0" : 91.660632342938,
+                "90.0" : 91.73496784608813,
+                "95.0" : 91.73496784608813,
+                "99.0" : 91.73496784608813,
+                "99.9" : 91.73496784608813,
+                "99.99" : 91.73496784608813,
+                "99.999" : 91.73496784608813,
+                "99.9999" : 91.73496784608813,
+                "100.0" : 91.73496784608813
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    90.28266114389345,
+                    91.73496784608813,
+                    91.660632342938
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getMiss_demo4",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 53.11125953015888,
+            "scoreError" : 7.7436401422248,
+            "scoreConfidence" : [
+                45.367619387934084,
+                60.85489967238368
+            ],
+            "scorePercentiles" : {
+                "0.0" : 52.81625321770746,
+                "50.0" : 52.91980761158388,
+                "90.0" : 53.59771776118531,
+                "95.0" : 53.59771776118531,
+                "99.0" : 53.59771776118531,
+                "99.9" : 53.59771776118531,
+                "99.99" : 53.59771776118531,
+                "99.999" : 53.59771776118531,
+                "99.9999" : 53.59771776118531,
+                "100.0" : 53.59771776118531
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    52.91980761158388,
+                    52.81625321770746,
+                    53.59771776118531
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getMiss_demo5",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 133.77104634242355,
+            "scoreError" : 20.064936880455924,
+            "scoreConfidence" : [
+                113.70610946196763,
+                153.83598322287946
+            ],
+            "scorePercentiles" : {
+                "0.0" : 132.61859051253344,
+                "50.0" : 133.8852100059797,
+                "90.0" : 134.8093385087575,
+                "95.0" : 134.8093385087575,
+                "99.0" : 134.8093385087575,
+                "99.9" : 134.8093385087575,
+                "99.99" : 134.8093385087575,
+                "99.999" : 134.8093385087575,
+                "99.9999" : 134.8093385087575,
+                "100.0" : 134.8093385087575
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    132.61859051253344,
+                    134.8093385087575,
+                    133.8852100059797
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getMiss_demo6",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 99.99243206074772,
+            "scoreError" : 4.256127416009103,
+            "scoreConfidence" : [
+                95.73630464473861,
+                104.24855947675682
+            ],
+            "scorePercentiles" : {
+                "0.0" : 99.76132814541997,
+                "50.0" : 99.98811441592453,
+                "90.0" : 100.22785362089867,
+                "95.0" : 100.22785362089867,
+                "99.0" : 100.22785362089867,
+                "99.9" : 100.22785362089867,
+                "99.99" : 100.22785362089867,
+                "99.999" : 100.22785362089867,
+                "99.9999" : 100.22785362089867,
+                "100.0" : 100.22785362089867
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    99.98811441592453,
+                    99.76132814541997,
+                    100.22785362089867
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getMiss_demo7",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 159.93837159596742,
+            "scoreError" : 25.706793714977902,
+            "scoreConfidence" : [
+                134.23157788098953,
+                185.64516531094532
+            ],
+            "scorePercentiles" : {
+                "0.0" : 158.37725685108475,
+                "50.0" : 160.3218319514377,
+                "90.0" : 161.1160259853798,
+                "95.0" : 161.1160259853798,
+                "99.0" : 161.1160259853798,
+                "99.9" : 161.1160259853798,
+                "99.99" : 161.1160259853798,
+                "99.999" : 161.1160259853798,
+                "99.9999" : 161.1160259853798,
+                "100.0" : 161.1160259853798
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    161.1160259853798,
+                    158.37725685108475,
+                    160.3218319514377
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getMiss_demo8",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 88.66295314315839,
+            "scoreError" : 20.01946747106498,
+            "scoreConfidence" : [
+                68.6434856720934,
+                108.68242061422337
+            ],
+            "scorePercentiles" : {
+                "0.0" : 87.82997694961826,
+                "50.0" : 88.25254575514475,
+                "90.0" : 89.90633672471218,
+                "95.0" : 89.90633672471218,
+                "99.0" : 89.90633672471218,
+                "99.9" : 89.90633672471218,
+                "99.99" : 89.90633672471218,
+                "99.999" : 89.90633672471218,
+                "99.9999" : 89.90633672471218,
+                "100.0" : 89.90633672471218
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    89.90633672471218,
+                    87.82997694961826,
+                    88.25254575514475
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.getMiss_demo9",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 92.48801452821665,
+            "scoreError" : 80.24437863876348,
+            "scoreConfidence" : [
+                12.243635889453174,
+                172.73239316698013
+            ],
+            "scorePercentiles" : {
+                "0.0" : 87.52526619699428,
+                "50.0" : 94.03405850359954,
+                "90.0" : 95.90471888405611,
+                "95.0" : 95.90471888405611,
+                "99.0" : 95.90471888405611,
+                "99.9" : 95.90471888405611,
+                "99.99" : 95.90471888405611,
+                "99.999" : 95.90471888405611,
+                "99.9999" : 95.90471888405611,
+                "100.0" : 95.90471888405611
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    87.52526619699428,
+                    95.90471888405611,
+                    94.03405850359954
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.put_demo0",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 65.83703468559527,
+            "scoreError" : 23.732244562997117,
+            "scoreConfidence" : [
+                42.10479012259815,
+                89.56927924859238
+            ],
+            "scorePercentiles" : {
+                "0.0" : 64.40159041336095,
+                "50.0" : 66.1715845719791,
+                "90.0" : 66.93792907144575,
+                "95.0" : 66.93792907144575,
+                "99.0" : 66.93792907144575,
+                "99.9" : 66.93792907144575,
+                "99.99" : 66.93792907144575,
+                "99.999" : 66.93792907144575,
+                "99.9999" : 66.93792907144575,
+                "100.0" : 66.93792907144575
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    66.1715845719791,
+                    64.40159041336095,
+                    66.93792907144575
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.put_demo1",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 67.77696184869657,
+            "scoreError" : 15.129025240113096,
+            "scoreConfidence" : [
+                52.64793660858348,
+                82.90598708880967
+            ],
+            "scorePercentiles" : {
+                "0.0" : 66.82735626991546,
+                "50.0" : 68.14508513643334,
+                "90.0" : 68.35844413974093,
+                "95.0" : 68.35844413974093,
+                "99.0" : 68.35844413974093,
+                "99.9" : 68.35844413974093,
+                "99.99" : 68.35844413974093,
+                "99.999" : 68.35844413974093,
+                "99.9999" : 68.35844413974093,
+                "100.0" : 68.35844413974093
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    68.14508513643334,
+                    66.82735626991546,
+                    68.35844413974093
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.put_demo11",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 58.32249129566987,
+            "scoreError" : 136.44849328972407,
+            "scoreConfidence" : [
+                -78.1260019940542,
+                194.77098458539393
+            ],
+            "scorePercentiles" : {
+                "0.0" : 49.692074049212586,
+                "50.0" : 62.36312518036494,
+                "90.0" : 62.91227465743209,
+                "95.0" : 62.91227465743209,
+                "99.0" : 62.91227465743209,
+                "99.9" : 62.91227465743209,
+                "99.99" : 62.91227465743209,
+                "99.999" : 62.91227465743209,
+                "99.9999" : 62.91227465743209,
+                "100.0" : 62.91227465743209
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    62.91227465743209,
+                    62.36312518036494,
+                    49.692074049212586
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.put_demo12",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 61.21068441140229,
+            "scoreError" : 47.34503876777771,
+            "scoreConfidence" : [
+                13.865645643624582,
+                108.55572317918
+            ],
+            "scorePercentiles" : {
+                "0.0" : 58.234099250208146,
+                "50.0" : 62.399453829847346,
+                "90.0" : 62.99850015415138,
+                "95.0" : 62.99850015415138,
+                "99.0" : 62.99850015415138,
+                "99.9" : 62.99850015415138,
+                "99.99" : 62.99850015415138,
+                "99.999" : 62.99850015415138,
+                "99.9999" : 62.99850015415138,
+                "100.0" : 62.99850015415138
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    58.234099250208146,
+                    62.399453829847346,
+                    62.99850015415138
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.put_demo2",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 60.86329836155229,
+            "scoreError" : 8.815859046579629,
+            "scoreConfidence" : [
+                52.047439314972664,
+                69.67915740813191
+            ],
+            "scorePercentiles" : {
+                "0.0" : 60.43806846224503,
+                "50.0" : 60.76303479515388,
+                "90.0" : 61.38879182725795,
+                "95.0" : 61.38879182725795,
+                "99.0" : 61.38879182725795,
+                "99.9" : 61.38879182725795,
+                "99.99" : 61.38879182725795,
+                "99.999" : 61.38879182725795,
+                "99.9999" : 61.38879182725795,
+                "100.0" : 61.38879182725795
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    60.76303479515388,
+                    60.43806846224503,
+                    61.38879182725795
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.put_demo3",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 44.65582190440487,
+            "scoreError" : 79.42906038339919,
+            "scoreConfidence" : [
+                -34.77323847899432,
+                124.08488228780405
+            ],
+            "scorePercentiles" : {
+                "0.0" : 39.6430556497759,
+                "50.0" : 46.83131826999265,
+                "90.0" : 47.49309179344606,
+                "95.0" : 47.49309179344606,
+                "99.0" : 47.49309179344606,
+                "99.9" : 47.49309179344606,
+                "99.99" : 47.49309179344606,
+                "99.999" : 47.49309179344606,
+                "99.9999" : 47.49309179344606,
+                "100.0" : 47.49309179344606
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    46.83131826999265,
+                    39.6430556497759,
+                    47.49309179344606
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.put_demo4",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 38.80031419818536,
+            "scoreError" : 10.99875692540998,
+            "scoreConfidence" : [
+                27.801557272775383,
+                49.79907112359534
+            ],
+            "scorePercentiles" : {
+                "0.0" : 38.13647956070144,
+                "50.0" : 38.95069434178938,
+                "90.0" : 39.31376869206526,
+                "95.0" : 39.31376869206526,
+                "99.0" : 39.31376869206526,
+                "99.9" : 39.31376869206526,
+                "99.99" : 39.31376869206526,
+                "99.999" : 39.31376869206526,
+                "99.9999" : 39.31376869206526,
+                "100.0" : 39.31376869206526
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    39.31376869206526,
+                    38.95069434178938,
+                    38.13647956070144
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.put_demo5",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 69.48602229211055,
+            "scoreError" : 84.27053830890456,
+            "scoreConfidence" : [
+                -14.784516016794015,
+                153.7565606010151
+            ],
+            "scorePercentiles" : {
+                "0.0" : 64.95525044191918,
+                "50.0" : 69.31406330305485,
+                "90.0" : 74.18875313135763,
+                "95.0" : 74.18875313135763,
+                "99.0" : 74.18875313135763,
+                "99.9" : 74.18875313135763,
+                "99.99" : 74.18875313135763,
+                "99.999" : 74.18875313135763,
+                "99.9999" : 74.18875313135763,
+                "100.0" : 74.18875313135763
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    74.18875313135763,
+                    64.95525044191918,
+                    69.31406330305485
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.put_demo6",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 54.5663783543342,
+            "scoreError" : 18.205403892776914,
+            "scoreConfidence" : [
+                36.360974461557284,
+                72.7717822471111
+            ],
+            "scorePercentiles" : {
+                "0.0" : 53.953332703284914,
+                "50.0" : 54.027954482491054,
+                "90.0" : 55.71784787722662,
+                "95.0" : 55.71784787722662,
+                "99.0" : 55.71784787722662,
+                "99.9" : 55.71784787722662,
+                "99.99" : 55.71784787722662,
+                "99.999" : 55.71784787722662,
+                "99.9999" : 55.71784787722662,
+                "100.0" : 55.71784787722662
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    53.953332703284914,
+                    55.71784787722662,
+                    54.027954482491054
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.put_demo7",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 83.56355035058998,
+            "scoreError" : 71.21470668554826,
+            "scoreConfidence" : [
+                12.348843665041713,
+                154.77825703613826
+            ],
+            "scorePercentiles" : {
+                "0.0" : 80.52401670755738,
+                "50.0" : 82.20089073906654,
+                "90.0" : 87.96574360514602,
+                "95.0" : 87.96574360514602,
+                "99.0" : 87.96574360514602,
+                "99.9" : 87.96574360514602,
+                "99.99" : 87.96574360514602,
+                "99.999" : 87.96574360514602,
+                "99.9999" : 87.96574360514602,
+                "100.0" : 87.96574360514602
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    82.20089073906654,
+                    80.52401670755738,
+                    87.96574360514602
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.put_demo8",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 61.72147570554,
+            "scoreError" : 22.911227221515762,
+            "scoreConfidence" : [
+                38.81024848402424,
+                84.63270292705576
+            ],
+            "scorePercentiles" : {
+                "0.0" : 60.325569404583106,
+                "50.0" : 62.079248741102006,
+                "90.0" : 62.759608970934885,
+                "95.0" : 62.759608970934885,
+                "99.0" : 62.759608970934885,
+                "99.9" : 62.759608970934885,
+                "99.99" : 62.759608970934885,
+                "99.999" : 62.759608970934885,
+                "99.9999" : 62.759608970934885,
+                "100.0" : 62.759608970934885
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    62.759608970934885,
+                    60.325569404583106,
+                    62.079248741102006
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "org.jugsaxony.report.GlobalJmhBenchmark.put_demo9",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/bin/java",
+        "jvmArgs" : [
+            "-Dclassworlds.conf=/home/rschwietzke/.sdkman/candidates/maven/current/bin/m2.conf",
+            "-Dmaven.home=/home/rschwietzke/.sdkman/candidates/maven/current",
+            "-Dlibrary.jansi.path=/home/rschwietzke/.sdkman/candidates/maven/current/lib/jansi-native",
+            "-Dmaven.multiModuleProjectDirectory=/home/rschwietzke/projects/GIT/ai-jug-saxony"
+        ],
+        "jdkVersion" : "25.0.4",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "25.0.4+7-LTS",
+        "warmupIterations" : 2,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "size" : "1000"
+        },
+        "primaryMetric" : {
+            "score" : 54.50900899794808,
+            "scoreError" : 82.90332840510348,
+            "scoreConfidence" : [
+                -28.3943194071554,
+                137.41233740305157
+            ],
+            "scorePercentiles" : {
+                "0.0" : 50.35578336910143,
+                "50.0" : 53.80841226741375,
+                "90.0" : 59.36283135732906,
+                "95.0" : 59.36283135732906,
+                "99.0" : 59.36283135732906,
+                "99.9" : 59.36283135732906,
+                "99.99" : 59.36283135732906,
+                "99.999" : 59.36283135732906,
+                "99.9999" : 59.36283135732906,
+                "100.0" : 59.36283135732906
+            },
+            "scoreUnit" : "ops/us",
+            "rawData" : [
+                [
+                    50.35578336910143,
+                    53.80841226741375,
+                    59.36283135732906
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    }
+]
+
+

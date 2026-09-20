@@ -52,10 +52,14 @@ jacoco.exec
 # Pitest Mutation Reports
 pit-reports/
 **/pit-reports/
+!reports/pit-reports/
+!reports/pit-reports/**
 
 # JMH Benchmark Output
 jmh-result.*
 **/jmh-result.*
+!reports/jmh-result*
+!reports/jmh-results*
 
 # ==============================================================================
 # IDEs & Editors

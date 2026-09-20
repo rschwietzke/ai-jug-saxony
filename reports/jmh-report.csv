@@ -1,0 +1,37 @@
+Operation,TargetId,ModelName,Score_OpsPerMicrosec,ScoreError,Unit,Cycles_Per_Op,Instructions_Per_Op,IPC,Branch_Misses_Per_Op,Branch_Miss_Rate_Pct,L1_Dcache_Misses_Per_Op,L1_Dcache_Miss_Rate_Pct,CPI,Stalled_Cycles_Frontend
+"getHit","demo0","Demo 0 (Baseline / FastRandom)",61.1224,22.6641,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getHit","demo1","Demo 1 (Gemini 3.7 Flash High / Antigravity)",90.5328,88.1570,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getHit","demo11","Demo 11 (Gemini 3.7 Flash High / Antigravity Rework)",103.3324,10.9932,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getHit","demo12","Demo 12 (Gemini 3.8 Flash High / Antigravity Rework)",103.0707,17.5724,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getHit","demo2","Demo 2 (Kimi K3)",97.5843,86.6820,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getHit","demo3","Demo 3 (OpenAI 5.6 Sol Max)",104.1025,5.7292,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getHit","demo4","Demo 4 (Gemma 4 31B Thinking)",64.4912,8.2301,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getHit","demo5","Demo 5 (Deepseek V4 Flash Max)",124.8855,9.1920,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getHit","demo6","Demo 6 (Claude Opus 5 Ultra)",96.6224,95.8891,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getHit","demo7","Demo 7 (Qwen 38 max XHigh)",126.3779,133.2780,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getHit","demo8","Demo 8 (Gemini 3.7 Flash High / Kilo Code)",100.2657,6.2203,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getHit","demo9","Demo 9 (Gemini 3.8 Flash High / Antigravity)",106.9691,3.9852,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getMiss","demo0","Demo 0 (Baseline / FastRandom)",81.9271,16.9100,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getMiss","demo1","Demo 1 (Gemini 3.7 Flash High / Antigravity)",88.1377,9.0451,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getMiss","demo11","Demo 11 (Gemini 3.7 Flash High / Antigravity Rework)",86.9578,11.4693,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getMiss","demo12","Demo 12 (Gemini 3.8 Flash High / Antigravity Rework)",91.5968,17.1820,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getMiss","demo2","Demo 2 (Kimi K3)",101.4982,25.7829,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getMiss","demo3","Demo 3 (OpenAI 5.6 Sol Max)",91.2261,14.9211,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getMiss","demo4","Demo 4 (Gemma 4 31B Thinking)",53.1113,7.7436,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getMiss","demo5","Demo 5 (Deepseek V4 Flash Max)",133.7710,20.0649,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getMiss","demo6","Demo 6 (Claude Opus 5 Ultra)",99.9924,4.2561,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getMiss","demo7","Demo 7 (Qwen 38 max XHigh)",159.9384,25.7068,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getMiss","demo8","Demo 8 (Gemini 3.7 Flash High / Kilo Code)",88.6630,20.0195,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"getMiss","demo9","Demo 9 (Gemini 3.8 Flash High / Antigravity)",92.4880,80.2444,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"put","demo0","Demo 0 (Baseline / FastRandom)",65.8370,23.7322,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"put","demo1","Demo 1 (Gemini 3.7 Flash High / Antigravity)",67.7770,15.1290,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"put","demo11","Demo 11 (Gemini 3.7 Flash High / Antigravity Rework)",58.3225,136.4485,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"put","demo12","Demo 12 (Gemini 3.8 Flash High / Antigravity Rework)",61.2107,47.3450,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"put","demo2","Demo 2 (Kimi K3)",60.8633,8.8159,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"put","demo3","Demo 3 (OpenAI 5.6 Sol Max)",44.6558,79.4291,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"put","demo4","Demo 4 (Gemma 4 31B Thinking)",38.8003,10.9988,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"put","demo5","Demo 5 (Deepseek V4 Flash Max)",69.4860,84.2705,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"put","demo6","Demo 6 (Claude Opus 5 Ultra)",54.5664,18.2054,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"put","demo7","Demo 7 (Qwen 38 max XHigh)",83.5636,71.2147,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"put","demo8","Demo 8 (Gemini 3.7 Flash High / Kilo Code)",61.7215,22.9112,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
+"put","demo9","Demo 9 (Gemini 3.8 Flash High / Antigravity)",54.5090,82.9033,"ops/us",0.00,0.00,0.000,0.000,0.00,0.000,0.00,0.000,0.00
