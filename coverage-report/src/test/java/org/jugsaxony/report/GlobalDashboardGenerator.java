@@ -594,8 +594,11 @@ public class GlobalDashboardGenerator {
             out.println("        .badge-success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }");
             out.println("        .badge-info { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }");
             out.println("        .badge-warning { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }");
-            out.println("        .progress-bar-container { width: 80px; height: 7px; background: #e2e8f0; border-radius: 4px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 8px; }");
-            out.println("        .progress-bar-fill { height: 100%; background: #16a34a; border-radius: 4px; }");
+            out.println("        .cov-bar-layout { display: inline-flex; align-items: center; gap: 0.65rem; white-space: nowrap; font-variant-numeric: tabular-nums; font-family: 'JetBrains Mono', monospace; }");
+            out.println("        .progress-bar-container { width: 84px; height: 7px; background: #e2e8f0; border-radius: 4px; overflow: hidden; flex-shrink: 0; }");
+            out.println("        .progress-bar-fill { height: 100%; border-radius: 4px; }");
+            out.println("        .cov-pct { width: 56px; text-align: right; font-weight: 700; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; font-size: 0.88rem; }");
+            out.println("        .cov-count { width: 94px; text-align: left; font-size: 0.75rem; color: var(--text-muted); font-weight: normal; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; }");
             out.println("        .pkg-tag { font-size: 0.78rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }");
             out.println("        .source-link { color: var(--primary); text-decoration: underline; font-weight: 600; font-size: 0.85rem; }");
             out.println("        .source-link:hover { color: #0369a1; }");
@@ -669,7 +672,7 @@ public class GlobalDashboardGenerator {
             out.println("                <tr>");
             out.println("                    <th>Class</th>");
             out.println("                    <th>Package</th>");
-            out.println("                    <th class=\"numeric\">Instruction Coverage</th>");
+            out.println("                    <th>Instruction Coverage</th>");
             out.println("                    <th class=\"numeric\">Line Coverage</th>");
             out.println("                    <th class=\"numeric\">Branch Coverage</th>");
             out.println("                    <th style=\"text-align: center;\">JaCoCo Source</th>");
@@ -681,16 +684,20 @@ public class GlobalDashboardGenerator {
                 double fillWidth = Math.min(100.0, Math.max(0.0, c.instructionCoveragePct()));
                 String fillStyle = c.instructionCoveragePct() >= 90.0 ? "background: #16a34a;" : (c.instructionCoveragePct() < 70.0 ? "background: #d97706;" : "background: #0284c7;");
 
-                String branchText = c.totalBranches() > 0 ?
-                        String.format("%.1f%% <span style=\"font-size: 0.75rem; color: var(--text-muted); font-weight: normal;\">(%d/%d)</span>", c.branchCoveragePct(), c.coveredBranches(), c.totalBranches()) :
-                        "<span style=\"color: var(--text-muted);\">- (0 branches)</span>";
+                String branchText;
+                if (c.totalBranches() > 0) {
+                    branchText = String.format("<div class=\"cov-bar-layout\" style=\"justify-content: flex-end;\"><span class=\"cov-pct\" style=\"font-weight: normal;\">%.1f%%</span> <span class=\"cov-count\">(%d/%d)</span></div>",
+                            c.branchCoveragePct(), c.coveredBranches(), c.totalBranches());
+                } else {
+                    branchText = "<span style=\"color: var(--text-muted); font-size: 0.8rem;\">- (0 branches)</span>";
+                }
 
                 out.println("                <tr>");
                 out.printf("                    <td><a href=\"%s\" style=\"color: var(--primary); font-weight: 700; text-decoration: underline;\">%s</a></td>%n", c.htmlRelPath(), c.className());
                 out.printf("                    <td><span class=\"pkg-tag\">%s</span></td>%n", c.packageName());
-                out.printf("                    <td class=\"numeric\"><div class=\"progress-bar-container\"><div class=\"progress-bar-fill\" style=\"width: %.1f%%; %s\"></div></div> <strong>%.1f%%</strong> <span style=\"font-size: 0.75rem; color: var(--text-muted); font-weight: normal;\">(%d/%d)</span></td>%n",
+                out.printf("                    <td><div class=\"cov-bar-layout\"><div class=\"progress-bar-container\"><div class=\"progress-bar-fill\" style=\"width: %.1f%%; %s\"></div></div> <span class=\"cov-pct\">%.1f%%</span> <span class=\"cov-count\">(%d/%d)</span></div></td>%n",
                         fillWidth, fillStyle, c.instructionCoveragePct(), c.coveredInstructions(), c.totalInstructions());
-                out.printf("                    <td class=\"numeric\">%.1f%% <span style=\"font-size: 0.75rem; color: var(--text-muted); font-weight: normal;\">(%d/%d)</span></td>%n",
+                out.printf("                    <td class=\"numeric\"><div class=\"cov-bar-layout\" style=\"justify-content: flex-end;\"><span class=\"cov-pct\" style=\"font-weight: normal;\">%.1f%%</span> <span class=\"cov-count\">(%d/%d)</span></div></td>%n",
                         c.lineCoveragePct(), c.coveredLines(), c.totalLines());
                 out.printf("                    <td class=\"numeric\">%s</td>%n", branchText);
                 out.printf("                    <td style=\"text-align: center;\"><a href=\"%s\" class=\"source-link\">View Source ↗</a></td>%n", c.htmlRelPath());
@@ -704,11 +711,11 @@ public class GlobalDashboardGenerator {
             out.println("                <tr class=\"total-row\">");
             out.println("                    <td>Total Suite Coverage</td>");
             out.println("                    <td><span class=\"pkg-tag\">4 packages / 5 classes</span></td>");
-            out.printf("                    <td class=\"numeric\"><div class=\"progress-bar-container\"><div class=\"progress-bar-fill\" style=\"width: %.1f%%; %s\"></div></div> <strong>%.1f%%</strong> <span style=\"font-size: 0.75rem; color: var(--text-muted); font-weight: normal;\">(%d/%d)</span></td>%n",
+            out.printf("                    <td><div class=\"cov-bar-layout\"><div class=\"progress-bar-container\"><div class=\"progress-bar-fill\" style=\"width: %.1f%%; %s\"></div></div> <span class=\"cov-pct\">%.1f%%</span> <span class=\"cov-count\">(%d/%d)</span></div></td>%n",
                     totalFillWidth, totalFillStyle, q.instructionCoveragePct(), coveredInst, q.totalInstructions());
-            out.printf("                    <td class=\"numeric\">%.1f%% <span style=\"font-size: 0.75rem; color: var(--text-muted); font-weight: normal;\">(%d/%d)</span></td>%n",
+            out.printf("                    <td class=\"numeric\"><div class=\"cov-bar-layout\" style=\"justify-content: flex-end;\"><span class=\"cov-pct\" style=\"font-weight: normal;\">%.1f%%</span> <span class=\"cov-count\">(%d/%d)</span></div></td>%n",
                     q.lineCoveragePct(), coveredLines, q.totalLines());
-            out.printf("                    <td class=\"numeric\">%.1f%% <span style=\"font-size: 0.75rem; color: var(--text-muted); font-weight: normal;\">(%d/%d)</span></td>%n",
+            out.printf("                    <td class=\"numeric\"><div class=\"cov-bar-layout\" style=\"justify-content: flex-end;\"><span class=\"cov-pct\" style=\"font-weight: normal;\">%.1f%%</span> <span class=\"cov-count\">(%d/%d)</span></div></td>%n",
                     q.branchCoveragePct(), coveredBranches, q.totalBranches());
             out.println("                    <td style=\"text-align: center;\"><span style=\"color: var(--text-muted); font-size: 0.8rem;\">Suite Aggregate</span></td>");
             out.println("                </tr>");

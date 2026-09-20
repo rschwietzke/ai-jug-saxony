@@ -51,8 +51,11 @@
         .badge-success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
         .badge-info { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }
         .badge-warning { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
-        .progress-bar-container { width: 80px; height: 7px; background: #e2e8f0; border-radius: 4px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 8px; }
-        .progress-bar-fill { height: 100%; background: #16a34a; border-radius: 4px; }
+        .cov-bar-layout { display: inline-flex; align-items: center; gap: 0.65rem; white-space: nowrap; font-variant-numeric: tabular-nums; font-family: 'JetBrains Mono', monospace; }
+        .progress-bar-container { width: 84px; height: 7px; background: #e2e8f0; border-radius: 4px; overflow: hidden; flex-shrink: 0; }
+        .progress-bar-fill { height: 100%; border-radius: 4px; }
+        .cov-pct { width: 56px; text-align: right; font-weight: 700; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; font-size: 0.88rem; }
+        .cov-count { width: 94px; text-align: left; font-size: 0.75rem; color: var(--text-muted); font-weight: normal; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; }
         .pkg-tag { font-size: 0.78rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
         .source-link { color: var(--primary); text-decoration: underline; font-weight: 600; font-size: 0.85rem; }
         .source-link:hover { color: #0369a1; }
@@ -112,7 +115,7 @@
                 <tr>
                     <th>Class</th>
                     <th>Package</th>
-                    <th class="numeric">Instruction Coverage</th>
+                    <th>Instruction Coverage</th>
                     <th class="numeric">Line Coverage</th>
                     <th class="numeric">Branch Coverage</th>
                     <th style="text-align: center;">JaCoCo Source</th>
@@ -122,49 +125,49 @@
                 <tr>
                     <td><a href="com.xceptance.xlt.report.util/RuntimeHistogram.java.html" style="color: var(--primary); font-weight: 700; text-decoration: underline;">RuntimeHistogram</a></td>
                     <td><span class="pkg-tag">com.xceptance.xlt.report.util</span></td>
-                    <td class="numeric"><div class="progress-bar-container"><div class="progress-bar-fill" style="width: 100.0%; background: #16a34a;"></div></div> <strong>100.0%</strong> <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(358/358)</span></td>
-                    <td class="numeric">100.0% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(75/75)</span></td>
-                    <td class="numeric">100.0% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(36/36)</span></td>
+                    <td><div class="cov-bar-layout"><div class="progress-bar-container"><div class="progress-bar-fill" style="width: 100.0%; background: #16a34a;"></div></div> <span class="cov-pct">100.0%</span> <span class="cov-count">(358/358)</span></div></td>
+                    <td class="numeric"><div class="cov-bar-layout" style="justify-content: flex-end;"><span class="cov-pct" style="font-weight: normal;">100.0%</span> <span class="cov-count">(75/75)</span></div></td>
+                    <td class="numeric"><div class="cov-bar-layout" style="justify-content: flex-end;"><span class="cov-pct" style="font-weight: normal;">100.0%</span> <span class="cov-count">(36/36)</span></div></td>
                     <td style="text-align: center;"><a href="com.xceptance.xlt.report.util/RuntimeHistogram.java.html" class="source-link">View Source ↗</a></td>
                 </tr>
                 <tr>
                     <td><a href="com.xceptance.xlt.report.util.lucene/BitUtil.java.html" style="color: var(--primary); font-weight: 700; text-decoration: underline;">BitUtil</a></td>
                     <td><span class="pkg-tag">com.xceptance.xlt.report.util.lucene</span></td>
-                    <td class="numeric"><div class="progress-bar-container"><div class="progress-bar-fill" style="width: 100.0%; background: #16a34a;"></div></div> <strong>100.0%</strong> <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(4667/4667)</span></td>
-                    <td class="numeric">100.0% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(387/387)</span></td>
-                    <td class="numeric">100.0% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(86/86)</span></td>
+                    <td><div class="cov-bar-layout"><div class="progress-bar-container"><div class="progress-bar-fill" style="width: 100.0%; background: #16a34a;"></div></div> <span class="cov-pct">100.0%</span> <span class="cov-count">(4667/4667)</span></div></td>
+                    <td class="numeric"><div class="cov-bar-layout" style="justify-content: flex-end;"><span class="cov-pct" style="font-weight: normal;">100.0%</span> <span class="cov-count">(387/387)</span></div></td>
+                    <td class="numeric"><div class="cov-bar-layout" style="justify-content: flex-end;"><span class="cov-pct" style="font-weight: normal;">100.0%</span> <span class="cov-count">(86/86)</span></div></td>
                     <td style="text-align: center;"><a href="com.xceptance.xlt.report.util.lucene/BitUtil.java.html" class="source-link">View Source ↗</a></td>
                 </tr>
                 <tr>
                     <td><a href="com.xceptance.xlt.report.util.misc/BitCompression.java.html" style="color: var(--primary); font-weight: 700; text-decoration: underline;">BitCompression</a></td>
                     <td><span class="pkg-tag">com.xceptance.xlt.report.util.misc</span></td>
-                    <td class="numeric"><div class="progress-bar-container"><div class="progress-bar-fill" style="width: 100.0%; background: #16a34a;"></div></div> <strong>100.0%</strong> <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(54/54)</span></td>
-                    <td class="numeric">100.0% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(8/8)</span></td>
-                    <td class="numeric"><span style="color: var(--text-muted);">- (0 branches)</span></td>
+                    <td><div class="cov-bar-layout"><div class="progress-bar-container"><div class="progress-bar-fill" style="width: 100.0%; background: #16a34a;"></div></div> <span class="cov-pct">100.0%</span> <span class="cov-count">(54/54)</span></div></td>
+                    <td class="numeric"><div class="cov-bar-layout" style="justify-content: flex-end;"><span class="cov-pct" style="font-weight: normal;">100.0%</span> <span class="cov-count">(8/8)</span></div></td>
+                    <td class="numeric"><span style="color: var(--text-muted); font-size: 0.8rem;">- (0 branches)</span></td>
                     <td style="text-align: center;"><a href="com.xceptance.xlt.report.util.misc/BitCompression.java.html" class="source-link">View Source ↗</a></td>
                 </tr>
                 <tr>
                     <td><a href="com.xceptance.xlt.report.util.rework/IntTimeSeries.java.html" style="color: var(--primary); font-weight: 700; text-decoration: underline;">IntTimeSeries</a></td>
                     <td><span class="pkg-tag">com.xceptance.xlt.report.util.rework</span></td>
-                    <td class="numeric"><div class="progress-bar-container"><div class="progress-bar-fill" style="width: 100.0%; background: #16a34a;"></div></div> <strong>100.0%</strong> <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(610/610)</span></td>
-                    <td class="numeric">100.0% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(114/114)</span></td>
-                    <td class="numeric">97.2% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(35/36)</span></td>
+                    <td><div class="cov-bar-layout"><div class="progress-bar-container"><div class="progress-bar-fill" style="width: 100.0%; background: #16a34a;"></div></div> <span class="cov-pct">100.0%</span> <span class="cov-count">(610/610)</span></div></td>
+                    <td class="numeric"><div class="cov-bar-layout" style="justify-content: flex-end;"><span class="cov-pct" style="font-weight: normal;">100.0%</span> <span class="cov-count">(114/114)</span></div></td>
+                    <td class="numeric"><div class="cov-bar-layout" style="justify-content: flex-end;"><span class="cov-pct" style="font-weight: normal;">97.2%</span> <span class="cov-count">(35/36)</span></div></td>
                     <td style="text-align: center;"><a href="com.xceptance.xlt.report.util.rework/IntTimeSeries.java.html" class="source-link">View Source ↗</a></td>
                 </tr>
                 <tr>
                     <td><a href="com.xceptance.xlt.report.util.rework/IntTimeSeriesEntry.java.html" style="color: var(--primary); font-weight: 700; text-decoration: underline;">IntTimeSeriesEntry</a></td>
                     <td><span class="pkg-tag">com.xceptance.xlt.report.util.rework</span></td>
-                    <td class="numeric"><div class="progress-bar-container"><div class="progress-bar-fill" style="width: 97.0%; background: #16a34a;"></div></div> <strong>97.0%</strong> <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(525/541)</span></td>
-                    <td class="numeric">93.0% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(106/114)</span></td>
-                    <td class="numeric">86.7% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(52/60)</span></td>
+                    <td><div class="cov-bar-layout"><div class="progress-bar-container"><div class="progress-bar-fill" style="width: 97.0%; background: #16a34a;"></div></div> <span class="cov-pct">97.0%</span> <span class="cov-count">(525/541)</span></div></td>
+                    <td class="numeric"><div class="cov-bar-layout" style="justify-content: flex-end;"><span class="cov-pct" style="font-weight: normal;">93.0%</span> <span class="cov-count">(106/114)</span></div></td>
+                    <td class="numeric"><div class="cov-bar-layout" style="justify-content: flex-end;"><span class="cov-pct" style="font-weight: normal;">86.7%</span> <span class="cov-count">(52/60)</span></div></td>
                     <td style="text-align: center;"><a href="com.xceptance.xlt.report.util.rework/IntTimeSeriesEntry.java.html" class="source-link">View Source ↗</a></td>
                 </tr>
                 <tr class="total-row">
                     <td>Total Suite Coverage</td>
                     <td><span class="pkg-tag">4 packages / 5 classes</span></td>
-                    <td class="numeric"><div class="progress-bar-container"><div class="progress-bar-fill" style="width: 99.7%; background: #16a34a;"></div></div> <strong>99.7%</strong> <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(6214/6230)</span></td>
-                    <td class="numeric">98.9% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(690/698)</span></td>
-                    <td class="numeric">95.9% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(209/218)</span></td>
+                    <td><div class="cov-bar-layout"><div class="progress-bar-container"><div class="progress-bar-fill" style="width: 99.7%; background: #16a34a;"></div></div> <span class="cov-pct">99.7%</span> <span class="cov-count">(6214/6230)</span></div></td>
+                    <td class="numeric"><div class="cov-bar-layout" style="justify-content: flex-end;"><span class="cov-pct" style="font-weight: normal;">98.9%</span> <span class="cov-count">(690/698)</span></div></td>
+                    <td class="numeric"><div class="cov-bar-layout" style="justify-content: flex-end;"><span class="cov-pct" style="font-weight: normal;">95.9%</span> <span class="cov-count">(209/218)</span></div></td>
                     <td style="text-align: center;"><span style="color: var(--text-muted); font-size: 0.8rem;">Suite Aggregate</span></td>
                 </tr>
             </tbody>

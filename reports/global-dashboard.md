@@ -120,4 +120,4 @@ Comprehensive benchmark, code quality, memory footprint, and mutation evaluation
 - 💾 **Memory Footprint & Layout**: [JOL Memory Report](jol-report.html) / [Markdown](jol-report.md)
 - ⚡ **Microbenchmarks & Perf Counters**: [JMH Benchmark Report](jmh-report.html) / [Markdown](jmh-report.md)
 
-Generated automatically by `GlobalDashboardGenerator` on 2026-09-20T19:56:19.771606428Z
+Generated automatically by `GlobalDashboardGenerator` on 2026-09-20T20:01:58.177926202Z
