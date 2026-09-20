@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FastHashMap.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">demo3</a> &gt; <a href="index.source.html" class="el_package">org.jugsaxony.demo3</a> &gt; <span class="el_source">FastHashMap.java</span></div><h1>FastHashMap.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2005-2026 Xceptance Software Technologies GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jugsaxony.demo3;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * A dynamically growing hash map using open addressing with linear probing.
+ * Null keys are rejected, null values are supported, and instances are not
+ * thread-safe.
+ *
+ * @param &lt;K&gt; the key type
+ * @param &lt;V&gt; the value type
+ */
+public final class FastHashMap&lt;K, V&gt;
+{
+    private static final int DEFAULT_CAPACITY = 16;
+
+    private static final int MAX_CAPACITY = 1 &lt;&lt; 30;
+
+    private Object[] keys;
+
+    private Object[] values;
+
+    private int size;
+
+    private int mask;
+
+    private int resizeThreshold;
+
+    /**
+     * Creates an empty map.
+     */
+    public FastHashMap()
+<span class="fc" id="L50">    {</span>
+<span class="fc" id="L51">        initializeStorage();</span>
+<span class="fc" id="L52">    }</span>
+
+    /**
+     * Returns the value associated with the key, or {@code null} if there is no
+     * mapping or the mapped value is null.
+     *
+     * @param key the key to find
+     * @return the mapped value, or {@code null}
+     * @throws NullPointerException if the key is null
+     */
+    public V get(final K key)
+    {
+<span class="fc" id="L64">        Objects.requireNonNull(key, &quot;key must not be null&quot;);</span>
+
+<span class="fc" id="L66">        int index = initialIndex(key, mask);</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        while (keys[index] != null)</span>
+        {
+<span class="fc bfc" id="L69" title="All 2 branches covered.">            if (keys[index].equals(key))</span>
+            {
+<span class="fc" id="L71">                return valueAt(index);</span>
+            }
+<span class="fc" id="L73">            index = nextIndex(index, mask);</span>
+        }
+
+<span class="fc" id="L76">        return null;</span>
+    }
+
+    /**
+     * Adds or replaces a mapping.
+     *
+     * @param key the key to add
+     * @param value the value to associate with the key; may be null
+     * @return the previous value, or {@code null} if there was none
+     * @throws NullPointerException if the key is null
+     */
+    public V put(final K key, final V value)
+    {
+<span class="fc" id="L89">        Objects.requireNonNull(key, &quot;key must not be null&quot;);</span>
+
+<span class="fc" id="L91">        int index = findKeyOrEmptySlot(key);</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        if (keys[index] != null)</span>
+        {
+<span class="fc" id="L94">            final V previousValue = valueAt(index);</span>
+<span class="fc" id="L95">            values[index] = value;</span>
+<span class="fc" id="L96">            return previousValue;</span>
+        }
+
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        if (size == resizeThreshold)</span>
+        {
+<span class="fc" id="L101">            grow();</span>
+<span class="fc" id="L102">            index = findKeyOrEmptySlot(key);</span>
+        }
+
+<span class="fc" id="L105">        keys[index] = key;</span>
+<span class="fc" id="L106">        values[index] = value;</span>
+<span class="fc" id="L107">        size++;</span>
+
+<span class="fc" id="L109">        return null;</span>
+    }
+
+    /**
+     * Removes a mapping if present.
+     *
+     * @param key the key to remove
+     * @return the removed value, or {@code null} if absent or mapped to null
+     * @throws NullPointerException if the key is null
+     */
+    public V remove(final K key)
+    {
+<span class="fc" id="L121">        Objects.requireNonNull(key, &quot;key must not be null&quot;);</span>
+
+<span class="fc" id="L123">        int index = initialIndex(key, mask);</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        while (keys[index] != null)</span>
+        {
+<span class="fc bfc" id="L126" title="All 2 branches covered.">            if (keys[index].equals(key))</span>
+            {
+<span class="fc" id="L128">                final V previousValue = valueAt(index);</span>
+<span class="fc" id="L129">                closeDeletionGap(index);</span>
+<span class="fc" id="L130">                size--;</span>
+<span class="fc" id="L131">                return previousValue;</span>
+            }
+<span class="fc" id="L133">            index = nextIndex(index, mask);</span>
+        }
+
+<span class="fc" id="L136">        return null;</span>
+    }
+
+    /**
+     * Returns the number of mappings.
+     *
+     * @return the number of mappings
+     */
+    public int size()
+    {
+<span class="fc" id="L146">        return size;</span>
+    }
+
+    /**
+     * Returns a mutable snapshot of the current keys in internal slot order.
+     *
+     * @return the current keys
+     */
+    public List&lt;K&gt; keys()
+    {
+<span class="fc" id="L156">        final List&lt;K&gt; result = new ArrayList&lt;&gt;(size);</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">        for (final Object key : keys)</span>
+        {
+<span class="fc bfc" id="L159" title="All 2 branches covered.">            if (key != null)</span>
+            {
+<span class="fc" id="L161">                result.add(castKey(key));</span>
+            }
+        }
+<span class="fc" id="L164">        return result;</span>
+    }
+
+    /**
+     * Returns a mutable snapshot of the current values in the same internal
+     * slot order as {@link #keys()}.
+     *
+     * @return the current values
+     */
+    public List&lt;V&gt; values()
+    {
+<span class="fc" id="L175">        final List&lt;V&gt; result = new ArrayList&lt;&gt;(size);</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">        for (int i = 0; i &lt; keys.length; i++)</span>
+        {
+<span class="fc bfc" id="L178" title="All 2 branches covered.">            if (keys[i] != null)</span>
+            {
+<span class="fc" id="L180">                result.add(valueAt(i));</span>
+            }
+        }
+<span class="fc" id="L183">        return result;</span>
+    }
+
+    /**
+     * Removes all mappings and restores the default backing capacity.
+     */
+    public void clear()
+    {
+<span class="fc" id="L191">        initializeStorage();</span>
+<span class="fc" id="L192">    }</span>
+
+    private void initializeStorage()
+    {
+<span class="fc" id="L196">        final Object[] emptyKeys = new Object[DEFAULT_CAPACITY];</span>
+<span class="fc" id="L197">        final Object[] emptyValues = new Object[DEFAULT_CAPACITY];</span>
+
+<span class="fc" id="L199">        keys = emptyKeys;</span>
+<span class="fc" id="L200">        values = emptyValues;</span>
+<span class="fc" id="L201">        size = 0;</span>
+<span class="fc" id="L202">        mask = DEFAULT_CAPACITY - 1;</span>
+<span class="fc" id="L203">        resizeThreshold = thresholdFor(DEFAULT_CAPACITY);</span>
+<span class="fc" id="L204">    }</span>
+
+    private int findKeyOrEmptySlot(final K key)
+    {
+<span class="fc" id="L208">        int index = initialIndex(key, mask);</span>
+<span class="fc bfc" id="L209" title="All 4 branches covered.">        while (keys[index] != null &amp;&amp; !keys[index].equals(key))</span>
+        {
+<span class="fc" id="L211">            index = nextIndex(index, mask);</span>
+        }
+<span class="fc" id="L213">        return index;</span>
+    }
+
+    private void grow()
+    {
+<span class="fc" id="L218">        final int oldCapacity = keys.length;</span>
+<span class="pc bpc" id="L219" title="1 of 2 branches missed.">        if (oldCapacity == MAX_CAPACITY)</span>
+        {
+<span class="nc bnc" id="L221" title="All 2 branches missed.">            if (resizeThreshold &lt; MAX_CAPACITY - 1)</span>
+            {
+                // No larger power-of-two array exists, but the remaining slots
+                // can still be used while one empty probe terminator is kept.
+<span class="nc" id="L225">                resizeThreshold = MAX_CAPACITY - 1;</span>
+<span class="nc" id="L226">                return;</span>
+            }
+<span class="nc" id="L228">            throw new IllegalStateException(&quot;Maximum hash table capacity reached&quot;);</span>
+        }
+
+<span class="fc" id="L231">        final int newCapacity = oldCapacity &lt;&lt; 1;</span>
+<span class="fc" id="L232">        final int newMask = newCapacity - 1;</span>
+<span class="fc" id="L233">        final Object[] newKeys = new Object[newCapacity];</span>
+<span class="fc" id="L234">        final Object[] newValues = new Object[newCapacity];</span>
+
+<span class="fc bfc" id="L236" title="All 2 branches covered.">        for (int i = 0; i &lt; oldCapacity; i++)</span>
+        {
+<span class="fc" id="L238">            final Object key = keys[i];</span>
+<span class="fc bfc" id="L239" title="All 2 branches covered.">            if (key != null)</span>
+            {
+<span class="fc" id="L241">                int destination = initialIndex(key, newMask);</span>
+<span class="fc bfc" id="L242" title="All 2 branches covered.">                while (newKeys[destination] != null)</span>
+                {
+<span class="fc" id="L244">                    destination = nextIndex(destination, newMask);</span>
+                }
+<span class="fc" id="L246">                newKeys[destination] = key;</span>
+<span class="fc" id="L247">                newValues[destination] = values[i];</span>
+            }
+        }
+
+<span class="fc" id="L251">        keys = newKeys;</span>
+<span class="fc" id="L252">        values = newValues;</span>
+<span class="fc" id="L253">        mask = newMask;</span>
+<span class="fc" id="L254">        resizeThreshold = thresholdFor(newCapacity);</span>
+<span class="fc" id="L255">    }</span>
+
+    private void closeDeletionGap(int gap)
+    {
+<span class="fc" id="L259">        int candidate = nextIndex(gap, mask);</span>
+
+<span class="fc bfc" id="L261" title="All 2 branches covered.">        while (keys[candidate] != null)</span>
+        {
+<span class="fc" id="L263">            final int home = initialIndex(keys[candidate], mask);</span>
+<span class="fc" id="L264">            final int distanceToGap = (gap - home) &amp; mask;</span>
+<span class="fc" id="L265">            final int distanceToCandidate = (candidate - home) &amp; mask;</span>
+
+<span class="fc bfc" id="L267" title="All 2 branches covered.">            if (distanceToGap &lt; distanceToCandidate)</span>
+            {
+<span class="fc" id="L269">                keys[gap] = keys[candidate];</span>
+<span class="fc" id="L270">                values[gap] = values[candidate];</span>
+<span class="fc" id="L271">                gap = candidate;</span>
+            }
+<span class="fc" id="L273">            candidate = nextIndex(candidate, mask);</span>
+<span class="fc" id="L274">        }</span>
+
+<span class="fc" id="L276">        keys[gap] = null;</span>
+<span class="fc" id="L277">        values[gap] = null;</span>
+<span class="fc" id="L278">    }</span>
+
+    private static int thresholdFor(final int capacity)
+    {
+<span class="fc" id="L282">        return capacity - (capacity &gt;&gt;&gt; 2);</span>
+    }
+
+    private static int initialIndex(final Object key, final int indexMask)
+    {
+<span class="fc" id="L287">        final int hash = key.hashCode();</span>
+<span class="fc" id="L288">        return (hash ^ (hash &gt;&gt;&gt; 16)) &amp; indexMask;</span>
+    }
+
+    private static int nextIndex(final int index, final int indexMask)
+    {
+<span class="fc" id="L293">        return (index + 1) &amp; indexMask;</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private K castKey(final Object key)
+    {
+<span class="fc" id="L299">        return (K) key;</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private V valueAt(final int index)
+    {
+<span class="fc" id="L305">        return (V) values[index];</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI JUG Saxony - com.xceptance.xlt.report.util Evaluation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #38bdf8;
+            --primary-glow: rgba(56, 189, 248, 0.2);
+            --accent: #a855f7;
+            --accent-glow: rgba(168, 85, 247, 0.2);
+            --success: #22c55e;
+            --success-bg: rgba(34, 197, 94, 0.15);
+            --warning: #f59e0b;
+            --warning-bg: rgba(245, 158, 11, 0.15);
+            --time-bg: rgba(148, 163, 184, 0.12);
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 2rem 1.5rem; line-height: 1.5; }
+        .container { max-width: 1480px; margin: 0 auto; }
+        .header { border-bottom: 1px solid var(--card-border); padding-bottom: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem; }
+        .header h1 { margin: 0; font-size: 2.1rem; font-weight: 800; letter-spacing: -0.025em; background: linear-gradient(135deg, #f8fafc 0%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header p { margin: 0.5rem 0 0 0; color: var(--text-muted); font-size: 1.05rem; }
+        .section-nav-banner { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem; margin-bottom: 2.25rem; }
+        .section-nav-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 1.25rem 1.5rem; text-decoration: none; color: inherit; transition: all 0.25s ease; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; }
+        .section-nav-card:hover { transform: translateY(-3px); border-color: var(--primary); box-shadow: 0 10px 25px -5px var(--primary-glow); }
+        .section-nav-card.active { border-color: var(--primary); background: linear-gradient(180deg, rgba(56, 189, 248, 0.1) 0%, var(--card-bg) 100%); }
+        .card-tag { font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.06em; color: var(--primary); margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.4rem; }
+        .card-title { font-size: 1.25rem; font-weight: 700; margin: 0 0 0.4rem 0; color: #f8fafc; }
+        .card-desc { font-size: 0.875rem; color: var(--text-muted); margin: 0; }
+        .card-footer { margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.06); font-size: 0.8rem; font-weight: 600; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1.25rem; margin-bottom: 2.25rem; }
+        .stat-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 1.25rem; text-align: center; }
+        .stat-value { font-size: 1.9rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 0.25rem 0; }
+        .stat-sub { font-size: 0.8rem; color: var(--text-muted); }
+        .stat-label { color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
+        .quick-actions { display: flex; gap: 0.75rem; margin-bottom: 2rem; flex-wrap: wrap; align-items: center; }
+        .action-btn { background: var(--card-bg); border: 1px solid var(--card-border); color: #e2e8f0; padding: 0.55rem 1.1rem; border-radius: 8px; text-decoration: none; font-size: 0.875rem; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .action-btn:hover { background: #334155; border-color: var(--primary); color: #38bdf8; }
+        .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 1.75rem; margin-bottom: 2.25rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2); }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 1rem; }
+        .section-header h2 { margin: 0; font-size: 1.45rem; font-weight: 700; display: flex; align-items: center; gap: 0.6rem; color: #f8fafc; }
+        .section-desc { color: var(--text-muted); font-size: 0.95rem; margin: 0.25rem 0 0 0; }
+        .subpage-link { font-size: 0.85rem; font-weight: 600; color: var(--primary); text-decoration: none; border: 1px solid var(--card-border); padding: 0.4rem 0.8rem; border-radius: 6px; background: rgba(56, 189, 248, 0.05); transition: all 0.2s; }
+        .subpage-link:hover { background: rgba(56, 189, 248, 0.15); border-color: var(--primary); }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem; }
+        th, td { padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid var(--card-border); }
+        th { background: rgba(15, 23, 42, 0.6); font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
+        .badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.65rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; font-family: 'JetBrains Mono', monospace; }
+        .badge-success { background: var(--success-bg); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
+        .badge-info { background: rgba(56, 189, 248, 0.12); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .badge-warning { background: var(--warning-bg); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
+        .badge-time { background: var(--time-bg); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.2); font-size: 0.73rem; }
+        .badge-perf { background: rgba(168, 85, 247, 0.12); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.3); }
+        .numeric { text-align: right; font-variant-numeric: tabular-nums; font-family: 'JetBrains Mono', monospace; }
+        .speedup-fast { color: #4ade80; font-weight: 700; }
+        .speedup-slow { color: #f87171; }
+        .perf-tag { font-size: 0.8rem; padding: 0.15rem 0.4rem; border-radius: 4px; background: rgba(15, 23, 42, 0.5); font-family: 'JetBrains Mono', monospace; }
+        .subtable-wrapper { margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px dashed var(--card-border); }
+        .subtable-title { font-size: 1.05rem; font-weight: 700; margin: 0 0 0.75rem 0; color: #cbd5e1; display: flex; align-items: center; justify-content: space-between; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div>
+            <h1>AI JUG Saxony - com.xceptance.xlt.report.util Evaluation</h1>
+            <p>Comprehensive Evaluation: Performance, Memory, Quality & Verification across AI Models vs Demo 0 Baseline</p>
+        </div>
+        <div>
+            <a href="index.html" class="action-btn">← Back to Master Dashboard</a>
+        </div>
+    </div>
+    <div class="section-nav-banner">
+        <a href="#fasthashmap" class="section-nav-card">
+            <div>
+                <div class="card-tag">⚡ High-Performance Core Map</div>
+                <div class="card-title">FastHashMap</div>
+                <p class="card-desc">Verification matrix, JOL object layouts, and JMH read/write throughput speedup analysis.</p>
+            </div>
+            <div class="card-footer"><span>173 Tests Passed (3.89s)</span><span>Jump to Section ↓</span></div>
+        </a>
+        <a href="#lruclockmap" class="section-nav-card">
+            <div>
+                <div class="card-tag">⏰ Bounded Second-Chance Eviction Cache</div>
+                <div class="card-title">LRUClockMap</div>
+                <p class="card-desc">Comprehensive unit test suites, line/branch coverage, and mutation score verification.</p>
+            </div>
+            <div class="card-footer"><span>185 Tests Passed (0.94s)</span><span>Jump to Section ↓</span></div>
+        </a>
+        <a href="#xlt-report-util" class="section-nav-card active">
+            <div>
+                <div class="card-tag">🧰 High-Throughput Report Utilities</div>
+                <div class="card-title">com.xceptance.xlt.report.util</div>
+                <p class="card-desc">Time series, histograms, bit compression, and bit manipulation test verification.</p>
+            </div>
+            <div class="card-footer"><span>575 Tests Passed (3.15s)</span><span>Jump to Section ↓</span></div>
+        </a>
+    </div>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Evaluated Models</div>
+            <div class="stat-value" style="color: var(--primary);">12</div>
+            <div class="stat-sub">demo0–demo9, demo11, demo12</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">FastHashMap Tests</div>
+            <div class="stat-value" style="color: var(--success);">173</div>
+            <div class="stat-sub">Total duration: 3.89s</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">LRUClockMap Tests</div>
+            <div class="stat-value" style="color: #38bdf8;">185</div>
+            <div class="stat-sub">Total duration: 0.94s</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Report Utility Tests</div>
+            <div class="stat-value" style="color: var(--accent);">575</div>
+            <div class="stat-sub">Total duration: 3.15s</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Peak Put Speedup</div>
+            <div class="stat-value" style="color: #f59e0b;">0.00x</div>
+            <div class="stat-sub">vs demo0 baseline</div>
+        </div>
+    </div>
+    <div class="quick-actions">
+        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Direct Links:</span>
+        <a href="#fasthashmap" class="action-btn">⚡ FastHashMap</a>
+        <a href="#lruclockmap" class="action-btn">⏰ LRUClockMap</a>
+        <a href="#xlt-report-util" class="action-btn">🧰 com.xceptance.xlt.report.util</a>
+        <a href="surefire.html" class="action-btn">🧪 Unit Test Suites</a>
+        <a href="coverage-aggregate/index.html" class="action-btn">🎯 JaCoCo Coverage</a>
+        <a href="jol-report.html" class="action-btn">💾 JOL Memory</a>
+        <a href="jmh-report.html" class="action-btn">⚡ JMH Benchmarks</a>
+    </div>
+    <!-- SUB-SECTION 3: com.xceptance.xlt.report.util -->
+    <div id="xlt-report-util" class="card">
+        <div class="section-header">
+            <div>
+                <h2>🧰 com.xceptance.xlt.report.util — Quality, Coverage & Mutation Verification</h2>
+                <div class="section-desc">Verification matrix for high-throughput reporting utilities (RuntimeHistogram, IntTimeSeries, BitUtil, BitCompression) across all modules.</div>
+            </div>
+            <div>
+                <a href="xlt-util.html" class="subpage-link">Open Dedicated Page ↗</a>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Module</th>
+                    <th>AI Model / Implementation</th>
+                    <th>Unit Tests</th>
+                    <th>Instruction Coverage</th>
+                    <th>Line Coverage</th>
+                    <th>Branch Coverage</th>
+                    <th>PIT Mutation Score</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>demo0</strong></td>
+                    <td><span class="badge badge-info">Baseline / Reference (FastRandom)</span></td>
+                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">92 Passed</a> <span class="badge badge-time">⏱️ 0.78s</span></td>
+                    <td><a href="jacoco/demo0/com.xceptance.xlt.report.util/index.html" style="color: #38bdf8; text-decoration: underline;"><strong>58.3%</strong></a> (3635/6230)</td>
+                    <td><a href="jacoco/demo0/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">45.3%</a> (316/698)</td>
+                    <td><a href="jacoco/demo0/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">59.2%</a> (129/218)</td>
+                    <td><span class="badge badge-info">N/A</span></td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo1</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity)</span></td>
+                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">103 Passed</a> <span class="badge badge-time">⏱️ 0.60s</span></td>
+                    <td><a href="jacoco/demo1/com.xceptance.xlt.report.util/index.html" style="color: #38bdf8; text-decoration: underline;"><strong>99.7%</strong></a> (6212/6230)</td>
+                    <td><a href="jacoco/demo1/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">99.1%</a> (692/698)</td>
+                    <td><a href="jacoco/demo1/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">96.8%</a> (211/218)</td>
+                    <td><span class="badge badge-info">N/A</span></td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo2</strong></td>
+                    <td><span class="badge badge-info">Kimi K3 (Kilo Code)</span></td>
+                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">95 Passed</a> <span class="badge badge-time">⏱️ 0.20s</span></td>
+                    <td><a href="jacoco/demo2/com.xceptance.xlt.report.util/index.html" style="color: #38bdf8; text-decoration: underline;"><strong>57.7%</strong></a> (3592/6230)</td>
+                    <td><a href="jacoco/demo2/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">43.6%</a> (304/698)</td>
+                    <td><a href="jacoco/demo2/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">54.1%</a> (118/218)</td>
+                    <td><span class="badge badge-info">N/A</span></td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo3</strong></td>
+                    <td><span class="badge badge-info">OpenAI 5.6 Sol Max (Kilo Code)</span></td>
+                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">40 Passed</a> <span class="badge badge-time">⏱️ 0.19s</span></td>
+                    <td><a href="jacoco/demo3/com.xceptance.xlt.report.util/index.html" style="color: #38bdf8; text-decoration: underline;"><strong>99.6%</strong></a> (6208/6230)</td>
+                    <td><a href="jacoco/demo3/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">98.9%</a> (690/698)</td>
+                    <td><a href="jacoco/demo3/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">95.9%</a> (209/218)</td>
+                    <td><span class="badge badge-info">N/A</span></td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo4</strong></td>
+                    <td><span class="badge badge-info">Gemma 4 31B Thinking (Kilo Code)</span></td>
+                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">15 Passed</a> <span class="badge badge-time">⏱️ 0.09s</span></td>
+                    <td><a href="jacoco/demo4/com.xceptance.xlt.report.util/index.html" style="color: #38bdf8; text-decoration: underline;"><strong>0.0%</strong></a> (0/0)</td>
+                    <td><a href="jacoco/demo4/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">0.0%</a> (0/0)</td>
+                    <td><a href="jacoco/demo4/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">0.0%</a> (0/0)</td>
+                    <td><span class="badge badge-info">N/A</span></td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo5</strong></td>
+                    <td><span class="badge badge-info">Deepseek V4 Flash Max (Kilo Code)</span></td>
+                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">0 Passed</a> </td>
+                    <td><a href="jacoco/demo5/com.xceptance.xlt.report.util/index.html" style="color: #38bdf8; text-decoration: underline;"><strong>0.0%</strong></a> (0/0)</td>
+                    <td><a href="jacoco/demo5/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">0.0%</a> (0/0)</td>
+                    <td><a href="jacoco/demo5/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">0.0%</a> (0/0)</td>
+                    <td><span class="badge badge-info">N/A</span></td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo6</strong></td>
+                    <td><span class="badge badge-info">Claude Opus 5 Ultra (Claude)</span></td>
+                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">0 Passed</a> </td>
+                    <td><a href="jacoco/demo6/com.xceptance.xlt.report.util/index.html" style="color: #38bdf8; text-decoration: underline;"><strong>0.0%</strong></a> (0/0)</td>
+                    <td><a href="jacoco/demo6/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">0.0%</a> (0/0)</td>
+                    <td><a href="jacoco/demo6/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">0.0%</a> (0/0)</td>
+                    <td><span class="badge badge-info">N/A</span></td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo7</strong></td>
+                    <td><span class="badge badge-info">Qwen 38 max XHigh (Kilo Code)</span></td>
+                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">0 Passed</a> </td>
+                    <td><a href="jacoco/demo7/com.xceptance.xlt.report.util/index.html" style="color: #38bdf8; text-decoration: underline;"><strong>0.0%</strong></a> (0/0)</td>
+                    <td><a href="jacoco/demo7/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">0.0%</a> (0/0)</td>
+                    <td><a href="jacoco/demo7/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">0.0%</a> (0/0)</td>
+                    <td><span class="badge badge-info">N/A</span></td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo8</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.7 Flash High (Kilo Code)</span></td>
+                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">0 Passed</a> </td>
+                    <td><a href="jacoco/demo8/com.xceptance.xlt.report.util/index.html" style="color: #38bdf8; text-decoration: underline;"><strong>0.0%</strong></a> (0/0)</td>
+                    <td><a href="jacoco/demo8/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">0.0%</a> (0/0)</td>
+                    <td><a href="jacoco/demo8/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">0.0%</a> (0/0)</td>
+                    <td><span class="badge badge-info">N/A</span></td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo9</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity)</span></td>
+                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">0 Passed</a> </td>
+                    <td><a href="jacoco/demo9/com.xceptance.xlt.report.util/index.html" style="color: #38bdf8; text-decoration: underline;"><strong>0.0%</strong></a> (0/0)</td>
+                    <td><a href="jacoco/demo9/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">0.0%</a> (0/0)</td>
+                    <td><a href="jacoco/demo9/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">0.0%</a> (0/0)</td>
+                    <td><span class="badge badge-info">N/A</span></td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo11</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
+                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">113 Passed</a> <span class="badge badge-time">⏱️ 0.62s</span></td>
+                    <td><a href="jacoco/demo11/com.xceptance.xlt.report.util/index.html" style="color: #38bdf8; text-decoration: underline;"><strong>100.0%</strong></a> (6230/6230)</td>
+                    <td><a href="jacoco/demo11/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">100.0%</a> (698/698)</td>
+                    <td><a href="jacoco/demo11/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">100.0%</a> (218/218)</td>
+                    <td><span class="badge badge-info">N/A</span></td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo12</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
+                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">117 Passed</a> <span class="badge badge-time">⏱️ 0.69s</span></td>
+                    <td><a href="jacoco/demo12/com.xceptance.xlt.report.util/index.html" style="color: #38bdf8; text-decoration: underline;"><strong>100.0%</strong></a> (6230/6230)</td>
+                    <td><a href="jacoco/demo12/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">100.0%</a> (698/698)</td>
+                    <td><a href="jacoco/demo12/com.xceptance.xlt.report.util/index.html" style="color: inherit; text-decoration: underline;">100.0%</a> (218/218)</td>
+                    <td><span class="badge badge-info">N/A</span></td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JOL Memory Layout & Footprint Report - AI JUG Saxony</title>
+    <style>
+        :root { --bg: #f8fafc; --card-bg: #ffffff; --text: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --primary: #3b82f6; --success: #10b981; --accent: #8b5cf6; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 2rem; }
+        .container { max-width: 1300px; margin: 0 auto; }
+        .header { margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--border); }
+        .header h1 { margin: 0 0 0.5rem 0; font-size: 2rem; color: #1e293b; }
+        .header p { margin: 0; color: var(--text-muted); font-size: 1.1rem; }
+        .card { background: var(--card-bg); border-radius: 10px; border: 1px solid var(--border); padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        h2 { font-size: 1.4rem; margin-top: 0; margin-bottom: 1rem; color: #1e293b; display: flex; align-items: center; gap: 0.5rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: #f1f5f9; font-weight: 600; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+        tr:hover { background: #f8fafc; }
+        .badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .badge-primary { background: #dbeafe; color: #1d4ed8; }
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-flat { background: #ede9fe; color: #5b21b6; }
+        .badge-node { background: #fee2e2; color: #991b1b; }
+        .numeric { text-align: right; font-variant-numeric: tabular-nums; }
+        pre { background: #1e293b; color: #f8fafc; padding: 1rem; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🧠 JOL Cross-Project Memory Footprint Report</h1>
+        <p>Evaluating Memory Layout, Footprint & Object Overhead for FastHashMap Implementations</p>
+    </div>
+    <div class="card">
+        <h2>📊 Memory Footprint & Efficiency (Bytes / Entry)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Implementation</th>
+                    <th>Model</th>
+                    <th class="numeric">Shallow Size</th>
+                    <th class="numeric">Empty</th>
+                    <th class="numeric">N=100 (Total)</th>
+                    <th class="numeric">N=100 (B/entry)</th>
+                    <th class="numeric">N=1,000 (Total)</th>
+                    <th class="numeric">N=1,000 (B/entry)</th>
+                    <th class="numeric">N=10,000 (Total)</th>
+                    <th class="numeric">N=10,000 (B/entry)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Demo 0</strong></td>
+                    <td><span class="badge badge-primary">Baseline / Reference (FastRandom)</span></td>
+                    <td class="numeric">40 B</td>
+                    <td class="numeric">328 B</td>
+                    <td class="numeric">8,520 B</td>
+                    <td class="numeric"><strong>85.2</strong></td>
+                    <td class="numeric">80,456 B</td>
+                    <td class="numeric"><strong>80.5</strong></td>
+                    <td class="numeric">902,216 B</td>
+                    <td class="numeric"><strong style="color: #2563eb;">90.2 B</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Demo 1</strong></td>
+                    <td><span class="badge badge-primary">Gemini 3.7 Flash High (Antigravity)</span></td>
+                    <td class="numeric">40 B</td>
+                    <td class="numeric">200 B</td>
+                    <td class="numeric">8,520 B</td>
+                    <td class="numeric"><strong>85.2</strong></td>
+                    <td class="numeric">80,456 B</td>
+                    <td class="numeric"><strong>80.5</strong></td>
+                    <td class="numeric">771,144 B</td>
+                    <td class="numeric"><strong style="color: #2563eb;">77.1 B</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Demo 2</strong></td>
+                    <td><span class="badge badge-primary">Kimi K3 (Kilo Code)</span></td>
+                    <td class="numeric">32 B</td>
+                    <td class="numeric">192 B</td>
+                    <td class="numeric">8,512 B</td>
+                    <td class="numeric"><strong>85.1</strong></td>
+                    <td class="numeric">80,448 B</td>
+                    <td class="numeric"><strong>80.4</strong></td>
+                    <td class="numeric">771,136 B</td>
+                    <td class="numeric"><strong style="color: #2563eb;">77.1 B</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Demo 3</strong></td>
+                    <td><span class="badge badge-primary">OpenAI 5.6 Sol Max (Kilo Code)</span></td>
+                    <td class="numeric">32 B</td>
+                    <td class="numeric">192 B</td>
+                    <td class="numeric">8,512 B</td>
+                    <td class="numeric"><strong>85.1</strong></td>
+                    <td class="numeric">80,448 B</td>
+                    <td class="numeric"><strong>80.4</strong></td>
+                    <td class="numeric">771,136 B</td>
+                    <td class="numeric"><strong style="color: #2563eb;">77.1 B</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Demo 4</strong></td>
+                    <td><span class="badge badge-primary">Gemma 4 31B Thinking (Kilo Code)</span></td>
+                    <td class="numeric">40 B</td>
+                    <td class="numeric">264 B</td>
+                    <td class="numeric">9,064 B</td>
+                    <td class="numeric"><strong>90.6</strong></td>
+                    <td class="numeric">84,584 B</td>
+                    <td class="numeric"><strong>84.6</strong></td>
+                    <td class="numeric">803,944 B</td>
+                    <td class="numeric"><strong style="color: #2563eb;">80.4 B</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Demo 5</strong></td>
+                    <td><span class="badge badge-primary">Deepseek V4 Flash Max (Kilo Code)</span></td>
+                    <td class="numeric">32 B</td>
+                    <td class="numeric">112 B</td>
+                    <td class="numeric">9,872 B</td>
+                    <td class="numeric"><strong>98.7</strong></td>
+                    <td class="numeric">96,240 B</td>
+                    <td class="numeric"><strong>96.2</strong></td>
+                    <td class="numeric">945,584 B</td>
+                    <td class="numeric"><strong style="color: #2563eb;">94.6 B</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Demo 6</strong></td>
+                    <td><span class="badge badge-primary">Claude Opus 5 Ultra (Claude)</span></td>
+                    <td class="numeric">40 B</td>
+                    <td class="numeric">200 B</td>
+                    <td class="numeric">8,520 B</td>
+                    <td class="numeric"><strong>85.2</strong></td>
+                    <td class="numeric">80,456 B</td>
+                    <td class="numeric"><strong>80.5</strong></td>
+                    <td class="numeric">902,216 B</td>
+                    <td class="numeric"><strong style="color: #2563eb;">90.2 B</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Demo 7</strong></td>
+                    <td><span class="badge badge-primary">Qwen 38 max XHigh (Kilo Code)</span></td>
+                    <td class="numeric">32 B</td>
+                    <td class="numeric">112 B</td>
+                    <td class="numeric">10,672 B</td>
+                    <td class="numeric"><strong>106.7</strong></td>
+                    <td class="numeric">104,240 B</td>
+                    <td class="numeric"><strong>104.2</strong></td>
+                    <td class="numeric">1,025,584 B</td>
+                    <td class="numeric"><strong style="color: #2563eb;">102.6 B</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Demo 8</strong></td>
+                    <td><span class="badge badge-primary">Gemini 3.7 Flash High (Kilo Code)</span></td>
+                    <td class="numeric">32 B</td>
+                    <td class="numeric">112 B</td>
+                    <td class="numeric">9,872 B</td>
+                    <td class="numeric"><strong>98.7</strong></td>
+                    <td class="numeric">96,240 B</td>
+                    <td class="numeric"><strong>96.2</strong></td>
+                    <td class="numeric">945,584 B</td>
+                    <td class="numeric"><strong style="color: #2563eb;">94.6 B</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Demo 9</strong></td>
+                    <td><span class="badge badge-primary">Gemini 3.8 Flash High (Antigravity)</span></td>
+                    <td class="numeric">40 B</td>
+                    <td class="numeric">200 B</td>
+                    <td class="numeric">8,520 B</td>
+                    <td class="numeric"><strong>85.2</strong></td>
+                    <td class="numeric">80,456 B</td>
+                    <td class="numeric"><strong>80.5</strong></td>
+                    <td class="numeric">902,216 B</td>
+                    <td class="numeric"><strong style="color: #2563eb;">90.2 B</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Demo 11</strong></td>
+                    <td><span class="badge badge-primary">Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
+                    <td class="numeric">40 B</td>
+                    <td class="numeric">200 B</td>
+                    <td class="numeric">8,520 B</td>
+                    <td class="numeric"><strong>85.2</strong></td>
+                    <td class="numeric">80,456 B</td>
+                    <td class="numeric"><strong>80.5</strong></td>
+                    <td class="numeric">771,144 B</td>
+                    <td class="numeric"><strong style="color: #2563eb;">77.1 B</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Demo 12</strong></td>
+                    <td><span class="badge badge-primary">Gemini 3.8 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
+                    <td class="numeric">40 B</td>
+                    <td class="numeric">200 B</td>
+                    <td class="numeric">8,520 B</td>
+                    <td class="numeric"><strong>85.2</strong></td>
+                    <td class="numeric">80,456 B</td>
+                    <td class="numeric"><strong>80.5</strong></td>
+                    <td class="numeric">771,144 B</td>
+                    <td class="numeric"><strong style="color: #2563eb;">77.1 B</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="card">
+        <h2>🗑️ Total Internal Objects & GC Footprint</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Implementation</th>
+                    <th>Architecture</th>
+                    <th class="numeric">Empty Objects</th>
+                    <th class="numeric">Objects @ N=100</th>
+                    <th class="numeric">Objects @ N=1,000</th>
+                    <th class="numeric">Objects @ N=10,000</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Demo 0</strong></td>
+                    <td><span class="badge badge-node">Node-Based (High GC)</span></td>
+                    <td class="numeric">3</td>
+                    <td class="numeric">303</td>
+                    <td class="numeric">3,003</td>
+                    <td class="numeric"><strong>30,003</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Demo 1</strong></td>
+                    <td><span class="badge badge-node">Node-Based (High GC)</span></td>
+                    <td class="numeric">3</td>
+                    <td class="numeric">303</td>
+                    <td class="numeric">3,003</td>
+                    <td class="numeric"><strong>30,003</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Demo 2</strong></td>
+                    <td><span class="badge badge-node">Node-Based (High GC)</span></td>
+                    <td class="numeric">3</td>
+                    <td class="numeric">303</td>
+                    <td class="numeric">3,003</td>
+                    <td class="numeric"><strong>30,003</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Demo 3</strong></td>
+                    <td><span class="badge badge-node">Node-Based (High GC)</span></td>
+                    <td class="numeric">3</td>
+                    <td class="numeric">303</td>
+                    <td class="numeric">3,003</td>
+                    <td class="numeric"><strong>30,003</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Demo 4</strong></td>
+                    <td><span class="badge badge-node">Node-Based (High GC)</span></td>
+                    <td class="numeric">5</td>
+                    <td class="numeric">305</td>
+                    <td class="numeric">3,005</td>
+                    <td class="numeric"><strong>30,005</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Demo 5</strong></td>
+                    <td><span class="badge badge-node">Node-Based (High GC)</span></td>
+                    <td class="numeric">2</td>
+                    <td class="numeric">402</td>
+                    <td class="numeric">4,002</td>
+                    <td class="numeric"><strong>40,002</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Demo 6</strong></td>
+                    <td><span class="badge badge-node">Node-Based (High GC)</span></td>
+                    <td class="numeric">3</td>
+                    <td class="numeric">303</td>
+                    <td class="numeric">3,003</td>
+                    <td class="numeric"><strong>30,003</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Demo 7</strong></td>
+                    <td><span class="badge badge-node">Node-Based (High GC)</span></td>
+                    <td class="numeric">2</td>
+                    <td class="numeric">402</td>
+                    <td class="numeric">4,002</td>
+                    <td class="numeric"><strong>40,002</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Demo 8</strong></td>
+                    <td><span class="badge badge-node">Node-Based (High GC)</span></td>
+                    <td class="numeric">2</td>
+                    <td class="numeric">402</td>
+                    <td class="numeric">4,002</td>
+                    <td class="numeric"><strong>40,002</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Demo 9</strong></td>
+                    <td><span class="badge badge-node">Node-Based (High GC)</span></td>
+                    <td class="numeric">3</td>
+                    <td class="numeric">303</td>
+                    <td class="numeric">3,003</td>
+                    <td class="numeric"><strong>30,003</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Demo 11</strong></td>
+                    <td><span class="badge badge-node">Node-Based (High GC)</span></td>
+                    <td class="numeric">3</td>
+                    <td class="numeric">303</td>
+                    <td class="numeric">3,003</td>
+                    <td class="numeric"><strong>30,003</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Demo 12</strong></td>
+                    <td><span class="badge badge-node">Node-Based (High GC)</span></td>
+                    <td class="numeric">3</td>
+                    <td class="numeric">303</td>
+                    <td class="numeric">3,003</td>
+                    <td class="numeric"><strong>30,003</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="card">
+        <h2>📐 Detailed Class Layouts</h2>
+        <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Demo 0 &mdash; <small style="color: #64748b;">Baseline / Reference (FastRandom)</small></h3>
+        <pre><code>org.jugsaxony.demo0.FastHashMap object internals:
+OFF  SZ                 TYPE DESCRIPTION                VALUE
+  0   8                      (object header: mark)      N/A
+  8   4                      (object header: class)     N/A
+ 12   4                float FastHashMap.m_fillFactor   N/A
+ 16   4                  int FastHashMap.m_threshold    N/A
+ 20   4                  int FastHashMap.m_size         N/A
+ 24   4                  int FastHashMap.m_mask         N/A
+ 28   4                  int FastHashMap.m_mask2        N/A
+ 32   4   java.lang.Object[] FastHashMap.m_data         N/A
+ 36   4                      (object alignment gap)     
+Instance size: 40 bytes
+Space losses: 0 bytes internal + 4 bytes external = 4 bytes total</code></pre>
+        <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Demo 1 &mdash; <small style="color: #64748b;">Gemini 3.7 Flash High (Antigravity)</small></h3>
+        <pre><code>org.jugsaxony.demo1.FastHashMap object internals:
+OFF  SZ                 TYPE DESCRIPTION               VALUE
+  0   8                      (object header: mark)     N/A
+  8   4                      (object header: class)    N/A
+ 12   4                  int FastHashMap.size          N/A
+ 16   4                  int FastHashMap.threshold     N/A
+ 20   4                  int FastHashMap.mask          N/A
+ 24   4                float FastHashMap.loadFactor    N/A
+ 28   4   java.lang.Object[] FastHashMap.keys          N/A
+ 32   4   java.lang.Object[] FastHashMap.values        N/A
+ 36   4                      (object alignment gap)    
+Instance size: 40 bytes
+Space losses: 0 bytes internal + 4 bytes external = 4 bytes total</code></pre>
+        <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Demo 2 &mdash; <small style="color: #64748b;">Kimi K3 (Kilo Code)</small></h3>
+        <pre><code>org.jugsaxony.demo2.FastHashMap object internals:
+OFF  SZ                 TYPE DESCRIPTION               VALUE
+  0   8                      (object header: mark)     N/A
+  8   4                      (object header: class)    N/A
+ 12   4                  int FastHashMap.size          N/A
+ 16   4                  int FastHashMap.mask          N/A
+ 20   4   java.lang.Object[] FastHashMap.keys          N/A
+ 24   4   java.lang.Object[] FastHashMap.values        N/A
+ 28   4                      (object alignment gap)    
+Instance size: 32 bytes
+Space losses: 0 bytes internal + 4 bytes external = 4 bytes total</code></pre>
+        <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Demo 3 &mdash; <small style="color: #64748b;">OpenAI 5.6 Sol Max (Kilo Code)</small></h3>
+        <pre><code>org.jugsaxony.demo3.FastHashMap object internals:
+OFF  SZ                 TYPE DESCRIPTION                   VALUE
+  0   8                      (object header: mark)         N/A
+  8   4                      (object header: class)        N/A
+ 12   4                  int FastHashMap.size              N/A
+ 16   4                  int FastHashMap.mask              N/A
+ 20   4                  int FastHashMap.resizeThreshold   N/A
+ 24   4   java.lang.Object[] FastHashMap.keys              N/A
+ 28   4   java.lang.Object[] FastHashMap.values            N/A
+Instance size: 32 bytes
+Space losses: 0 bytes internal + 0 bytes external = 0 bytes total</code></pre>
+        <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Demo 4 &mdash; <small style="color: #64748b;">Gemma 4 31B Thinking (Kilo Code)</small></h3>
+        <pre><code>org.jugsaxony.demo4.FastHashMap object internals:
+OFF  SZ                 TYPE DESCRIPTION               VALUE
+  0   8                      (object header: mark)     N/A
+  8   4                      (object header: class)    N/A
+ 12   4                  int FastHashMap.size          N/A
+ 16   4                  int FastHashMap.capacity      N/A
+ 20   4   java.lang.Object[] FastHashMap.keys          N/A
+ 24   4   java.lang.Object[] FastHashMap.values        N/A
+ 28   4            boolean[] FastHashMap.occupied      N/A
+ 32   4            boolean[] FastHashMap.deleted       N/A
+ 36   4                      (object alignment gap)    
+Instance size: 40 bytes
+Space losses: 0 bytes internal + 4 bytes external = 4 bytes total</code></pre>
+        <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Demo 5 &mdash; <small style="color: #64748b;">Deepseek V4 Flash Max (Kilo Code)</small></h3>
+        <pre><code>org.jugsaxony.demo5.FastHashMap object internals:
+OFF  SZ                                      TYPE DESCRIPTION               VALUE
+  0   8                                           (object header: mark)     N/A
+  8   4                                           (object header: class)    N/A
+ 12   4                                       int FastHashMap.size          N/A
+ 16   4                                       int FastHashMap.capacity      N/A
+ 20   4                                       int FastHashMap.mask          N/A
+ 24   4                                       int FastHashMap.threshold     N/A
+ 28   4   org.jugsaxony.demo5.FastHashMap.Entry[] FastHashMap.data          N/A
+Instance size: 32 bytes
+Space losses: 0 bytes internal + 0 bytes external = 0 bytes total</code></pre>
+        <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Demo 6 &mdash; <small style="color: #64748b;">Claude Opus 5 Ultra (Claude)</small></h3>
+        <pre><code>org.jugsaxony.demo6.FastHashMap object internals:
+OFF  SZ                 TYPE DESCRIPTION               VALUE
+  0   8                      (object header: mark)     N/A
+  8   4                      (object header: class)    N/A
+ 12   4                  int FastHashMap.size          N/A
+ 16   4                  int FastHashMap.mask          N/A
+ 20   4                  int FastHashMap.shift         N/A
+ 24   4                  int FastHashMap.threshold     N/A
+ 28   4   java.lang.Object[] FastHashMap.keys          N/A
+ 32   4   java.lang.Object[] FastHashMap.values        N/A
+ 36   4                      (object alignment gap)    
+Instance size: 40 bytes
+Space losses: 0 bytes internal + 4 bytes external = 4 bytes total</code></pre>
+        <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Demo 7 &mdash; <small style="color: #64748b;">Qwen 38 max XHigh (Kilo Code)</small></h3>
+        <pre><code>org.jugsaxony.demo7.FastHashMap object internals:
+OFF  SZ                                      TYPE DESCRIPTION                   VALUE
+  0   8                                           (object header: mark)         N/A
+  8   4                                           (object header: class)        N/A
+ 12   4                                       int FastHashMap.mask              N/A
+ 16   4                                       int FastHashMap.resizeThreshold   N/A
+ 20   4                                       int FastHashMap.size              N/A
+ 24   4   org.jugsaxony.demo7.FastHashMap.Entry[] FastHashMap.table             N/A
+ 28   4                                           (object alignment gap)        
+Instance size: 32 bytes
+Space losses: 0 bytes internal + 4 bytes external = 4 bytes total</code></pre>
+        <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Demo 8 &mdash; <small style="color: #64748b;">Gemini 3.7 Flash High (Kilo Code)</small></h3>
+        <pre><code>org.jugsaxony.demo8.FastHashMap object internals:
+OFF  SZ                                      TYPE DESCRIPTION               VALUE
+  0   8                                           (object header: mark)     N/A
+  8   4                                           (object header: class)    N/A
+ 12   4                                       int FastHashMap.size          N/A
+ 16   4                                       int FastHashMap.mask          N/A
+ 20   4                                     float FastHashMap.loadFactor    N/A
+ 24   4                                       int FastHashMap.threshold     N/A
+ 28   4   org.jugsaxony.demo8.FastHashMap.Entry[] FastHashMap.data          N/A
+Instance size: 32 bytes
+Space losses: 0 bytes internal + 0 bytes external = 0 bytes total</code></pre>
+        <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Demo 9 &mdash; <small style="color: #64748b;">Gemini 3.8 Flash High (Antigravity)</small></h3>
+        <pre><code>org.jugsaxony.demo9.FastHashMap object internals:
+OFF  SZ                 TYPE DESCRIPTION               VALUE
+  0   8                      (object header: mark)     N/A
+  8   4                      (object header: class)    N/A
+ 12   4                  int FastHashMap.size          N/A
+ 16   4                  int FastHashMap.mask          N/A
+ 20   4                  int FastHashMap.threshold     N/A
+ 24   4                float FastHashMap.loadFactor    N/A
+ 28   4   java.lang.Object[] FastHashMap.keys          N/A
+ 32   4   java.lang.Object[] FastHashMap.values        N/A
+ 36   4                      (object alignment gap)    
+Instance size: 40 bytes
+Space losses: 0 bytes internal + 4 bytes external = 4 bytes total</code></pre>
+        <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Demo 11 &mdash; <small style="color: #64748b;">Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed)</small></h3>
+        <pre><code>org.jugsaxony.demo11.FastHashMap object internals:
+OFF  SZ                 TYPE DESCRIPTION               VALUE
+  0   8                      (object header: mark)     N/A
+  8   4                      (object header: class)    N/A
+ 12   4                  int FastHashMap.size          N/A
+ 16   4                  int FastHashMap.threshold     N/A
+ 20   4                  int FastHashMap.mask          N/A
+ 24   4                float FastHashMap.loadFactor    N/A
+ 28   4   java.lang.Object[] FastHashMap.keys          N/A
+ 32   4   java.lang.Object[] FastHashMap.values        N/A
+ 36   4                      (object alignment gap)    
+Instance size: 40 bytes
+Space losses: 0 bytes internal + 4 bytes external = 4 bytes total</code></pre>
+        <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Demo 12 &mdash; <small style="color: #64748b;">Gemini 3.8 Flash High (Antigravity Rework - 100% Mutation Killed)</small></h3>
+        <pre><code>org.jugsaxony.demo12.FastHashMap object internals:
+OFF  SZ                 TYPE DESCRIPTION               VALUE
+  0   8                      (object header: mark)     N/A
+  8   4                      (object header: class)    N/A
+ 12   4                  int FastHashMap.size          N/A
+ 16   4                  int FastHashMap.threshold     N/A
+ 20   4                  int FastHashMap.mask          N/A
+ 24   4                float FastHashMap.loadFactor    N/A
+ 28   4   java.lang.Object[] FastHashMap.keys          N/A
+ 32   4   java.lang.Object[] FastHashMap.values        N/A
+ 36   4                      (object alignment gap)    
+Instance size: 40 bytes
+Space losses: 0 bytes internal + 4 bytes external = 4 bytes total</code></pre>
+    </div>
+</div>
+</body>
+</html>

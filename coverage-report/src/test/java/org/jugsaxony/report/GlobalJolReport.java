@@ -351,9 +351,13 @@ public class GlobalJolReport {
     }
 
     public static void main(String[] args) throws Exception {
-        File outputDir = new File("target/reports");
+        File rootDir = GlobalDashboardGenerator.findRootDir();
+        File outputDir = new File(rootDir, "reports");
         if (args.length > 0) {
             outputDir = new File(args[0]);
+        }
+        if (!outputDir.exists()) {
+            outputDir.mkdirs();
         }
         generateReports(outputDir);
         System.out.println("JOL Report generated successfully in: " + outputDir.getAbsolutePath());

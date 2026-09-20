@@ -410,7 +410,7 @@ public class GlobalJmhBenchmark {
         fixClasspathForFork();
 
         File rootDir = GlobalDashboardGenerator.findRootDir();
-        File reportsDir = new File(rootDir, "target/reports");
+        File reportsDir = new File(rootDir, "reports");
         if (!reportsDir.exists()) {
             reportsDir.mkdirs();
         }
@@ -471,14 +471,8 @@ public class GlobalJmhBenchmark {
         Options opt = builder.build();
         new Runner(opt).run();
 
-        // Generate visual and markdown reports in root target/reports
+        // Generate visual and markdown reports in root reports
         GlobalJmhReportGenerator.generateReports(jsonResult, reportsDir);
-
-        // Also copy into coverage-report/target/reports if present
-        File covReports = new File(rootDir, "coverage-report/target/reports");
-        if (covReports.exists()) {
-            GlobalJmhReportGenerator.generateReports(jsonResult, covReports);
-        }
 
         System.out.println("JMH full cross-project report generated in: " + reportsDir.getAbsolutePath());
     }

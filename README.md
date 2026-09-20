@@ -102,10 +102,10 @@ When `--perf` is specified, the benchmark collects and analyzes low-level CPU pe
 - **Branch Miss %**: Rate of branch predictor misses; low misprediction avoids expensive pipeline flushes (~15-20 cycles).
 - **L1 D-Cache Miss %**: Rate of L1 data cache misses; highlights cache locality benefits of flat parallel arrays over pointer-chasing node graphs.
 
-Generates `target/reports/jmh-results.json`, `target/reports/jmh-report.html`, `target/reports/jmh-report.md`, and `target/reports/jmh-report.csv`.
+Generates `reports/jmh-results.json`, `reports/jmh-report.html`, `reports/jmh-report.md`, and `reports/jmh-report.csv`.
 
 ### Step 5: Generate JOL Memory Footprint & Master Executive Dashboard
-Runs Java Object Layout (JOL) memory analysis, parses test counts, JaCoCo coverage XMLs, mutation scores, and JMH metrics, then generates the consolidated master dashboard:
+Runs Java Object Layout (JOL) memory analysis, parses test execution counts, test execution duration, JaCoCo coverage XMLs, mutation scores, and JMH metrics, then generates the consolidated master dashboard into `/reports`:
 ```bash
 mvn test -pl coverage-report
 ```
@@ -121,15 +121,18 @@ mvn test-compile exec:java \
 
 ## Generated Reports Overview
 
-All consolidated reports are saved in `target/reports/`:
+All consolidated reports are saved in `/reports` (versioned and persistent across `mvn clean`):
 
 | Report | File | Description |
 | :--- | :--- | :--- |
-| **Master Dashboard** | `target/reports/index.html` | Complete interactive dashboard aggregating Quality, JOL memory footprint, and JMH throughput |
-| **Markdown Summary** | `target/reports/global-dashboard.md` | Executive summary formatted for Markdown documentation & GitHub |
-| **JOL Report** | `target/reports/jol-report.html` | Shallow/deep retained memory and object layout analysis |
-| **JMH Report** | `target/reports/jmh-report.html` | Read hit/miss and write throughput comparison charts & tables |
-| **Coverage Aggregate** | `target/reports/coverage-aggregate/index.html` | Aggregated multi-module JaCoCo coverage drill-down |
+| **Master Dashboard** | `reports/index.html` | Complete interactive dashboard with direct sub-section navigation across FastHashMap, LRUClockMap, and `com.xceptance.xlt.report.util` |
+| **FastHashMap Section** | `reports/fasthashmap.html` | Dedicated view for FastHashMap test verification (with time), JOL memory layout, and JMH throughput |
+| **LRUClockMap Section** | `reports/lruclockmap.html` | Dedicated view for LRUClockMap second-chance cache test verification (with execution time) |
+| **Report Util Section** | `reports/xlt-util.html` | Dedicated view for `com.xceptance.xlt.report.util` test execution, coverage, and mutation score |
+| **Markdown Summary** | `reports/global-dashboard.md` | Executive summary formatted for Markdown documentation & GitHub |
+| **JOL Report** | `reports/jol-report.html` | Shallow/deep retained memory and object layout analysis |
+| **JMH Report** | `reports/jmh-report.html` | Read hit/miss and write throughput comparison charts & tables |
+| **Coverage Aggregate** | `reports/coverage-aggregate/index.html` | Aggregated multi-module JaCoCo coverage drill-down |
 
 ---
 

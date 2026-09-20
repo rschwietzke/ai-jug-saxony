@@ -12,7 +12,7 @@ public class GlobalJolReportTest {
     public void testGenerateJolReport() throws Exception {
         File rootDir = GlobalDashboardGenerator.findRootDir();
 
-        File outputDir = new File(rootDir, "target/reports");
+        File outputDir = new File(rootDir, "reports");
         outputDir.mkdirs();
 
         GlobalJolReport.generateReports(outputDir);
@@ -23,22 +23,21 @@ public class GlobalJolReportTest {
         assertThat(mdReport).exists().isNotEmpty();
         assertThat(htmlReport).exists().isNotEmpty();
 
-        // Also generate in coverage-report/target/reports if run locally
-        File localReports = new File("target/reports");
-        if (localReports.exists()) {
-            GlobalJolReport.generateReports(localReports);
-        }
-
-        // Also generate the master dashboard
+        // Generate master dashboard and sub-section pages
         GlobalDashboardGenerator.generateDashboard(outputDir, rootDir);
-        if (localReports.exists()) {
-            GlobalDashboardGenerator.generateDashboard(localReports, rootDir);
-        }
 
         File dashboardMd = new File(outputDir, "global-dashboard.md");
         File dashboardHtml = new File(outputDir, "global-dashboard.html");
+        File indexHtml = new File(outputDir, "index.html");
+        File fastHtml = new File(outputDir, "fasthashmap.html");
+        File lruHtml = new File(outputDir, "lruclockmap.html");
+        File xltHtml = new File(outputDir, "xlt-util.html");
 
         assertThat(dashboardMd).exists().isNotEmpty();
         assertThat(dashboardHtml).exists().isNotEmpty();
+        assertThat(indexHtml).exists().isNotEmpty();
+        assertThat(fastHtml).exists().isNotEmpty();
+        assertThat(lruHtml).exists().isNotEmpty();
+        assertThat(xltHtml).exists().isNotEmpty();
     }
 }

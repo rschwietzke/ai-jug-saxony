@@ -467,18 +467,22 @@ public class GlobalJmhReportGenerator {
 
     public static void main(String[] args) throws Exception {
         File rootDir = GlobalDashboardGenerator.findRootDir();
-        File jsonFile = new File(rootDir, "coverage-report/target/reports/jmh-results.json");
+        File jsonFile = new File(rootDir, "reports/jmh-results.json");
+        if (!jsonFile.exists()) {
+            jsonFile = new File(rootDir, "coverage-report/target/reports/jmh-results.json");
+        }
         if (!jsonFile.exists()) {
             jsonFile = new File(rootDir, "target/reports/jmh-results.json");
         }
 
-        File reportsDir = new File(rootDir, "target/reports");
-        generateReports(jsonFile, reportsDir);
-
-        File covReports = new File(rootDir, "coverage-report/target/reports");
-        if (covReports.exists()) {
-            generateReports(jsonFile, covReports);
+        File reportsDir = new File(rootDir, "reports");
+        if (args.length > 0) {
+            reportsDir = new File(args[0]);
         }
+        if (!reportsDir.exists()) {
+            reportsDir.mkdirs();
+        }
+        generateReports(jsonFile, reportsDir);
 
         System.out.println("Reports generated successfully in " + reportsDir.getAbsolutePath());
     }
