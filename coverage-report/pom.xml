@@ -57,6 +57,14 @@
             <groupId>org.jugsaxony</groupId>
             <artifactId>demo9</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jugsaxony</groupId>
+            <artifactId>demo11</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jugsaxony</groupId>
+            <artifactId>demo12</artifactId>
+        </dependency>
 
         <!-- Testing & Layout Dependencies -->
         <dependency>

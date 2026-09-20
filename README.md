@@ -17,6 +17,7 @@ A comparative benchmark evaluating AI coding assistants and LLMs implementing hi
 | **`demo8`** | Gemini 3.7 Flash High | Kilo Code (VS Code) | Chained Node/Entry Object table |
 | **`demo9`** | Gemini 3.8 Flash High | Antigravity (VS Code) | Flat parallel `Object[]` arrays |
 | **`demo11`** | Gemini 3.7 Flash High | Antigravity Rework | 100% Mutation Killed |
+| **`demo12`** | Gemini 3.8 Flash High | Antigravity Rework | 100% Mutation Killed |
 
 ---
 
@@ -25,7 +26,7 @@ A comparative benchmark evaluating AI coding assistants and LLMs implementing hi
 The project uses Maven multi-module architecture with a dedicated `coverage-report` module that aggregates metrics and generates interactive executive reports.
 
 ### Step 1: Run Unit Tests & Collect JaCoCo Coverage
-Runs all unit tests across all reactor modules (`demo0` through `demo9`, `demo11`, and `coverage-report`), creates Surefire test result records, and generates JaCoCo test execution data per submodule:
+Runs all unit tests across all reactor modules (`demo0` through `demo9`, `demo11`, `demo12`, and `coverage-report`), creates Surefire test result records, and generates JaCoCo test execution data per submodule:
 ```bash
 mvn clean test
 ```
@@ -44,8 +45,8 @@ mvn test-compile pitest:mutationCoverage
 ```
 - Module Output: `<module>/target/pit-reports/`
 
-### Step 4: Run JMH Cross-Project Microbenchmarks
-Executes the microbenchmarks comparing all `FastHashMap` implementations (Demo 0 serves as the baseline):
+### Step 4: Run JMH Cross-Project Microbenchmarks with Hardware Counters
+Executes the microbenchmarks comparing all `FastHashMap` implementations (Demo 0 serves as the baseline). On Linux systems with `perf` available, hardware performance counters can be captured automatically using JMH's `LinuxPerfNormProfiler`.
 
 - **Quick Sanity Run (~30s)**:
   ```bash
@@ -56,14 +57,52 @@ Executes the microbenchmarks comparing all `FastHashMap` implementations (Demo 0
     -Dexec.args="--quick"
   ```
 
-- **Full Measurement Run**:
+- **Quick Run with Hardware Performance Counters (`perf`)**:
   ```bash
   mvn test-compile exec:java \
     -Dexec.mainClass="org.jugsaxony.report.GlobalJmhBenchmark" \
     -Dexec.classpathScope="test" \
-    -pl coverage-report
+    -pl coverage-report \
+    -Dexec.args="--quick --perf"
   ```
-- Generates `target/reports/jmh-results.json`, `target/reports/jmh-report.html`, and `target/reports/jmh-report.md`.
+
+- **Full Measurement Run with Perf & GC Profiling**:
+  ```bash
+  mvn test-compile exec:java \
+    -Dexec.mainClass="org.jugsaxony.report.GlobalJmhBenchmark" \
+    -Dexec.classpathScope="test" \
+    -pl coverage-report \
+    -Dexec.args="--perf --gc"
+  ```
+
+- **Filtering Specific Demos / Benchmarks**:
+  ```bash
+  mvn test-compile exec:java \
+    -Dexec.mainClass="org.jugsaxony.report.GlobalJmhBenchmark" \
+    -Dexec.classpathScope="test" \
+    -pl coverage-report \
+    -Dexec.args="--quick --perf --filter getHit_demo[01]"
+  ```
+
+- **Running an Individual Submodule Benchmark Directly**:
+  ```bash
+  mvn test-compile exec:java \
+    -pl demo0 \
+    -Dexec.mainClass="org.jugsaxony.demo0.FastHashMapBenchmark" \
+    -Dexec.classpathScope="test" \
+    -Dexec.args="-prof perfnorm -f 1 -wi 2 -i 3 -p size=128"
+  ```
+
+#### Captured Micro-Architectural Metrics
+When `--perf` is specified, the benchmark collects and analyzes low-level CPU performance counters:
+- **Cycles / op**: Raw CPU cycles spent per hash map operation.
+- **Instructions / op**: Total x86/ARM instructions executed per operation.
+- **IPC (Instructions Per Cycle)**: Pipeline execution efficiency; higher is better (typically 2.5–4.5 on modern out-of-order cores).
+- **CPI (Cycles Per Instruction)**: Reciprocal of IPC ($1 / \text{IPC}$).
+- **Branch Miss %**: Rate of branch predictor misses; low misprediction avoids expensive pipeline flushes (~15-20 cycles).
+- **L1 D-Cache Miss %**: Rate of L1 data cache misses; highlights cache locality benefits of flat parallel arrays over pointer-chasing node graphs.
+
+Generates `target/reports/jmh-results.json`, `target/reports/jmh-report.html`, `target/reports/jmh-report.md`, and `target/reports/jmh-report.csv`.
 
 ### Step 5: Generate JOL Memory Footprint & Master Executive Dashboard
 Runs Java Object Layout (JOL) memory analysis, parses test counts, JaCoCo coverage XMLs, mutation scores, and JMH metrics, then generates the consolidated master dashboard:
@@ -101,6 +140,6 @@ To run the standard verification, aggregated coverage, quick JMH benchmark, and 
 ```bash
 mvn clean test && \
 mvn verify -pl coverage-report && \
-mvn test-compile exec:java -Dexec.mainClass="org.jugsaxony.report.GlobalJmhBenchmark" -Dexec.classpathScope="test" -pl coverage-report -Dexec.args="--quick" && \
+mvn test-compile exec:java -Dexec.mainClass="org.jugsaxony.report.GlobalJmhBenchmark" -Dexec.classpathScope="test" -pl coverage-report -Dexec.args="--perf --gc" && \
 mvn test -pl coverage-report
 ```

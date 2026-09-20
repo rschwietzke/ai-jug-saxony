@@ -31,3 +31,7 @@ Gemini 3.8 Flash High Antigravity
 # Demo11
 Demo1 - Gemini 3.7 Flash High with Kilo Code in VSCode
 Rework automatically for coverage and pi test
+
+# Demo12
+Demo1 - Gemini 3.8 Flash High Antigravity
+Rework automatically for coverage and pi test

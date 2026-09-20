@@ -186,6 +186,16 @@ public class LRUClockMapTest
     }
 
     /**
+     * Remove null
+     */
+    @Test 
+    public void testRemoveNull()
+    {
+        LRUClockMap<String, String> map = new LRUClockMap<>(32);
+        assertThrows(NullPointerException.class, () -> map.remove(null));
+    }
+
+    /**
      * Tests removing an existing key in a map with multiple elements, ensuring the map size decreases accordingly
      */
     @Test
@@ -400,6 +410,56 @@ public class LRUClockMapTest
     }
 
     /**
+     * Test the raw get which does not run the clock eviction
+     */
+    @Test
+    public void testGetRaw()
+    {
+        // we have to make sure we can "feel" that the LRU is not used
+        // without going "dark", compare to the same with get()
+        final LRUClockMap<TestString, String> m1 = new LRUClockMap<>(4);
+        assertNull(m1.put(new TestString("K1", 1), "v1"));
+        assertNull(m1.put(new TestString("K2", 2), "v2"));
+        assertNull(m1.put(new TestString("K3", 3), "v3"));
+        assertNull(m1.put(new TestString("K4", 4), "v4"));
+
+        final LRUClockMap<TestString, String> mRaw = new LRUClockMap<>(4);
+        assertNull(mRaw.put(new TestString("K1", 1), "v1"));
+        assertNull(mRaw.put(new TestString("K2", 2), "v2"));
+        assertNull(mRaw.put(new TestString("K3", 3), "v3"));
+        assertNull(mRaw.put(new TestString("K4", 4), "v4"));
+
+        assertNull(m1.put(new TestString("K5", 5), "v5"));
+        assertNull(mRaw.put(new TestString("K5", 5), "v5"));
+
+        // we lost K1 in both but now, we have all markers false but K5
+        // flip K2 to give it a chance
+        assertEquals("v2", m1.get(new TestString("K2", 2)));
+        assertEquals("v2", mRaw.getRaw(new TestString("K2", 2)));
+
+        // saved K2 in m1, mRaw is unchanged
+        assertNull(m1.put(new TestString("K6", 6), "v6"));
+        assertNull(mRaw.put(new TestString("K6", 6), "v6"));
+
+        // now we will see a difference
+        assertEquals("v2", m1.get(new TestString("K2", 2))); // saved
+        assertEquals("v4", m1.get(new TestString("K4", 4)));
+        assertEquals("v5", m1.get(new TestString("K5", 5)));
+        assertEquals("v6", m1.get(new TestString("K6", 6)));
+        assertEquals(4, m1.size());
+        assertEquals(4, m1.trueSize());
+
+        // we lost K2 because our last K2 get did not flip the secondChance
+        assertEquals("v3", mRaw.getRaw(new TestString("K3", 3)));
+        assertEquals("v4", mRaw.getRaw(new TestString("K4", 4)));
+        assertEquals("v5", mRaw.getRaw(new TestString("K5", 5)));
+        assertEquals("v6", mRaw.getRaw(new TestString("K6", 6)));
+        assertEquals(4, mRaw.size());
+        assertEquals(4, mRaw.trueSize());
+
+    }
+
+    /**
      * Check that we update correctly when we have hash collisions.
      */
     @Test
@@ -430,6 +490,39 @@ public class LRUClockMapTest
         assertEquals("value5", map.get(key1));
         assertEquals("value6", map.get(key2));
         assertEquals(2, map.size());
+    }
+
+    /**
+     * Get null
+     */
+    @Test 
+    public void testGetNull()
+    {
+        LRUClockMap<String, String> map = new LRUClockMap<>(32);
+        assertThrows(NullPointerException.class, () -> map.get(null));
+    }
+
+    /**
+     * Put null key
+     */
+    @Test 
+    public void testPutKeyNull()
+    {
+        LRUClockMap<String, String> map = new LRUClockMap<>(32);
+        assertThrows(NullPointerException.class, () -> map.put(null, "a"));
+    }
+
+    /**
+     * Put null value
+     */
+    @Test 
+    public void testPutValueNull()
+    {
+        LRUClockMap<String, String> map = new LRUClockMap<>(32);
+        map.put("aaa", null);
+
+        // of course, this is not helpful, but permitted
+        assertNull(map.get("aaa"));
     }
 
     /**

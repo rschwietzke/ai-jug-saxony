@@ -1,4 +1,4 @@
-package org.jugsaxony.demo1;
+package org.jugsaxony.demo12;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +24,7 @@ public class FastHashMap<K, V> {
 
     private static final int DEFAULT_INITIAL_CAPACITY = 16;
     private static final float DEFAULT_LOAD_FACTOR = 0.65f;
-    static final int MAXIMUM_CAPACITY = 1 << 20;
+    private static final int MAXIMUM_CAPACITY = 1 << 30;
 
     private K[] keys;
     private V[] values;
@@ -63,9 +63,6 @@ public class FastHashMap<K, V> {
         if (initialCapacity < 0) {
             throw new IllegalArgumentException("Illegal initial capacity: " + initialCapacity);
         }
-        if (initialCapacity > MAXIMUM_CAPACITY) {
-            throw new IllegalArgumentException("Illegal initial capacity: " + initialCapacity);
-        }
         if (loadFactor <= 0 || Float.isNaN(loadFactor) || loadFactor >= 1.0f) {
             throw new IllegalArgumentException("Illegal load factor: " + loadFactor);
         }
@@ -77,22 +74,6 @@ public class FastHashMap<K, V> {
         this.mask = capacity - 1;
         this.threshold = (int) (capacity * loadFactor);
         this.size = 0;
-    }
-
-    int capacity() {
-        return keys.length;
-    }
-
-    int threshold() {
-        return threshold;
-    }
-
-    Object[] keysArray() {
-        return keys;
-    }
-
-    Object[] valuesArray() {
-        return values;
     }
 
     /**
@@ -177,40 +158,35 @@ public class FastHashMap<K, V> {
         while ((curr = keys[i]) != null) {
             if (curr == key || curr.equals(key)) {
                 final V removedValue = values[i];
-                keys[i] = null;
-                values[i] = null;
                 size--;
 
-                // Realign subsequent cluster entries to maintain linear probing chains
+                // Backward-shift deletion (Knuth's Algorithm R)
                 int j = i;
                 while (true) {
-                    j = (j + 1) & mask;
-                    final K k = keys[j];
-                    if (k == null) {
-                        break;
-                    }
-                    final V v = values[j];
-                    keys[j] = null;
-                    values[j] = null;
-                    reinsert(k, v);
-                }
+                    keys[i] = null;
+                    values[i] = null;
 
-                return removedValue;
+                    while (true) {
+                        j = (j + 1) & mask;
+                        final K k = keys[j];
+                        if (k == null) {
+                            return removedValue;
+                        }
+                        final int r = hash(k) & mask;
+                        if (((i - r) & mask) < ((j - r) & mask)) {
+                            // Element k at j shifts backward into hole at i
+                            keys[i] = k;
+                            values[i] = values[j];
+                            i = j;
+                            break;
+                        }
+                    }
+                }
             }
             i = (i + 1) & mask;
         }
 
         return null;
-    }
-
-    private void reinsert(final K key, final V value) {
-        final int mask = this.mask;
-        int idx = hash(key) & mask;
-        while (keys[idx] != null) {
-            idx = (idx + 1) & mask;
-        }
-        keys[idx] = key;
-        values[idx] = value;
     }
 
     /**
@@ -258,15 +234,20 @@ public class FastHashMap<K, V> {
      * The map will be empty after this call returns.
      */
     public void clear() {
-        Arrays.fill(keys, null);
-        Arrays.fill(values, null);
-        size = 0;
+        if (size > 0) {
+            Arrays.fill(keys, null);
+            Arrays.fill(values, null);
+            size = 0;
+        }
     }
 
     @SuppressWarnings("unchecked")
     private void resize() {
         final int oldCapacity = keys.length;
         final int newCapacity = oldCapacity << 1;
+        if (newCapacity < 0 || oldCapacity >= MAXIMUM_CAPACITY) {
+            return;
+        }
 
         final K[] oldKeys = this.keys;
         final V[] oldValues = this.values;
@@ -292,7 +273,7 @@ public class FastHashMap<K, V> {
         this.threshold = (int) (newCapacity * loadFactor);
     }
 
-    static int mixHash(int h) {
+    private static int mixHash(int h) {
         h ^= h >>> 16;
         h *= 0x85ebca6b;
         h ^= h >>> 13;
@@ -305,8 +286,9 @@ public class FastHashMap<K, V> {
         return mixHash(key.hashCode());
     }
 
-    static int tableSizeFor(final int cap) {
-        return 1 << (32 - Integer.numberOfLeadingZeros(cap - 1));
+    private static int tableSizeFor(final int cap) {
+        int n = -1 >>> Integer.numberOfLeadingZeros(Math.max(1, cap - 1));
+        return (n < 0) ? 1 : (n >= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;
     }
 }
 

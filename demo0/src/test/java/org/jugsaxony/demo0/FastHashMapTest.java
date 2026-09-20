@@ -101,9 +101,153 @@ public class FastHashMapTest
     }
 
     @Test
+    public void get()
+    {
+        final FastHashMap<String, String> f = new FastHashMap<>(32, 0.5f);
+
+        // empty get
+        assertNull(f.get("nothere"));
+
+        // non-existing get
+        f.put("a1", "v1");
+        assertNull(f.get("a10"));
+
+        // existing get
+        assertEquals("v1", f.get("a1"));
+
+        // get after removal
+        f.remove("a1");
+        assertNull(f.get("a1"));
+
+        // get after removal and put
+        f.put("a2", "v2");
+        assertEquals("v2", f.get("a2"));
+        f.remove("a2");
+        assertNull(f.get("a2"));
+        f.put("a2", "v22");
+        assertEquals("v22", f.get("a2"));
+    }
+
+    @Test
+    public void getNull()
+    {
+        final FastHashMap<String, String> f = new FastHashMap<>(32, 0.5f);
+        assertThrows(NullPointerException.class, () -> f.get(null));
+
+        f.put("e1", "asdf");
+        assertThrows(NullPointerException.class, () -> f.get(null));
+    }
+
+    @Test
+    public void getCollision()
+    {
+        final FastHashMap<Mock<String, String>, String> f = new FastHashMap<>(32, 0.5f);
+     
+        var k1 = new Mock<>(751, "k1", "v1");
+        var k2 = new Mock<>(751, "k2", "v2");
+        var k3 = new Mock<>(751, "k3", "v3");
+        var k4 = new Mock<>(751, "k4", "v4");
+        var k5 = new Mock<>(751, "k5", "v5");
+        var k6 = new Mock<>(751, "k6", "v6");
+
+        // collision get
+        f.put(k1, k1.value);        
+        assertEquals(k1.value, f.get(k1));
+
+        f.put(k2, k2.value);        
+        assertEquals(k1.value, f.get(k1));
+        assertEquals(k2.value, f.get(k2));
+
+        f.put(k3, k3.value);        
+        assertEquals(k1.value, f.get(k1));
+        assertEquals(k2.value, f.get(k2));
+        assertEquals(k3.value, f.get(k3));
+
+        f.put(k4, k4.value);        
+        assertEquals(k1.value, f.get(k1));
+        assertEquals(k2.value, f.get(k2));
+        assertEquals(k3.value, f.get(k3));
+        assertEquals(k4.value, f.get(k4));
+
+        f.put(k5, k5.value);        
+        assertEquals(k1.value, f.get(k1));
+        assertEquals(k2.value, f.get(k2));
+        assertEquals(k3.value, f.get(k3));
+        assertEquals(k4.value, f.get(k4));
+        assertEquals(k5.value, f.get(k5));
+
+        f.put(k6, k6.value);       
+        assertEquals(k1.value, f.get(k1));
+        assertEquals(k2.value, f.get(k2));
+        assertEquals(k3.value, f.get(k3));
+        assertEquals(k4.value, f.get(k4));
+        assertEquals(k5.value, f.get(k5));
+        assertEquals(k6.value, f.get(k6));
+
+        assertEquals(6, f.size());
+    }
+
+    @Test
+    public void put()
+    {
+        final FastHashMap<String, String> f = new FastHashMap<>(32, 0.5f);
+
+        // put with null key
+        assertThrows(NullPointerException.class, () -> f.put(null, "v1"));
+
+        // put with null value
+        f.put("e1", null);
+        assertNull(f.get("e1"));
+        
+        // put with same key to update value
+        f.put("e1", "v2");
+        assertEquals("v2", f.get("e1"));
+        
+        // remove key and put it back again
+        f.remove("e1");
+        assertNull(f.get("e1"));
+        f.put("e1", "v22");
+        assertEquals("v22", f.get("e1"));
+
+        assertEquals(1, f.size());
+    }
+
+    @Test
+    public void putCollision()
+    {
+        final var f = new FastHashMap<Mock<String, String>, String>(32, 0.5f);
+
+        var k1 = new Mock<>(711, "k1", "v1");
+        var k2 = new Mock<>(711, "k2", "v2");
+        var k3 = new Mock<>(711, "k3", "v3");
+
+        // put with collision key
+        f.put(k1, k1.value);
+        assertEquals(k1.value, f.get(k1));
+
+        f.put(k2, k2.value);
+        f.put(k3, k3.value);
+
+        // update values
+        f.put(k2, "v22");
+        f.put(k1, "v11");
+        f.put(k3, "v33");
+
+        assertEquals("v11", f.get(k1));
+        assertEquals("v22", f.get(k2));
+        assertEquals("v33", f.get(k3));
+
+        assertEquals(3, f.size());
+    }
+
+    @Test
     public void keys()
     {
         final FastHashMap<String, Integer> f = new FastHashMap<>(3, 0.5f);
+
+        // keys of empty
+        assertEquals(0, f.keys().size());
+
         f.put("aa", 1);
         f.put("bb", 2);
         f.put("cc", 3);
@@ -151,6 +295,10 @@ public class FastHashMapTest
     public void values()
     {
         final FastHashMap<String, Integer> f = new FastHashMap<>(3, 0.5f);
+
+        // values of empty
+        assertEquals(0, f.values().size());
+
         f.put("aa", 1);
         f.put("bb", 2);
         f.put("cc", 3);
@@ -210,6 +358,13 @@ public class FastHashMapTest
     }
 
     @Test 
+    public void removeNull()
+    {
+        final FastHashMap<String, Integer> f = new FastHashMap<>(31, 0.5f);
+        assertThrows(NullPointerException.class, () -> f.remove(null));
+    }
+
+    @Test 
     public void removeEmpty()
     {
         final FastHashMap<String, Integer> f = new FastHashMap<>(3, 0.5f);
@@ -223,6 +378,62 @@ public class FastHashMapTest
         f.put("a", "a1");
         assertEquals("a1", f.remove("a"));
         assertNull(f.remove("a"));
+    }
+
+    @Test 
+    public void removeCollision()
+    {
+        // remove first
+        {
+            final FastHashMap<Mock<String, String>, String> f = new FastHashMap<>(32, 0.5f);
+            var k1 = new Mock<>(711, "k1", "v1");
+            var k2 = new Mock<>(711, "k2", "v2");
+            var k3 = new Mock<>(711, "k3", "v3");
+
+            f.put(k1, k1.value);
+            f.put(k2, k2.value);
+            f.put(k3, k3.value);
+
+            assertEquals("v1", f.remove(k1));
+            assertEquals(k2.value, f.get(k2));
+            assertEquals(k3.value, f.get(k3));
+            
+            assertEquals(2, f.size());
+        }
+        // remove second
+        {
+            final FastHashMap<Mock<String, String>, String> f = new FastHashMap<>(32, 0.5f);
+            var k1 = new Mock<>(711, "k1", "v1");
+            var k2 = new Mock<>(711, "k2", "v2");
+            var k3 = new Mock<>(711, "k3", "v3");
+
+            f.put(k1, k1.value);
+            f.put(k2, k2.value);
+            f.put(k3, k3.value);
+
+            assertEquals("v2", f.remove(k2));
+            assertEquals(k1.value, f.get(k1));
+            assertEquals(k3.value, f.get(k3));
+            
+            assertEquals(2, f.size());
+        }
+        // remove last
+        {
+            final FastHashMap<Mock<String, String>, String> f = new FastHashMap<>(32, 0.5f);
+            var k1 = new Mock<>(711, "k1", "v1");
+            var k2 = new Mock<>(711, "k2", "v2");
+            var k3 = new Mock<>(711, "k3", "v3");
+
+            f.put(k1, k1.value);
+            f.put(k2, k2.value);
+            f.put(k3, k3.value);
+
+            assertEquals("v3", f.remove(k3));
+            assertEquals(k1.value, f.get(k1));
+            assertEquals(k2.value, f.get(k2));
+            
+            assertEquals(2, f.size());
+        }
     }
 
     @Test
@@ -566,6 +777,44 @@ public class FastHashMapTest
         {
             return o.key.compareTo(this.key);
         }
+    }
 
+    static class Mock<K extends Comparable<K>, V> implements Comparable<Mock<K, V>>
+    {
+        public final K key;
+        public final V value;
+        public final int hash;
+
+        public Mock(final int hash, final K key, final V value)
+        {
+            this.hash = hash;
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return hash;
+        }
+
+        @Override
+        public boolean equals(final Object o)
+        {
+            final var t = (Mock<K, V>) o;
+            return hash == o.hashCode() && key.equals(t.key);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "Mock [key=" + key + ", value=" + value + ", hash=" + hash + "]";
+        }
+
+        @Override
+        public int compareTo(final Mock<K, V> o)
+        {
+            return o.key.compareTo(this.key);
+        }
     }
 }

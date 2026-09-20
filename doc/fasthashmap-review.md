@@ -2,13 +2,13 @@
 
 ## Executive Summary
 
-This document presents a comprehensive technical review and comparative analysis of all eleven `FastHashMapTest.java` test suites across the project directories (`demo0` through `demo9`, plus `demo11`). Each test suite was generated or engineered in the context of implementing an open-addressing hash map (`FastHashMap`) with linear probing, backward-shift deletion, dynamic resizing, and specific contracts around null keys and values.
+This document presents a comprehensive technical review and comparative analysis of all twelve `FastHashMapTest.java` test suites across the project directories (`demo0` through `demo9`, `demo11`, and `demo12`). Each test suite was generated or engineered in the context of implementing an open-addressing hash map (`FastHashMap`) with linear probing, backward-shift deletion, dynamic resizing, and specific contracts around null keys and values.
 
 ### Overview of Test Suites
 
 | Module | Origin / Model | Framework | Test Count | Lines | Black-Box vs White-Box | Quality Tier | Primary Strengths & Distinctions |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **demo0** | Baseline (Xceptance / mikvor) | JUnit 4 | 8 | 357 | Pure Black-Box | **Tier 4 (Legacy)** | Real-world benchmark heritage; collision stress via `MockKey`. Lacks null contract tests; unseeded shuffle. |
+| **demo0** | Baseline (Xceptance / mikvor) | JUnit 5 Jupiter | 22 | 572 | Near Black-Box (`nextPowerOfTwo`, `arraySize`) | **Tier 3 (Modernized Baseline)** | Modernized to JUnit 5; extensive constructor boundary validation; dynamic rehashing (17.7k items); tombstone churn & collision fuzzing against `HashMap`. Lacks null contract tests. |
 | **demo1** | Gemini 3.7 Flash High (Antigravity) | JUnit 5 + AssertJ | 17 (21 runs) | 449 | Pure Black-Box | **Tier 2 (Strong)** | Clean `@Nested` BDD hierarchy; cluster head/middle/tail deletion; 50k differential fuzzing; constructor validation. |
 | **demo2** | Kimi K3 (Kilo Code) | JUnit 5 Jupiter | 43 | 909 | Pure Black-Box | **Tier 1 (Elite Black-Box)** | Largest black-box suite; exhaustive corner cases; circular wrap-around (`0xFFFFFFFF`); key/value positional alignment; 2 differential fuzzers. |
 | **demo3** | OpenAI 5.6 Sol Max (Kilo Code) | JUnit 5 Jupiter | 19 | 507 | Pure Black-Box | **Tier 2 (Strong)** | Dense, high-rigor tests; extreme bit patterns (`MIN_VALUE`, `MAX_VALUE`); wrap-around cluster boundary; multiset value frequency assertions. |
@@ -19,34 +19,54 @@ This document presents a comprehensive technical review and comparative analysis
 | **demo8** | Gemini 3.7 Flash High (Kilo Code) | JUnit 5 Jupiter | 28 | 577 | Pure Black-Box | **Tier 2 (Strong)** | Complete constructor boundary validation; step-by-step cluster deletion (head, middle, tail, sequential middle removal). Missing snapshot copy test. |
 | **demo9** | Gemini 3.8 Flash High (Antigravity) | JUnit 5 + AssertJ | 24 (29 runs) | 591 | Near Black-Box (`capacity()`) | **Tier 1 (Elite Algorithmic)** | Explicit Knuth 6.4R interleaved natural home displacement; circular boundary wrap-around deletion; full constructor suite; AssertJ fluents. |
 | **demo11** | Gemini 3.7 Flash High (100% PIT Rework) | JUnit 5 + AssertJ | 22 (24 runs) | 633 | Intrusive White-Box | **Tier 2 (Engineered 100%)** | Engineered specifically for 100% PIT mutation and 100% JaCoCo coverage; tests Murmur3 mixer bitshifts, tableSizeFor power-of-2, slot nulling. |
+| **demo12** | Gemini 3.8 Flash High (Antigravity Rework) | JUnit 5 + AssertJ | 24 (27 runs) | 583 | Intrusive White-Box (Reflection) | **Tier 1 (Master / 100% Mutation)** | Engineered for 100% PIT mutation and 100% JaCoCo coverage; reflection-based validation of private Murmur3 bitshifts, tableSizeFor power-of-2 math, threshold resizing, and slot cleanup without leaking package-private accessors. |
 
 ---
 
 ## Detailed Per-Module Inventory and Analysis
 
 ### 1. demo0 (`org.jugsaxony.demo0.FastHashMapTest`)
-* **Framework**: JUnit 4 (`@Test`, `org.junit.Assert.*`)
-* **Metrics**: 8 test methods, 357 lines, flat structure.
+* **Framework**: JUnit 5 Jupiter (`org.junit.jupiter.api.Test`, `assertEquals`, `assertNull`, `assertThrows`, `assertTrue`)
+* **Metrics**: 22 test methods, 572 lines, flat structure.
 
 #### Implemented Tests:
-1. `happyPath()`: Inserts 5 keys (`"a"` to `"e"`), asserts sizes and values, overwrites `"b"` with 20 and re-verifies.
-2. `keys()`: Tests `keys()` view on 5 entries, removes `"cc"`, attempts remove of `"c"`, inserts `"zz"`, and checks unknown key retrieval.
-3. `values()`: Tests `values()` list size and membership before and after removal of `"cc"`.
-4. `remove()`: Removes `"b"` and `"d"` from 5-element map; checks size becomes 3; asserts null on removed keys; removes again (verifying null return); reinserts with new values.
-5. `clear()`: Populates, clears, verifies size=0, keys empty, values empty; re-inserts and clears again.
-6. `collision()`: Uses `MockKey` with fixed hash 12. Inserts 15 items, verifies; inserts 20 items, verifies; removes first 10 items, verifies remaining 10.
-7. `overflow()`: Inserts 152 items with fixed hash 1 into a map of initial capacity 5 (forcing multiple rehashes on pure collision cluster); verifies all 152 items.
-8. `hitEachSlot()`: Inserts 300 items across 150 hashes; removes all; re-inserts in sorted order; re-inserts with `Collections.shuffle`; removes with shuffle; verifies size=0.
+1. `ctr()`: Default constructor initialization (capacity 13, LF 0.5f), asserts size is 0.
+2. `ctrParams()`: Two-parameter constructor (`new FastHashMap<>(31, 0.54f)`), asserts size is 0.
+3. `ctrParams_FillTooSmall()`: Asserts `IllegalArgumentException` on negative fill factor (`-0.54f`) with message `"FillFactor must be in (0, 1)"`.
+4. `ctrParams_FillTooBig()`: Asserts `IllegalArgumentException` on fill factor > 1 (`1.54f`) with message `"FillFactor must be in (0, 1)"`.
+5. `ctrParams_Size0()`: Asserts `IllegalArgumentException` on capacity 0 with message `"Size must be positive!"`.
+6. `ctrParams_SizeTooSmall()`: Asserts `IllegalArgumentException` on negative capacity (`-31`) with message `"Size must be positive!"`.
+7. `happyPath()`: Inserts 5 keys (`"a"` to `"e"`), asserts sizes and values, overwrites `"b"` with 20 and re-verifies.
+8. `keys()`: Tests `keys()` view on 5 entries, removes `"cc"`, attempts remove of absent `"c"`, inserts `"zz"`, and checks unknown key retrieval.
+9. `values()`: Tests `values()` list size and membership before and after removal of `"cc"`, attempts removal of absent `"c"`.
+10. `remove()`: Removes `"b"` and `"d"` from 5-element map; checks size becomes 3; asserts null on removed keys; removes again (verifying null return); reinserts with new values.
+11. `removeEmpty()`: Removes absent key from an empty map, asserts null return.
+12. `removeTwice()`: Removes existing key `"a"`, asserts returned value `"a1"`; removes second time, asserts null return.
+13. `rehashing()`: Inserts 17,711 items into map of initial capacity 4 and LF 0.37f; asserts size after each insertion and verifies retrieval of all 17,711 items after multiple resizes.
+14. `rehashingWithTombstones()`: Tests tombstone recycling and cluster integrity: inserts and removes 8 items (verifying size returns to 0), then inserts 21 items across resizing, checking lookup across probe chains.
+15. `rehashingWithCollisions()`: Inserts 1,651 pairs of colliding keys (3,302 items total) using `MockKey(i, "k1" + i)` and `MockKey(i, "k2" + i)` with initial capacity 13 and LF 0.5f, verifying dynamic resizing under dense collisions.
+16. `rehashingWithCollisionsAndTombstones()`: Differential fuzzer running 1,651 steps with 4 colliding keys per step (`k1`, `k2`, `k3`, `k4`); randomly removes one using deterministic `FastRandom.get(187612L)` and differentially asserts equality against `java.util.HashMap`.
+17. `clear()`: Populates single entry, clears, verifies size=0, views empty, get null; populates 2 entries, clears; populates 3 entries, asserts lookups.
+18. `collision()`: Uses `MockKey` with fixed hash 12. Inserts 15 items, verifies; inserts 20 items, verifies; removes first 10 items asserting removed value, verifies remaining 10.
+19. `overflow()`: Inserts 152 items with fixed hash 1 into a map of initial capacity 5 (forcing multiple rehashes on pure collision cluster); verifies all 152 items.
+20. `hitEachSlot()`: Inserts 300 items across 150 hashes; removes all; re-inserts in sorted order; re-inserts with `Collections.shuffle`; removes with shuffle; verifies size=0.
+21. `powerOfTwo()`: Validates package-private `FastHashMap.nextPowerOfTwo()` across 12 inputs (0 to 1025).
+22. `arraySize()`: Validates package-private `FastHashMap.arraySize()` across load factors 0.5f and 0.75f, and asserts `IllegalArgumentException` on arithmetic overflow (`Integer.MAX_VALUE - 817, 0.5f`).
 
 #### Strengths:
-- Heavy collision stress tests (`collision`, `overflow`, `hitEachSlot`) with up to 300 entries colliding on specific slots.
-- Verifies dynamic resizing under extreme collision density.
+- **Modernized to JUnit 5**: Fully migrated from legacy JUnit 4 to JUnit 5 Jupiter assertions and `@Test` annotations.
+- **Thorough Constructor Validation**: Complete parameter verification for fill factors (`(0, 1)`) and capacities (`> 0`), testing specific exception messages.
+- **High Scale & Stress Testing**: Scales to 17,711 items across rehashes (`rehashing`), 3,302 colliding items (`rehashingWithCollisions`), and 300 collision entries (`hitEachSlot`).
+- **Differential Fuzz Testing with Deterministic RNG**: Features a 1,651-iteration differential test against `java.util.HashMap` using seeded `FastRandom` under heavy collision and tombstone churn.
+- **Capacity Math & Overflow Testing**: Tests power-of-two table sizing and asserts arithmetic overflow protection on extreme capacities (`Integer.MAX_VALUE - 817`).
 
 #### Weaknesses & Defects:
-- **Zero Null Contract Testing**: Completely lacks tests for null key rejection (`NullPointerException`) or null value support.
-- **Unseeded Non-Determinism**: Lines 298 and 308 call `Collections.shuffle(keys)` without a random seed, introducing non-deterministic execution order.
+- **Zero Null Contract Testing**: The `demo0` implementation explicitly removed null support; the suite completely lacks tests asserting whether null keys throw `NullPointerException` or how null values behave.
+- **Tombstones vs Backward-Shift Deletion**: Because `demo0` uses tombstones (`REMOVED_KEY`) on an interleaved array instead of backward-shift deletion (Knuth Algorithm 6.4R), tests verify tombstone skipping rather than cluster backward shifting.
+- **Unseeded Non-Determinism in hitEachSlot**: Lines 480 and 490 in `hitEachSlot()` still call `Collections.shuffle(keys)` without a fixed random seed.
 - **Flawed Helper**: `MockKey.compareTo` reverses parameter order (`o.key.compareTo(this.key)`), and `equals` performs an unchecked cast `(MockKey<T>) o`.
-- **Legacy Framework**: Uses JUnit 4 assertions and annotations.
+- **Intrusive White-Box Static Coupling**: Directly invokes package-private methods `nextPowerOfTwo` and `arraySize`.
+- **Missing Snapshot Independence Check**: Does not verify whether mutating the returned `keys()` or `values()` lists affects the map.
 - **Missing Checks**: Does not assert return value of `put` when replacing an existing value.
 
 ---
@@ -393,7 +413,7 @@ This document presents a comprehensive technical review and comparative analysis
 
 ---
 
-### 11. demo11 (`org.jugsaxony.demo1.FastHashMapTest`)
+### 11. demo11 (`org.jugsaxony.demo11.FastHashMapTest`)
 * **Framework**: JUnit 5 Jupiter + AssertJ
 * **Metrics**: 22 test methods (24 executions), 632 lines, 7 `@Nested` classes with `@DisplayName`.
 
@@ -417,71 +437,106 @@ This document presents a comprehensive technical review and comparative analysis
 
 ---
 
+### 12. demo12 (`org.jugsaxony.demo12.FastHashMapTest`)
+* **Framework**: JUnit 5 Jupiter + AssertJ
+* **Metrics**: 24 test methods (27 executions), 583 lines, 8 `@Nested` classes with `@DisplayName`.
+* **Testing Paradigm**: **Intrusive White-Box (Reflection-Assisted)**. Achieves 100% PIT mutation kill rate and 100% JaCoCo coverage while maintaining strict private encapsulation on `FastHashMap` (no package-private accessor leaks).
+
+#### Implemented Tests:
+* Inherits the full BDD test architecture from `demo1`, enhanced with reflection-driven mutation-killing tests:
+  1. `BasicOperationsTest`: Complete CRUD lifecycle (empty map, single put/get, overwrite returning old value, existing remove, non-existing remove, clear).
+  2. `NullHandlingTest`: Strict null key rejection throwing `NullPointerException("Key cannot be null")` on `put`, `get`, `remove`; full null value insertion, overwrite, and retrieval.
+  3. `CollectionsTest`: Snapshot isolation verifying mutating returned `keys()` and `values()` lists does not alter internal map state.
+  4. `CollisionAndProbingTest`: Collision chain retrieval using `CollisionKey(42)`; isolated backward-shift deletion of head, middle, and tail of collision clusters; full cluster randomized deletion.
+  5. `ResizingAndScaleTest`: Parameterized multi-scale insert and retrieval across 100, 1,000, 10,000, and 50,000 entries.
+  6. `FuzzTesting`: Differential random operations against `java.util.HashMap` using a deterministic seed (`Random(42)`). (Note: `@DisplayName` states 50,000 operations, but the test loop executes 5,000 iterations).
+  7. `ConstructorAndValidationTest`: Validates initial capacity rounding (`FastHashMap(64)`) and parameter validation (negative capacity, zero/negative load factors, load factor >= 1.0f, and `Float.NaN`).
+  8. `MutationCoverageTest` (Reflection-assisted):
+     - `testMixHash`: Direct bit-level validation of MurmurHash3 finalizer constants (`0x85ebca6b`, `0xc2b2ae35`) and bit-shift distribution across edge bit patterns (`0`, `1`, `42`, `-1`, `0x12345678`, `Integer.MIN_VALUE`, `Integer.MAX_VALUE`).
+     - `testTableSizeFor`: Validates power-of-two table sizing across 12 boundary powers of two from 0 up to `1 << 30`.
+     - `testClearWhenEmptyPreservesArray`: Verifies dead-store elimination and mutant suppression on `if (size > 0)` by checking that `clear()` on an empty map does not modify array slots, while clearing a populated map zeroes out both keys and values arrays.
+     - `testExactThresholdResize`: Verifies exact threshold boundary crossing (initial capacity 16, load factor 0.5f -> capacity stays 16 through 8 elements, then doubles to 32 on the 9th insertion when `size >= threshold`).
+     - `testConstructorCapacityZero`: Confirms initial capacity 0 initializes safely without exceptions.
+     - `testResizeBoundaryCapacities`: Verifies resizing behavior at capacity boundaries: handles `keys.length == 0` without erroneous early return, and verifies that `resize()` on a table of `MAXIMUM_CAPACITY` (`1 << 30`) returns early to prevent table doubling overflow.
+
+#### Strengths:
+- **100% Mutation Score & 100% Coverage**: Kills all PIT mutants and covers 100% of instructions and branches.
+- **Strict Encapsulation Preserved**: Unlike `demo11` (which exposed package-private `keysArray()`, `valuesArray()`, `capacity()`, `threshold()`), `demo12` maintains strict `private` fields in production code and inspects them cleanly via reflection.
+- **Deep Algorithmic & Bit-Level Rigor**: Validates Murmur3 mixing constants, power-of-two boundary bit-twiddling, and exact threshold calculations.
+- **Maximum Capacity Guard Verification**: Explicitly verifies table doubling prevention at `1 << 30` (`MAXIMUM_CAPACITY`).
+
+#### Weaknesses & Gaps:
+- Still lacks an explicit circular wrap-around deletion test across the table boundary (`capacity - 1` to `0`).
+- Differential testing executes 5,000 operations with a single random seed (despite the 50,000 operation `@DisplayName`).
+
+---
+
 ## Cross-Comparison Matrix
 
-The following table provides a functional comparison across all 11 test suites:
+The following table provides a functional comparison across all 12 test suites:
 
-| Category / Feature | demo0 | demo1 | demo2 | demo3 | demo4 | demo5 | demo6 | demo7 | demo8 | demo9 | demo11 |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Basic CRUD Lifecycle** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Put Overwrite Returns Old Value** | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Remove Return Value Checked** | Partial | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Remove on Empty Map** | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ |
-| **Clear Idempotency on Empty Map** | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ✅ |
-| **Null Key Rejection (NPE on Get/Put/Del)**| ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Null Key Exception Message Asserted** | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
-| **Null Value Insertion & Retrieval** | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Overwrite Value with Null & Vice Versa**| ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Null Value Does Not Break Probe Chain**| ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Collision: Fixed Hash Code Key Class** | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Collision: Cluster Head Deletion** | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | ✅ |
-| **Collision: Cluster Middle Deletion** | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | ✅ |
-| **Collision: Cluster Tail Deletion** | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | ✅ |
-| **Collision: Arbitrary Shuffled Deletion**| ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ |
-| **Collision: Interleaved Natural Homes** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
-| **Circular Wrap-Around Probing** | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ |
-| **Circular Wrap-Around Deletion** | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ |
-| **Slot Leaks / Churn Invariant** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Max Cluster Length Check** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Extreme Hash Bit Patterns (MIN_VALUE)** | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ |
-| **Resizing: Null Values Preserved** | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Exact Threshold Resize Boundary** | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
-| **Volume Scale: 10,000+ items** | ❌ | ✅ | ❌ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Volume Scale: 100,000+ items** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Volume Scale: 1,000,000 items** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Snapshot Independence (List Mutation)** | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ |
-| **Positional Match: keys() vs values()** | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ |
-| **Constructor: Overloaded Capacity/LF** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| **Constructor: Invalid Argument Checks** | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| **Constructor: Power-of-2 Rounding Math** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| **Differential Fuzzing vs JDK HashMap** | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Fuzzing: Clear Operation Included** | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| **Fuzzing Operations Count** | 0 | 50k | 25k | 30k | 0 | 70k | 1.2M | 100k | 50k | 50k | 5k |
-| **Pure Black-Box (Portable)** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ⚠️ | ✅ | ⚠️ | ❌ |
+| Category / Feature | demo0 | demo1 | demo2 | demo3 | demo4 | demo5 | demo6 | demo7 | demo8 | demo9 | demo11 | demo12 |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Basic CRUD Lifecycle** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Put Overwrite Returns Old Value** | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Remove Return Value Checked** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Remove on Empty Map** | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| **Clear Idempotency on Empty Map** | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ✅ | ✅ |
+| **Null Key Rejection (NPE on Get/Put/Del)**| ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Null Key Exception Message Asserted** | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| **Null Value Insertion & Retrieval** | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Overwrite Value with Null & Vice Versa**| ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Null Value Does Not Break Probe Chain**| ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Collision: Fixed Hash Code Key Class** | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Collision: Cluster Head Deletion** | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| **Collision: Cluster Middle Deletion** | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| **Collision: Cluster Tail Deletion** | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| **Collision: Arbitrary Shuffled Deletion**| ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
+| **Collision: Interleaved Natural Homes** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| **Circular Wrap-Around Probing** | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| **Circular Wrap-Around Deletion** | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| **Slot Leaks / Churn Invariant** | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Max Cluster Length Check** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Extreme Hash Bit Patterns (MIN_VALUE)** | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ |
+| **Resizing: Null Values Preserved** | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Exact Threshold Resize Boundary** | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| **Volume Scale: 10,000+ items** | ✅ | ✅ | ❌ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Volume Scale: 100,000+ items** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Volume Scale: 1,000,000 items** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Snapshot Independence (List Mutation)** | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ |
+| **Positional Match: keys() vs values()** | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| **Constructor: Overloaded Capacity/LF** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| **Constructor: Invalid Argument Checks** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| **Constructor: Power-of-2 Rounding Math** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| **Differential Fuzzing vs JDK HashMap** | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Fuzzing: Clear Operation Included** | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| **Fuzzing Operations Count** | 1.6k | 50k | 25k | 30k | 0 | 70k | 1.2M | 100k | 50k | 50k | 5k | 5k (nom. 50k) |
+| **Pure Black-Box (Portable)** | ⚠️ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ⚠️ | ✅ | ⚠️ | ❌ | ❌ |
 
 ---
 
 ## In-Depth Comparative Analysis
 
-### 1. Tier 1: The Titans — demo6 vs demo2
+### 1. Tier 1: The Titans — demo6, demo2, and demo12
 - **demo6 (Claude Opus 5 Ultra)** is the most algorithmically rigorous test suite. Its use of continuous invariant verification (`assertHealthy`), probe continuity checks (`checkChainInvariant`), tombstone absence verification (`size == trueSize()`), and dynamic slot targeting (`hashForSlot`) makes it an exceptional test bench for debugging an open-addressing map. However, it is an **intrusive white-box** suite: it requires 5 internal methods on `FastHashMap` and cannot run against any other implementation.
 - **demo2 (Kimi K3)** is the **gold standard for pure black-box testing**. With 43 tests and 908 lines, it achieves comprehensive coverage without calling a single private or package-private method. It covers wrap-around probing (`0xFFFFFFFF`), object contracts (identity vs equality, missing `toString()`), snapshot mutability, and dual differential fuzzers.
-- **Comparison**: While `demo6` is superior for validating internal hash map mechanics, `demo2` is superior as a specification-compliance suite that can test any third-party open-addressing implementation.
+- **demo12 (Gemini 3.8 Flash High Antigravity Rework)** achieves a perfect 100% PIT mutation kill rate and 100% JaCoCo coverage while solving the principal architectural flaw of `demo11`: it preserves strict object-oriented encapsulation by keeping backing arrays (`keys`, `values`), capacity thresholds, and bit-math utility routines strictly `private`, inspecting them safely via reflection in a dedicated `MutationCoverageTest` suite.
+- **Comparison**: While `demo6` is superior for validating internal hash map mechanics and `demo2` excels as a portable black-box specification-compliance suite, `demo12` demonstrates how to achieve 100% mutation hardening without compromising production class encapsulation.
 
 ### 2. Tier 2: The Modern Algorithmic Contenders — demo9, demo1, demo11, demo3
 - **demo9 (Gemini 3.8 Flash High Antigravity)** features the most precise algorithmic test in the repository: `collisionInterleavedWithDifferentNaturalHomes`. This test creates a cluster where an interleaved entry has a natural home other than the cluster start and verifies that backward-shift deletion does not shift an element before its natural home (the defining correctness invariant of Knuth's Algorithm 6.4R). It also includes cyclic boundary wrap-around deletion and constructor capacity rounding.
 - **demo1 (Gemini 3.7 Flash High Antigravity)** established the clean BDD `@Nested` architecture with AssertJ assertions, isolated cluster position deletion tests (head, middle, tail), and 50,000-operation differential fuzzing.
-- **demo11 (Gemini 3.7 Flash High Rework)** demonstrates how mutation-driven testing (PIT) transforms a suite: it adds direct validation of mixer constants, table size bit-twiddling, exact threshold boundaries, and nulling of backing arrays.
+- **demo11 (Gemini 3.7 Flash High Rework)** demonstrates how mutation-driven testing (PIT) transforms a suite: it adds direct validation of mixer constants, table size bit-twiddling, exact threshold boundaries, and nulling of backing arrays, though it relaxes production access modifiers to package-private.
 - **demo3 (OpenAI 5.6 Sol Max)** excels in compact high-rigor tests: it is one of the few black-box suites to test circular buffer wrap-around at array boundary (slot 15 of 16), extreme bit patterns (`MIN_VALUE`, `MAX_VALUE`, `-1`), and multiset value frequency tracking.
 
-### 3. Tier 3: The Solid Workhorses — demo8, demo7, demo5
+### 3. Tier 3: The Solid Workhorses & Modernized Baseline — demo8, demo7, demo5, and demo0
 - **demo8 (Gemini 3.7 Flash High Kilo Code)** provides the most comprehensive constructor validation among black-box suites and includes an iterative middle-cluster removal test. However, it completely forgot to test snapshot immutability for `keys()` and `values()`.
 - **demo7 (Qwen 38 max XHigh)** contains solid fuzzing (100k ops), but illustrates a critical testing pitfall: **it failed to catch that its own implementation was a chained hash map rather than an open-addressing map**. Because it never tested probe chain deletion or cluster repair, a completely non-compliant data structure passed all tests.
 - **demo5 (Deepseek V4 Flash Max)** features a strong 2,000-key collision stride-deletion test and dual fuzzers, but suffers from a flat layout, no constructor tests, and no wrap-around tests.
+- **demo0 (Baseline / Xceptance)** has been substantially modernized to JUnit 5 Jupiter (expanding from 8 to 22 tests and 572 lines). It adds exhaustive constructor argument validation, large-scale rehashing (17,711 entries), power-of-two and array sizing boundary checks (including arithmetic overflow on `MAX_VALUE - 817`), and a 1,651-iteration differential collision test against `java.util.HashMap` using `FastRandom`. While it still lacks null-contract tests and tests tombstones rather than backward-shift deletion, it is no longer a legacy or deficient test suite.
 
-### 4. Tier 4: The Deficient & Legacy Suites — demo4 and demo0
+### 4. Tier 4: The Deficient Suite — demo4
 - **demo4 (Gemma 4 31B Thinking)** is severely deficient (10 tests, 111 lines). It uses String hash collisions that may not collide under hash mixing, has no cluster deletion tests, no fuzzing, and awkward double-negative assertions.
-- **demo0 (Baseline)** reflects legacy JUnit 4 practices with unseeded random shuffles and missing null contract tests, though its collision overflow tests remain valuable.
 
 ---
 
@@ -489,7 +544,7 @@ The following table provides a functional comparison across all 11 test suites:
 
 ### 1. Universal Gaps (Missing Across All or Nearly All Suites)
 1. **Maximum Capacity & Table Doubling Overflow**:
-   - What happens when a map of capacity `1 << 30` attempts to resize? Does it throw an `IllegalStateException` or overflow into negative capacity? None of the suites test growth overflow behavior at the maximum capacity boundary.
+   - What happens when a map of capacity `1 << 30` attempts to resize? Does it throw an `IllegalStateException` or overflow into negative capacity? Almost all suites omit this boundary; only `demo0` (which tests `arraySize(Integer.MAX_VALUE - 817, 0.5f)` throwing `IllegalArgumentException`) and `demo12` (which validates that `resize()` terminates early without corrupting threshold when `oldCapacity >= 1 << 30`) explicitly test table sizing overflow guards.
 2. **Concurrent Modification / Fail-Fast Behavior**:
    - The prompt specifies that `FastHashMap` is not thread-safe. However, none of the suites test or document behavior when the map is modified while iterating over `keys()` or `values()` streams (or whether snapshots prevent CME).
 3. **Repeated Insertions and Deletions at Wrap-Around Boundary**:
@@ -500,10 +555,10 @@ The following table provides a functional comparison across all 11 test suites:
    - Verifying behavior when a key's mutable field is changed after insertion (confirming that the old hash slot is preserved or standard hash map lookup failure occurs).
 
 ### 2. Specific Gaps in Individual Suites
-- **Missing Constructor Tests**: `demo0`, `demo2`, `demo3`, `demo4`, `demo5`, `demo6`, `demo7`.
-- **Missing Wrap-Around Boundary Tests**: `demo0`, `demo1`, `demo4`, `demo5`, `demo7`, `demo8`, `demo11`.
+- **Missing Constructor Tests**: `demo2`, `demo3`, `demo4`, `demo5`, `demo6`, `demo7`.
+- **Missing Wrap-Around Boundary Tests**: `demo0`, `demo1`, `demo4`, `demo5`, `demo7`, `demo8`, `demo11`, `demo12`.
 - **Missing Snapshot Copy Mutation Tests**: `demo0`, `demo4`, `demo8`.
-- **Missing Differential Fuzz Testing**: `demo0`, `demo4`.
+- **Missing Differential Fuzz Testing**: `demo4`.
 - **Missing Clear Idempotency**: `demo0`, `demo1`, `demo4`, `demo5`, `demo7`, `demo8`, `demo9`.
 - **Missing Return Value Verification on Overwrite**: `demo0`.
 
@@ -512,22 +567,22 @@ The following table provides a functional comparison across all 11 test suites:
 ## Test Quality Evaluation
 
 ### 1. Assertion Rigor & Mutation Killing Power
-- **High Rigor (`demo11`, `demo6`, `demo9`, `demo3`)**: Assertions verify return values on every mutation, check size invariants, assert that unrelated keys remain untouched, and verify snapshot independence.
-- **Moderate Rigor (`demo1`, `demo2`, `demo5`, `demo7`, `demo8`)**: Strong checks on common paths, but occasional reliance on high-level set equality rather than step-by-step state checks.
-- **Weak Rigor (`demo4`, `demo0`)**: Tests check basic retrieval without verifying return values of `put`/`remove` or testing cluster repair.
+- **High Rigor (`demo12`, `demo11`, `demo6`, `demo9`, `demo3`)**: Assertions verify return values on every mutation, check size invariants, assert that unrelated keys remain untouched, and verify snapshot independence.
+- **Moderate Rigor (`demo1`, `demo2`, `demo5`, `demo7`, `demo8`, `demo0`)**: Strong checks on common paths, constructor boundaries, or differential equivalence, but occasional reliance on high-level set equality rather than step-by-step state checks.
+- **Weak Rigor (`demo4`)**: Tests check basic retrieval without verifying return values of `put`/`remove` or testing cluster repair.
 
 ### 2. Algorithmic Collision Verification
 - **Knuth 6.4R Correctness**: `demo9` is the only suite that tests the subtle displacement rule for interleaved natural homes.
-- **Cluster Positions**: `demo1`, `demo6`, `demo8`, `demo9`, and `demo11` explicitly test removing the head, middle, and tail of a collision cluster.
+- **Cluster Positions**: `demo1`, `demo6`, `demo8`, `demo9`, `demo11`, and `demo12` explicitly test removing the head, middle, and tail of a collision cluster.
 - **Circular Probing**: `demo2`, `demo3`, `demo6`, and `demo9` correctly test circular buffer wrap-around.
 
 ### 3. Architecture & Cleanliness
-- **Best in Class**: `demo1`, `demo9`, `demo11`, `demo2`, and `demo6` utilize JUnit 5 `@Nested` classes with clear `@DisplayName` descriptions representing BDD specifications.
-- **AssertJ vs JUnit Jupiter**: `demo1`, `demo9`, and `demo11` benefit significantly from AssertJ fluent assertions (`assertThat(map.get(k)).isEqualTo(...)`, `containsExactlyInAnyOrder`), which produce much clearer failure messages than standard JUnit assertions.
+- **Best in Class**: `demo1`, `demo9`, `demo11`, `demo12`, `demo2`, and `demo6` utilize JUnit 5 `@Nested` classes with clear `@DisplayName` descriptions representing BDD specifications.
+- **AssertJ vs JUnit Jupiter**: `demo1`, `demo9`, `demo11`, and `demo12` benefit significantly from AssertJ fluent assertions (`assertThat(map.get(k)).isEqualTo(...)`, `containsExactlyInAnyOrder`), which produce much clearer failure messages than standard JUnit assertions.
 
 ### 4. Determinism and Reproducibility
-- Suites `demo1`, `demo2`, `demo3`, `demo5`, `demo6`, `demo7`, `demo8`, `demo9`, and `demo11` all use fixed random seeds (`Random(42)`, etc.), guaranteeing 100% reproducible test execution.
-- Only `demo0` introduced unseeded `Collections.shuffle()`.
+- Suites `demo1`, `demo2`, `demo3`, `demo5`, `demo6`, `demo7`, `demo8`, `demo9`, `demo11`, and `demo12` all use fixed random seeds (`Random(42)`, etc.), guaranteeing 100% reproducible test execution.
+- `demo0` introduced deterministic `FastRandom.get(187612L)` for its collision and tombstone fuzzing test, though `hitEachSlot()` still retains unseeded `Collections.shuffle(keys)`.
 
 ---
 
@@ -537,7 +592,7 @@ To build the definitive test suite for open-addressing hash maps, one should syn
 
 ```
 FastHashMapTest (Ultimate Synthesis)
-├── 1. ConstructorAndConfigurationTests (from demo9 & demo11)
+├── 1. ConstructorAndConfigurationTests (from demo9, demo11 & demo12)
 │   ├── Default initial capacity and load factor
 │   ├── Custom capacity rounded to power of two
 │   ├── Boundary load factors (0.001f, 0.999f)

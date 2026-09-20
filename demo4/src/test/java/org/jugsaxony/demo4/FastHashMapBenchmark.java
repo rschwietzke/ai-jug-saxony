@@ -14,6 +14,7 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
+import org.openjdk.jmh.runner.options.CommandLineOptions;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
@@ -185,10 +186,31 @@ public class FastHashMapBenchmark {
     // Main Runner
     // ---------------------------------------------------------------------------------------------
 
-    public static void main(String[] args) throws RunnerException {
+    public static void main(String[] args) throws Exception {
+        fixClasspathForFork();
+        CommandLineOptions cmdOptions = new CommandLineOptions(args);
         Options opt = new OptionsBuilder()
+                .parent(cmdOptions)
                 .include(FastHashMapBenchmark.class.getSimpleName())
                 .build();
         new Runner(opt).run();
+    }
+
+    private static void fixClasspathForFork() {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        if (cl instanceof java.net.URLClassLoader ucl) {
+            StringBuilder sb = new StringBuilder();
+            String currentCp = System.getProperty("java.class.path", "");
+            sb.append(currentCp);
+            for (java.net.URL url : ucl.getURLs()) {
+                if (!currentCp.contains(url.getPath())) {
+                    if (sb.length() > 0) {
+                        sb.append(java.io.File.pathSeparator);
+                    }
+                    sb.append(url.getPath());
+                }
+            }
+            System.setProperty("java.class.path", sb.toString());
+        }
     }
 }

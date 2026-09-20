@@ -79,6 +79,21 @@ public class GlobalJolReport {
                 public Object create() { return new org.jugsaxony.demo8.FastHashMap<String, Integer>(); }
                 @SuppressWarnings("unchecked")
                 public void put(Object map, Object key, Object value) { ((org.jugsaxony.demo8.FastHashMap<String, Integer>) map).put((String) key, (Integer) value); }
+            }),
+            new ImplementationMeta("demo9", "Demo 9", "Gemini 3.8 Flash High (Antigravity)", org.jugsaxony.demo9.FastHashMap.class, new MapFactory() {
+                public Object create() { return new org.jugsaxony.demo9.FastHashMap<String, Integer>(); }
+                @SuppressWarnings("unchecked")
+                public void put(Object map, Object key, Object value) { ((org.jugsaxony.demo9.FastHashMap<String, Integer>) map).put((String) key, (Integer) value); }
+            }),
+            new ImplementationMeta("demo11", "Demo 11", "Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed)", org.jugsaxony.demo11.FastHashMap.class, new MapFactory() {
+                public Object create() { return new org.jugsaxony.demo11.FastHashMap<String, Integer>(); }
+                @SuppressWarnings("unchecked")
+                public void put(Object map, Object key, Object value) { ((org.jugsaxony.demo11.FastHashMap<String, Integer>) map).put((String) key, (Integer) value); }
+            }),
+            new ImplementationMeta("demo12", "Demo 12", "Gemini 3.8 Flash High (Antigravity Rework - 100% Mutation Killed)", org.jugsaxony.demo12.FastHashMap.class, new MapFactory() {
+                public Object create() { return new org.jugsaxony.demo12.FastHashMap<String, Integer>(); }
+                @SuppressWarnings("unchecked")
+                public void put(Object map, Object key, Object value) { ((org.jugsaxony.demo12.FastHashMap<String, Integer>) map).put((String) key, (Integer) value); }
             })
     );
 

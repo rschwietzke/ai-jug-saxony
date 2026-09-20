@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jugsaxony.demo1;
+package org.jugsaxony.demo11;
 
 import java.util.ArrayList;
 import java.util.Arrays;

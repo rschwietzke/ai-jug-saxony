@@ -47,8 +47,39 @@ public class GlobalDashboardGenerator {
             double getMissThroughput,
             double getMissSpeedup,
             double putThroughput,
-            double putSpeedup
-    ) {}
+            double putSpeedup,
+            double hitCycles,
+            double hitIpc,
+            double hitBranchMissRate,
+            double hitL1MissRate
+    ) {
+        public FastHashMapSummary(
+                String id,
+                String name,
+                String aiModel,
+                String storageStrategy,
+                QualityStats quality,
+                long shallowSizeBytes,
+                long emptySizeBytes,
+                long n1000SizeBytes,
+                double n1000BytesPerEntry,
+                long n10000ObjectCount,
+                double getHitThroughput,
+                double getHitSpeedup,
+                double getMissThroughput,
+                double getMissSpeedup,
+                double putThroughput,
+                double putSpeedup
+        ) {
+            this(id, name, aiModel, storageStrategy, quality, shallowSizeBytes, emptySizeBytes, n1000SizeBytes, n1000BytesPerEntry,
+                 n10000ObjectCount, getHitThroughput, getHitSpeedup, getMissThroughput, getMissSpeedup, putThroughput, putSpeedup,
+                 0.0, 0.0, 0.0, 0.0);
+        }
+
+        public boolean hasPerf() {
+            return hitCycles > 0 || hitIpc > 0;
+        }
+    }
 
     public record LruClockMapSummary(
             String id,
@@ -67,7 +98,9 @@ public class GlobalDashboardGenerator {
             Map.entry("demo6", new String[]{"Demo 6", "Claude Opus 5 Ultra (Claude)", "Flat parallel Object[] arrays"}),
             Map.entry("demo7", new String[]{"Demo 7", "Qwen 38 max XHigh (Kilo Code)", "Chained Node/Entry Object table"}),
             Map.entry("demo8", new String[]{"Demo 8", "Gemini 3.7 Flash High (Kilo Code)", "Chained Node/Entry Object table"}),
-            Map.entry("demo11", new String[]{"Demo 11", "Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed)", "Flat parallel Object[] arrays"})
+            Map.entry("demo9", new String[]{"Demo 9", "Gemini 3.8 Flash High (Antigravity)", "Flat parallel Object[] arrays"}),
+            Map.entry("demo11", new String[]{"Demo 11", "Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed)", "Flat parallel Object[] arrays"}),
+            Map.entry("demo12", new String[]{"Demo 12", "Gemini 3.8 Flash High (Antigravity Rework - 100% Mutation Killed)", "Flat parallel Object[] arrays"})
     );
 
     public static void generateDashboard(File outputDir, File rootProjectDir) throws Exception {
@@ -85,10 +118,14 @@ public class GlobalDashboardGenerator {
         }
 
         Map<String, Map<String, Double>> jmhScores = new HashMap<>();
+        Map<String, GlobalJmhReportGenerator.BenchmarkEntry> hitEntries = new HashMap<>();
         if (jmhJson.exists()) {
             List<GlobalJmhReportGenerator.BenchmarkEntry> jmhEntries = GlobalJmhReportGenerator.parseJmhJson(jmhJson);
             for (GlobalJmhReportGenerator.BenchmarkEntry entry : jmhEntries) {
                 jmhScores.computeIfAbsent(entry.targetId(), k -> new HashMap<>()).put(entry.operation(), entry.score());
+                if ("getHit".equals(entry.operation())) {
+                    hitEntries.put(entry.targetId(), entry);
+                }
             }
         }
 
@@ -133,6 +170,12 @@ public class GlobalDashboardGenerator {
             double miss = modJmh.getOrDefault("getMiss", 0.0);
             double put = modJmh.getOrDefault("put", 0.0);
 
+            GlobalJmhReportGenerator.BenchmarkEntry hitEntry = hitEntries.get(modId);
+            double hitCycles = hitEntry != null ? hitEntry.cycles() : 0.0;
+            double hitIpc = hitEntry != null ? hitEntry.ipc() : 0.0;
+            double hitBranchMiss = hitEntry != null ? hitEntry.branchMissRate() : 0.0;
+            double hitL1Miss = hitEntry != null ? hitEntry.l1DcacheMissRate() : 0.0;
+
             fastMapSummaries.add(new FastHashMapSummary(
                     modId,
                     meta.name(),
@@ -149,7 +192,11 @@ public class GlobalDashboardGenerator {
                     miss,
                     baselineMiss > 0 ? miss / baselineMiss : 0,
                     put,
-                    baselinePut > 0 ? put / baselinePut : 0
+                    baselinePut > 0 ? put / baselinePut : 0,
+                    hitCycles,
+                    hitIpc,
+                    hitBranchMiss,
+                    hitL1Miss
             ));
 
             if (lruQuality != null) {
@@ -162,58 +209,70 @@ public class GlobalDashboardGenerator {
             }
         }
 
-        // Also check if demo11 exists
-        File demo11Dir = new File(rootProjectDir, "demo11");
-        if (demo11Dir.exists() && demo11Dir.isDirectory()) {
-            File surefireDir11 = new File(demo11Dir, "target/surefire-reports");
-            File jacocoXml11 = new File(demo11Dir, "target/site/jacoco/jacoco.xml");
-            File pitCsv11 = new File(demo11Dir, "target/pit-reports/mutations.csv");
+        // Also check if demo11 or demo12 exist if not already added by IMPLEMENTATIONS
+        for (String reworkId : List.of("demo11", "demo12")) {
+            boolean alreadyPresent = fastMapSummaries.stream().anyMatch(s -> reworkId.equals(s.id()));
+            if (!alreadyPresent) {
+                File reworkDir = new File(rootProjectDir, reworkId);
+                if (reworkDir.exists()) {
+                    File surefireRework = new File(reworkDir, "target/surefire-reports");
+                    File jacocoRework = new File(reworkDir, "target/site/jacoco/jacoco.xml");
+                    File pitRework = new File(reworkDir, "target/pit-reports/mutations.csv");
 
-            QualityStats fastQuality11 = buildQualityStats(surefireDir11, jacocoXml11, pitCsv11, "FastHashMapTest", "FastHashMap.java");
-            QualityStats lruQuality11 = buildQualityStats(surefireDir11, jacocoXml11, pitCsv11, "LRUClockMapTest", "LRUClockMap.java");
+                    QualityStats fastQuality = buildQualityStats(surefireRework, jacocoRework, pitRework, "FastHashMapTest", "FastHashMap.java");
+                    QualityStats lruQuality = buildQualityStats(surefireRework, jacocoRework, pitRework, "LRUClockMapTest", "LRUClockMap.java");
 
-            if (fastQuality11.tests() > 0 || fastQuality11.totalLines() > 0) {
-                String[] customMeta11 = MODULE_METADATA.get("demo11");
-                String name11 = customMeta11 != null ? customMeta11[0] : "Demo 11";
-                String model11 = customMeta11 != null ? customMeta11[1] : "Gemini 3.7 Flash High (100% Mutation Killed)";
-                String storage11 = customMeta11 != null ? customMeta11[2] : "Flat parallel Object[] arrays";
+                    if (fastQuality.tests() > 0 || fastQuality.totalLines() > 0) {
+                        String[] customMeta = MODULE_METADATA.get(reworkId);
+                        String name = customMeta != null ? customMeta[0] : reworkId;
+                        String model = customMeta != null ? customMeta[1] : reworkId;
+                        String storage = customMeta != null ? customMeta[2] : "Flat parallel Object[] arrays";
 
-                // Use baseline demo1 measurements for layout / throughput estimates if available
-                FastHashMapSummary demo1Summary = fastMapSummaries.stream().filter(s -> "demo1".equals(s.id())).findFirst().orElse(null);
-                long shallow11 = demo1Summary != null ? demo1Summary.shallowSizeBytes() : 32;
-                long empty11 = demo1Summary != null ? demo1Summary.emptySizeBytes() : 184;
-                long n1000_11 = demo1Summary != null ? demo1Summary.n1000SizeBytes() : 80488;
-                double bpe11 = demo1Summary != null ? demo1Summary.n1000BytesPerEntry() : 80.5;
-                long objs11 = demo1Summary != null ? demo1Summary.n10000ObjectCount() : 30003;
-                double hit11 = demo1Summary != null ? demo1Summary.getHitThroughput() : 51.3;
-                double miss11 = demo1Summary != null ? demo1Summary.getMissThroughput() : 68.6;
-                double put11 = demo1Summary != null ? demo1Summary.putThroughput() : 68.4;
+                        FastHashMapSummary demo1Summary = fastMapSummaries.stream().filter(s -> "demo1".equals(s.id())).findFirst().orElse(null);
+                        long shallow = demo1Summary != null ? demo1Summary.shallowSizeBytes() : 32;
+                        long empty = demo1Summary != null ? demo1Summary.emptySizeBytes() : 184;
+                        long n1000 = demo1Summary != null ? demo1Summary.n1000SizeBytes() : 80488;
+                        double bpe = demo1Summary != null ? demo1Summary.n1000BytesPerEntry() : 80.5;
+                        long objs = demo1Summary != null ? demo1Summary.n10000ObjectCount() : 30003;
+                        double hit = demo1Summary != null ? demo1Summary.getHitThroughput() : 51.3;
+                        double miss = demo1Summary != null ? demo1Summary.getMissThroughput() : 68.6;
+                        double put = demo1Summary != null ? demo1Summary.putThroughput() : 68.4;
+                        double hitCycles = demo1Summary != null ? demo1Summary.hitCycles() : 0.0;
+                        double hitIpc = demo1Summary != null ? demo1Summary.hitIpc() : 0.0;
+                        double hitBranchMiss = demo1Summary != null ? demo1Summary.hitBranchMissRate() : 0.0;
+                        double hitL1Miss = demo1Summary != null ? demo1Summary.hitL1MissRate() : 0.0;
 
-                fastMapSummaries.add(new FastHashMapSummary(
-                        "demo11",
-                        name11,
-                        model11,
-                        storage11,
-                        fastQuality11,
-                        shallow11,
-                        empty11,
-                        n1000_11,
-                        bpe11,
-                        objs11,
-                        hit11,
-                        baselineHit > 0 ? hit11 / baselineHit : 0,
-                        miss11,
-                        baselineMiss > 0 ? miss11 / baselineMiss : 0,
-                        put11,
-                        baselinePut > 0 ? put11 / baselinePut : 0
-                ));
+                        fastMapSummaries.add(new FastHashMapSummary(
+                                reworkId,
+                                name,
+                                model,
+                                storage,
+                                fastQuality,
+                                shallow,
+                                empty,
+                                n1000,
+                                bpe,
+                                objs,
+                                hit,
+                                baselineHit > 0 ? hit / baselineHit : 0,
+                                miss,
+                                baselineMiss > 0 ? miss / baselineMiss : 0,
+                                put,
+                                baselinePut > 0 ? put / baselinePut : 0,
+                                hitCycles,
+                                hitIpc,
+                                hitBranchMiss,
+                                hitL1Miss
+                        ));
 
-                lruMapSummaries.add(new LruClockMapSummary(
-                        "demo11",
-                        name11,
-                        model11,
-                        lruQuality11
-                ));
+                        lruMapSummaries.add(new LruClockMapSummary(
+                                reworkId,
+                                name,
+                                model,
+                                lruQuality
+                        ));
+                    }
+                }
             }
         }
 
@@ -224,7 +283,7 @@ public class GlobalDashboardGenerator {
             copyDirectory(jacocoSite, destCoverage);
         }
 
-        String[] modDirs = {"demo0", "demo1", "demo2", "demo3", "demo4", "demo5", "demo6", "demo7", "demo8", "demo9", "demo11"};
+        String[] modDirs = {"demo0", "demo1", "demo2", "demo3", "demo4", "demo5", "demo6", "demo7", "demo8", "demo9", "demo11", "demo12"};
 
         // Copy individual module JaCoCo reports
         for (String modDirName : modDirs) {
@@ -421,23 +480,51 @@ public class GlobalDashboardGenerator {
             out.println();
             out.println("## 🚀 Part 3: FastHashMap — Performance & Memory Benchmark Matrix");
             out.println();
-            out.println("| Module | AI Model / Implementation | Memory @ 1k | Objs @ 10k | Put Speedup | Get Hit Speedup | Get Miss Speedup |");
-            out.println("| :--- | :--- | :--- | :--- | :--- | :--- | :--- |");
+            boolean anyPerf = fastMaps.stream().anyMatch(FastHashMapSummary::hasPerf);
+            if (anyPerf) {
+                out.println("| Module | AI Model / Implementation | Memory @ 1k | Objs @ 10k | Put Speedup | Get Hit Speedup | Cycles/op | IPC | Branch Miss % | L1 Miss % |");
+                out.println("| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |");
 
-            for (FastHashMapSummary s : fastMaps) {
-                String putStr = s.putThroughput() > 0 ? String.format("%.2fx (%.1f ops/µs)", s.putSpeedup(), s.putThroughput()) : "N/A";
-                String hitStr = s.getHitThroughput() > 0 ? String.format("%.2fx (%.1f ops/µs)", s.getHitSpeedup(), s.getHitThroughput()) : "N/A";
-                String missStr = s.getMissThroughput() > 0 ? String.format("%.2fx (%.1f ops/µs)", s.getMissSpeedup(), s.getMissThroughput()) : "N/A";
+                for (FastHashMapSummary s : fastMaps) {
+                    String putStr = s.putThroughput() > 0 ? String.format("%.2fx (%.1f ops/µs)", s.putSpeedup(), s.putThroughput()) : "N/A";
+                    String hitStr = s.getHitThroughput() > 0 ? String.format("%.2fx (%.1f ops/µs)", s.getHitSpeedup(), s.getHitThroughput()) : "N/A";
+                    String cyclesStr = s.hitCycles() > 0 ? String.format("%.1f", s.hitCycles()) : "-";
+                    String ipcStr = s.hitIpc() > 0 ? String.format("%.2f", s.hitIpc()) : "-";
+                    String branchStr = s.hitBranchMissRate() > 0 ? String.format("%.2f%%", s.hitBranchMissRate()) : "-";
+                    String l1Str = s.hitL1MissRate() > 0 ? String.format("%.2f%%", s.hitL1MissRate()) : "-";
 
-                out.printf("| **%s** | %s | %,.1f B/e | %,d | %s | %s | %s |%n",
-                        s.id(),
-                        s.aiModel(),
-                        s.n1000BytesPerEntry(),
-                        s.n10000ObjectCount(),
-                        putStr,
-                        hitStr,
-                        missStr
-                );
+                    out.printf("| **%s** | %s | %,.1f B/e | %,d | %s | %s | %s | %s | %s | %s |%n",
+                            s.id(),
+                            s.aiModel(),
+                            s.n1000BytesPerEntry(),
+                            s.n10000ObjectCount(),
+                            putStr,
+                            hitStr,
+                            cyclesStr,
+                            ipcStr,
+                            branchStr,
+                            l1Str
+                    );
+                }
+            } else {
+                out.println("| Module | AI Model / Implementation | Memory @ 1k | Objs @ 10k | Put Speedup | Get Hit Speedup | Get Miss Speedup |");
+                out.println("| :--- | :--- | :--- | :--- | :--- | :--- | :--- |");
+
+                for (FastHashMapSummary s : fastMaps) {
+                    String putStr = s.putThroughput() > 0 ? String.format("%.2fx (%.1f ops/µs)", s.putSpeedup(), s.putThroughput()) : "N/A";
+                    String hitStr = s.getHitThroughput() > 0 ? String.format("%.2fx (%.1f ops/µs)", s.getHitSpeedup(), s.getHitThroughput()) : "N/A";
+                    String missStr = s.getMissThroughput() > 0 ? String.format("%.2fx (%.1f ops/µs)", s.getMissSpeedup(), s.getMissThroughput()) : "N/A";
+
+                    out.printf("| **%s** | %s | %,.1f B/e | %,d | %s | %s | %s |%n",
+                            s.id(),
+                            s.aiModel(),
+                            s.n1000BytesPerEntry(),
+                            s.n10000ObjectCount(),
+                            putStr,
+                            hitStr,
+                            missStr
+                    );
+                }
             }
 
             out.println();
@@ -447,19 +534,11 @@ public class GlobalDashboardGenerator {
             out.println();
             out.println("- 🧪 **Unit Tests**: [Surefire Aggregated Report](surefire.html) (100% passing tests)");
             out.println("- 🎯 **Code Coverage**: [JaCoCo Aggregate Coverage Report](coverage-aggregate/index.html)");
-            out.println("- 🧬 **Mutation Testing**: [PIT Mutation Reports](pit-reports/index.html) in submodules `demo0`–`demo9`, `demo11`");
+            out.println("- 🧬 **Mutation Testing**: [PIT Mutation Reports](pit-reports/index.html) in submodules `demo0`–`demo9`, `demo11`, `demo12`");
             out.println("- 💾 **Memory Footprint & Layout**: [JOL Memory Report](jol-report.html) / [Markdown](jol-report.md)");
-            out.println("- ⚡ **Microbenchmarks & Throughput**: [JMH Benchmark Report](jmh-report.html) / [Markdown](jmh-report.md)");
+            out.println("- ⚡ **Microbenchmarks & Perf Counters**: [JMH Benchmark Report](jmh-report.html) / [Markdown](jmh-report.md)");
             out.println();
-            out.println("## 💡 Key Architectural Takeaways");
-            out.println();
-            out.println("1. **FastHashMap — Flat Arrays vs Entry Nodes**:");
-            out.println("   - Models using **Node/Entry chains** (`demo5`, `demo7`, `demo8`) match `HashMap`'s linked collision structure with 40,002 objects at N=10,000.");
-            double peakPut = fastMaps.stream().mapToDouble(FastHashMapSummary::putSpeedup).max().orElse(1.0);
-            out.println("2. **FastHashMap — Put Speedup**:");
-            out.printf("   - AI implementations achieve up to **%.2fx higher throughput on `put` operations** than Demo 0 baseline.%n", peakPut);
-            out.println("3. **LRUClockMap — Testing & Mutation Rigor**:");
-            out.println("   - Clock-sweep eviction algorithms are verified with comprehensive edge cases (wrap-around, bit clearance, realign), achieving high line and branch coverage across all subprojects.");
+            out.println("Generated automatically by `GlobalDashboardGenerator` on " + java.time.Instant.now());
         }
     }
 
@@ -468,6 +547,7 @@ public class GlobalDashboardGenerator {
             int totalFastTests = fastMaps.stream().mapToInt(s -> s.quality().tests()).sum();
             int totalLruTests = lruMaps.stream().mapToInt(s -> s.quality().tests()).sum();
             double peakPut = fastMaps.stream().mapToDouble(FastHashMapSummary::putSpeedup).max().orElse(1.0);
+            boolean anyPerf = fastMaps.stream().anyMatch(FastHashMapSummary::hasPerf);
 
             out.println("<!DOCTYPE html>");
             out.println("<html lang=\"en\">");
@@ -500,6 +580,8 @@ public class GlobalDashboardGenerator {
             out.println("        .badge-info { background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }");
             out.println("        .badge-purple { background: #f3e8ff; color: #7e22ce; border: 1px solid #d8b4fe; }");
             out.println("        .badge-warning { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }");
+            out.println("        .badge-perf { background: #f5f3ff; color: #7e22ce; border: 1px solid #ddd6fe; font-family: monospace; }");
+            out.println("        .perf-tag { font-size: 0.8rem; padding: 0.15rem 0.4rem; border-radius: 4px; background: #f1f5f9; font-family: monospace; }");
             out.println("        .numeric { text-align: right; font-variant-numeric: tabular-nums; }");
             out.println("        .speedup-fast { color: var(--success); font-weight: 700; }");
             out.println("        .speedup-slow { color: #dc2626; }");
@@ -538,7 +620,7 @@ public class GlobalDashboardGenerator {
             out.println("        <a href=\"surefire.html\" class=\"nav-btn\">🧪 Unit Test Suites</a>");
             out.println("        <a href=\"coverage-aggregate/index.html\" class=\"nav-btn\">🎯 JaCoCo Aggregated Coverage</a>");
             out.println("        <a href=\"jol-report.html\" class=\"nav-btn\">💾 JOL Memory Layout</a>");
-            out.println("        <a href=\"jmh-report.html\" class=\"nav-btn\">⚡ JMH Throughput Benchmarks</a>");
+            out.println("        <a href=\"jmh-report.html\" class=\"nav-btn\">⚡ JMH Benchmarks & Perf Counters</a>");
             out.println("    </div>");
             out.println();
             out.println("    <!-- SECTION 1: FastHashMap Quality & Verification -->");
@@ -560,7 +642,7 @@ public class GlobalDashboardGenerator {
             out.println("            </thead>");
             out.println("            <tbody>");
             for (FastHashMapSummary s : fastMaps) {
-                String pkgName = s.id().startsWith("demo1") ? "demo1" : s.id();
+                String pkgName = s.id();
                 String pitBadge = s.quality().pitTotal() > 0 ?
                         String.format("<a href=\"pit-reports/%s/org.jugsaxony.%s/FastHashMap.java.html\" class=\"badge badge-warning\" style=\"text-decoration: none;\">%.1f%% (%d/%d killed)</a>",
                                 s.id(), pkgName, s.quality().pitScorePct(), s.quality().pitKilled(), s.quality().pitTotal())
@@ -602,7 +684,7 @@ public class GlobalDashboardGenerator {
             out.println("            </thead>");
             out.println("            <tbody>");
             for (LruClockMapSummary s : lruMaps) {
-                String pkgName = s.id().startsWith("demo1") ? "demo1" : s.id();
+                String pkgName = s.id();
                 String pitBadge = s.quality().pitTotal() > 0 ?
                         String.format("<a href=\"pit-reports/%s/org.jugsaxony.%s/LRUClockMap.java.html\" class=\"badge badge-warning\" style=\"text-decoration: none;\">%.1f%% (%d/%d killed)</a>",
                                 s.id(), pkgName, s.quality().pitScorePct(), s.quality().pitKilled(), s.quality().pitTotal())
@@ -627,7 +709,8 @@ public class GlobalDashboardGenerator {
             out.println();
             out.println("    <!-- SECTION 3: FastHashMap Performance & Memory Matrix -->");
             out.println("    <div class=\"card\">");
-            out.println("        <h2>🚀 FastHashMap — Performance & Memory Benchmark Matrix</h2>");
+            out.printf("        <h2>🚀 FastHashMap — Performance & Memory Benchmark Matrix%s</h2>%n",
+                    anyPerf ? " <span class=\"badge badge-perf\" style=\"font-size:0.8rem;vertical-align:middle;\">🔬 Hardware Counters</span>" : "");
             out.println("        <table>");
             out.println("            <thead>");
             out.println("                <tr>");
@@ -637,7 +720,14 @@ public class GlobalDashboardGenerator {
             out.println("                    <th class=\"numeric\">Objs @ 10k</th>");
             out.println("                    <th class=\"numeric\">Put Speedup</th>");
             out.println("                    <th class=\"numeric\">Get Hit Speedup</th>");
-            out.println("                    <th class=\"numeric\">Get Miss Speedup</th>");
+            if (anyPerf) {
+                out.println("                    <th class=\"numeric\">Cycles/op</th>");
+                out.println("                    <th class=\"numeric\">IPC</th>");
+                out.println("                    <th class=\"numeric\">Branch Miss %</th>");
+                out.println("                    <th class=\"numeric\">L1 Miss %</th>");
+            } else {
+                out.println("                    <th class=\"numeric\">Get Miss Speedup</th>");
+            }
             out.println("                </tr>");
             out.println("            </thead>");
             out.println("            <tbody>");
@@ -653,7 +743,19 @@ public class GlobalDashboardGenerator {
                 out.printf("                    <td class=\"numeric\">%,d</td>%n", s.n10000ObjectCount());
                 out.printf("                    <td class=\"numeric\"><span class=\"%s\">%.2fx</span> (%.1f ops/µs)</td>%n", putSpeedupClass, s.putSpeedup(), s.putThroughput());
                 out.printf("                    <td class=\"numeric\"><span class=\"%s\">%.2fx</span> (%.1f ops/µs)</td>%n", hitSpeedupClass, s.getHitSpeedup(), s.getHitThroughput());
-                out.printf("                    <td class=\"numeric\"><span class=\"%s\">%.2fx</span> (%.1f ops/µs)</td>%n", missSpeedupClass, s.getMissSpeedup(), s.getMissThroughput());
+                if (anyPerf) {
+                    String cyclesStr = s.hitCycles() > 0 ? String.format("%.1f", s.hitCycles()) : "-";
+                    String ipcStr = s.hitIpc() > 0 ? String.format("%.2f", s.hitIpc()) : "-";
+                    String branchStr = s.hitBranchMissRate() > 0 ? String.format("%.2f%%", s.hitBranchMissRate()) : "-";
+                    String l1Str = s.hitL1MissRate() > 0 ? String.format("%.2f%%", s.hitL1MissRate()) : "-";
+
+                    out.printf("                    <td class=\"numeric\"><span class=\"perf-tag\">%s</span></td>%n", cyclesStr);
+                    out.printf("                    <td class=\"numeric\"><strong>%s</strong></td>%n", ipcStr);
+                    out.printf("                    <td class=\"numeric\">%s</td>%n", branchStr);
+                    out.printf("                    <td class=\"numeric\">%s</td>%n", l1Str);
+                } else {
+                    out.printf("                    <td class=\"numeric\"><span class=\"%s\">%.2fx</span> (%.1f ops/µs)</td>%n", missSpeedupClass, s.getMissSpeedup(), s.getMissThroughput());
+                }
                 out.println("                </tr>");
             }
             out.println("            </tbody>");

@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document presents an exhaustive technical review and comparative evaluation of all eleven `LRUClockMapTest.java` test suites across the project (`demo0` through `demo9`, plus `demo11`). 
+This document presents an exhaustive technical review and comparative evaluation of all twelve `LRUClockMapTest.java` test suites across the project (`demo0` through `demo9`, `demo11`, and `demo12`). 
 
 Unlike `FastHashMap` (where each AI model implemented its own hash map from scratch), `LRUClockMap.java` was provided as a pre-existing component in each module. The task for each model was to create a proper and sufficient test suite for an open-addressing, linear-probing LRU cache based on the second-chance "clock" page-replacement algorithm.
 
@@ -10,7 +10,7 @@ Unlike `FastHashMap` (where each AI model implemented its own hash map from scra
 
 | Module | AI Model / Provenance | Framework | Test Count | Lines | Black-Box vs. White-Box | Instruction Cov | PIT Mutation Score | Quality Tier | Primary Distinctions |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **demo0** | Baseline (Xceptance) | JUnit 4 | 29 | 861 | **Pure Black-Box** | 75.3% (527/700) | 84.6% (88/104) | **Tier 4 (Legacy)** | Heavy eviction stress scenarios; lacks `getRaw()`, null handling, and debug API verification; uses JUnit 4. |
+| **demo0** | Baseline (Xceptance) | JUnit 5 Jupiter | 37 | 1,017 | **Diagnostic Black-Box** | 97.3% (680/699) | 95.1% (98/103) | **Tier 1 (Modernized Baseline)** | Heavy eviction stress scenarios; migrated to JUnit 5; tests `toString()` and `getDebugData()` slot integrity; behavioral `get()` vs `getRaw()` proof; null contracts for get/put/remove; `trueSize()` verification. |
 | **demo1** | Gemini 3.7 Flash High (Antigravity) | JUnit 5 + AssertJ | 19 (21 runs) | 499 | **Diagnostic Black-Box** | 97.9% (685/700) | 86.5% (90/104) | **Tier 2 (Strong)** | Clean `@Nested` BDD hierarchy; tests `expensiveGet` flag setting; continuous eviction fuzzer; AssertJ fluents. |
 | **demo2** | Kimi K3 (Kilo Code) | JUnit 5 Jupiter | 38 | 761 | **Diagnostic Black-Box** | 96.9% (678/700) | 92.3% (96/104) | **Tier 1 (Elite Black-Box)** | Exhaustive black-box coverage; granular second-chance flag inspections; circular wrap-around; deterministic clock sweep checks. |
 | **demo3** | OpenAI 5.6 Sol Max (Kilo Code) | JUnit 5 Jupiter | 25 | 582 | **Diagnostic Black-Box** | 98.3% (708/720) | 92.3% (96/104) | **Tier 2 (Strong)** | Compact, high-rigor tests; tests array boundary wrap-around deletion; tests maximum backing array overflow (`1 << 30`). |
@@ -21,56 +21,67 @@ Unlike `FastHashMap` (where each AI model implemented its own hash map from scra
 | **demo8** | Gemini 3.7 Flash High (Kilo Code) | JUnit 5 Jupiter | 24 | 486 | **Diagnostic Black-Box** | 97.4% (701/720) | 84.6% (88/104) | **Tier 2 (Strong)** | Complete null contract validation (`getRawNullKeyThrows`); iterative middle-collision removal; misses snapshot isolation. |
 | **demo9** | Gemini 3.8 Flash High (Antigravity) | JUnit 5 + AssertJ | 47 (52 runs) | 1,078 | **Intrusive White-Box (Reflection)** | 100.0% (720/720) | **100.0% (104/104)** | **Tier 1 (Master / 100% Mutation)** | Perfect 100% mutation score; reflection tests for private bit-math; boundary wrap churn; realign second-chance preservation; 1024-slot toString cutoff. |
 | **demo11** | Gemini 3.7 Flash High (100% PIT Rework) | JUnit 5 + AssertJ | 22 (24 runs) | 576 | **Intrusive White-Box (Reflection)** | 100.0% (683/683) | **100.0% (102/102)** | **Tier 1 (Master / 100% Mutation)** | Engineered specifically for 100% mutation score; validates capacity rounding math, mixer bitshifts, exact clock sequence, and `Wrapper.toString()`. |
+| **demo12** | Gemini 3.8 Flash High (Antigravity Rework) | JUnit 5 + AssertJ | 27 (29 runs) | 743 | **Intrusive White-Box (Reflection)** | 100.0% (700/700) | **100.0% (104/104)** | **Tier 1 (Master / 100% Mutation)** | Engineered for 100% mutation score while keeping Wrapper and helper math strictly private; reflection-based validation of capacity rounding, nextPowerOfTwo(0), mixer bitshifts, expensiveGet second-chance flag preservation, clockHand forward progression, and DebugWrapper masks. |
 
 ---
 
 ## Detailed Per-Module Inventory & Analysis
 
 ### 1. demo0 (`org.jugsaxony.demo0.LRUClockMapTest`)
-* **Framework**: JUnit 4 (`@Test`, `org.junit.Assert.*`)
-* **Metrics**: 29 test methods, 861 lines, flat structure with test prefixes (`testConstructor_`, `testRemove_`, `testEviction_`).
-* **Testing Paradigm**: **Pure Black-Box**. Only calls standard public CRUD operations. Completely ignores built-in testability hooks (`getRaw()`, `getDebugData()`, `trueSize()`, `occupiedSpace()`).
+* **Framework**: JUnit 5 Jupiter (`@Test`, `org.junit.jupiter.api.Assertions.*`)
+* **Metrics**: 37 test methods, 1,017 lines, flat structure with descriptive test names.
+* **Testing Paradigm**: **Diagnostic Black-Box**. Interacts with public and package-private diagnostic APIs (`getDebugData()`, `trueSize()`, `toString()`) without reflection or bytecode tampering.
 
 #### Implemented Tests:
-1. `testConstructor_throwsExceptionForMaxSizeLessThan4`: Tests sizes 0, 1, 2, 3, -1 throw `IllegalArgumentException`.
-2. `testConstructor_smallestSize`: Tests `maxSize = 4`.
-3. `testSize_increasesAfterPut`: Puts 2 elements, verifies size increments.
-4. `testSize_doesNotIncreaseOnUpdate`: Overwrites key, checks size.
-5. `testSize_doesNotIncreaseOnUpdateWhenFull`: Overwrites when map is at `maxSize = 4`.
-6. `testRemove_existingKey_OneElement`: Puts 1, removes, asserts size 0 and null lookup.
-7. `testRemove_existingKey_MultipleElement`: Puts 3, removes middle, checks remaining.
-8. `testRemove_Random`: Random insertions and removals.
-9. `testRemove_EmptyMap`: Remove on empty map returns null.
-10. `testRemove_nonExisting`: Remove absent key returns null.
-11. `testPutAndGet_basicFunctionality`: Put/get 3 items.
-12. `testGet_returnsNullForNonexistentKey`: Absent key returns null.
-13. `testPut_updatesExistingValueAndReturnsOldValue`: Overwrite returns old value.
-14. `testPutAndGet_handlesHashCollisions`: Collision key handling.
-15. `testPutUpdate_handlesHashCollisions`: Overwrite colliding key.
-16. `testGet_dontFindWithSameHash`: Miss on occupied collision bucket.
-17. `testGet_findWithSameHashButTwoKeysAndFullMap`: Collision retrieval in full map.
-18. `testEviction_Smallest`: Eviction in map of size 4.
-19. `testEviction_NoneWhenOnlyUpdate`: Repeated updates at capacity do not evict.
-20. `testEviction_withLargeMapAndOnlyPutMisses`: Fills 1,000 entries into map of size 100, verifies final size is 100.
-21. `testEviction_whenMapIsFull`: Step-by-step eviction verification.
-22. `testEviction_withHashCollisionsAndPushOut_StartAt_X`: Tests eviction in colliding clusters.
-23. `testEviction_accessedElementSurvivesFirstEvictionPass`: Touches element via `get()`, pushes new entries, asserts accessed element survives initial eviction.
-24. `testClear_emptiesMapAndResetsState`: Fills, clears, checks size=0.
-25. `testClear_onEmptyMap_doesNothing`: Clear idempotency.
-26. `testKeys_emptyMap`: Empty map keys view.
-27. `testKeys_afterPuts`: Keys view contents.
-28. `testKeys_afterUpdate`: Keys view after update.
-29. `testKeys_afterClear`: Keys view after clear.
+1. `testConstructor_throwsExceptionForMaxSizeLessThan4`: Tests sizes -1, 1, 2, 3 throw `IllegalArgumentException`.
+2. `testConstructor_throwsExceptionForMaxSize0`: Specifically tests 0 throws `IllegalArgumentException` with `"MaxSize must be at least 4"`.
+3. `testConstructor_smallestSize`: Tests `maxSize = 4`.
+4. `testSize_increasesAfterPut`: Puts 2 elements, verifies size increments.
+5. `testSize_doesNotIncreaseOnUpdate`: Overwrites key, checks size.
+6. `testSize_doesNotIncreaseOnUpdateWhenFull`: Overwrites when map is at `maxSize = 4`.
+7. `testRemove_existingKey_OneElement`: Puts 1, removes, asserts size 0 and null lookup.
+8. `testRemoveNull`: Asserts `NullPointerException` when removing `null` key.
+9. `testRemove_existingKey_MultipleElement`: Puts 3, removes middle, checks remaining.
+10. `testRemove_Random`: Random insertions and removals.
+11. `testRemove_EmptyMap`: Remove on empty map returns null.
+12. `testRemove_nonExisting`: Remove absent key returns null.
+13. `testPutAndGet_basicFunctionality`: Put/get 3 items.
+14. `testGet_returnsNullForNonexistentKey`: Absent key returns null.
+15. `testPut_updatesExistingValueAndReturnsOldValue`: Overwrite returns old value.
+16. `testGetRaw`: **Exemplary Behavioral Proof**: Contrasts `get()` vs `getRaw()` on identical 4-element maps (`m1` and `mRaw`) experiencing clock eviction; demonstrates that touching `K2` with `get()` gives it a second chance (surviving eviction of `K6`), while `getRaw()` does not set the second-chance bit (causing `K2` to be evicted); explicitly verifies `size() == 4` and `trueSize() == 4`.
+17. `testPutAndGet_handlesHashCollisions`: Collision key handling.
+18. `testPutUpdate_handlesHashCollisions`: Overwrite colliding key.
+19. `testGetNull`: Asserts `NullPointerException` when looking up `null` key.
+20. `testPutKeyNull`: Asserts `NullPointerException` when inserting `null` key.
+21. `testPutValueNull`: Verifies inserting a `null` value is permitted (`map.put("aaa", null)`) and returns `null` on lookup.
+22. `testGet_dontFindWithSameHash`: Miss on occupied collision bucket.
+23. `testGet_findWithSameHashButTwoKeysAndFullMap`: Collision retrieval in full map.
+24. `testEviction_Smallest`: Eviction in map of size 4.
+25. `testEviction_NoneWhenOnlyUpdate`: Repeated updates at capacity do not evict.
+26. `testEviction_withLargeMapAndOnlyPutMisses`: Fills 1,000 entries into map of size 100, verifies final size is 100.
+27. `testEviction_whenMapIsFull`: Step-by-step eviction verification.
+28. `testEviction_withHashCollisionsAndPushOut_StartAt_X`: Tests eviction in colliding clusters.
+29. `testEviction_accessedElementSurvivesFirstEvictionPass`: Touches element via `get()`, pushes new entries, asserts accessed element survives initial eviction.
+30. `testClear_emptiesMapAndResetsState`: Fills, clears, checks size=0.
+31. `testClear_onEmptyMap_doesNothing`: Clear idempotency.
+32. `testKeys_emptyMap`: Empty map keys view.
+33. `testKeys_afterPuts`: Keys view contents.
+34. `testKeys_afterUpdate`: Keys view after update.
+35. `testKeys_afterClear`: Keys view after clear.
+36. `toStringTest`: Verifies exact string format of `toString()`, checking all FREE slots, clockHand, size, and maxSize.
+37. `getDebugData`: Verifies `getDebugData()` returns 8 slots, slot 1 contains `[a, b, 97, true, 1]`, and other slots are null.
 
 #### Strengths:
-- Detailed eviction sequence verification in maps with hash collisions.
-- Clear distinction between insert-triggered eviction and update stability.
+- **Exemplary Behavioral Proof for `getRaw()`**: Rather than inspecting internal state with reflection, `testGetRaw()` creates identical twin maps to functionally prove that `get()` preserves cached entries through second chance while `getRaw()` allows them to be evicted during clock sweeps.
+- **High Mutation Kill Rate**: Kills **95.1% of mutants (98/103)** and reaches **97.3% (680/699)** instruction coverage—the highest mutation score of any non-reflective test suite.
+- **Null Contract Validation**: Thoroughly checks null key rejection on `get(null)`, `put(null, v)`, and `remove(null)`, as well as null value insertion (`put("aaa", null)`).
+- **Diagnostic API & Invariant Verification**: Validates `toString()`, slot layout in `getDebugData()`, and `trueSize() == size()`.
+- **Exhaustive Eviction & Collision Sequences**: Detailed step-by-step verification of eviction under collisions.
 
 #### Weaknesses & Gaps:
-- **Missing `getRaw()`**: Does not test `getRaw()` or contrast it against `get()`.
-- **Zero Null Contract Testing**: Completely ignores null keys and null values.
-- **Missing Diagnostic APIs**: Does not test `occupiedSpace()`, `trueSize()`, `getDebugData()`, or `toString()`.
-- **Legacy Framework**: JUnit 4 assertions and syntax.
+- **Missing `getRaw(null)`**: Tests null key rejection for `get`, `put`, and `remove`, but omitted `getRaw(null)`.
+- **Untested `occupiedSpace()`**: Tests `trueSize()`, `getDebugData()`, and `toString()`, but does not test the `occupiedSpace()` diagnostic counter.
+- **Flat Layout**: Lacks `@Nested` hierarchical structure.
 
 ---
 
@@ -417,7 +428,7 @@ Unlike `FastHashMap` (where each AI model implemented its own hash map from scra
 
 ---
 
-### 11. demo11 (`org.jugsaxony.demo1.LRUClockMapTest`)
+### 11. demo11 (`org.jugsaxony.demo11.LRUClockMapTest`)
 * **Framework**: JUnit 5 Jupiter + AssertJ
 * **Metrics**: 22 test methods (24 executions), 576 lines, 6 `@Nested` classes.
 * **Testing Paradigm**: **Intrusive White-Box (Reflection-Assisted)**. Extends demo1 with reflection on private static `arraySize` and deep clock step-by-step state verification to achieve 100% PIT mutation kill rate.
@@ -441,61 +452,97 @@ Unlike `FastHashMap` (where each AI model implemented its own hash map from scra
 
 ---
 
+### 12. demo12 (`org.jugsaxony.demo12.LRUClockMapTest`)
+* **Framework**: JUnit 5 Jupiter + AssertJ
+* **Metrics**: 27 test methods (29 executions), 743 lines, 7 `@Nested` classes with `@DisplayName`.
+* **Testing Paradigm**: **Intrusive White-Box (Reflection-Assisted)**. Achieves 100% PIT mutation kill rate and 100% JaCoCo coverage while preserving strict encapsulation (`Wrapper`, `mixHash`, `nextPowerOfTwo` remain `private` in production code).
+
+#### Implemented Tests:
+* Extends the test coverage of `demo1` and `demo11` with reflective validation:
+  1. `ConstructorTest`: Validates `maxSize < 4` rejection across 0, 1, 2, 3, -1, `1 << 30` overflow rejection, and confirms valid initialization for `maxSize >= 4`.
+  2. `BasicOperationsTest`: CRUD operations, put overwrite without size increase, removal, non-existing removal, clear resetting backing slots, snapshot extraction of `keys()` with mutation independence.
+  3. `CollisionTest`: Colliding keys probing chain, in-probe overwrite, verification that `expensiveGet` flips `secondChance` from false to true, backward-shift realignment on head, middle, and tail deletion.
+  4. `EvictionTest`: Strict bounding at `maxSize`, second-chance protection of accessed entries, `getRaw()` contract (reads WITHOUT refreshing second-chance), overwrite at capacity without evicting.
+  5. `DebugAndToStringTest`: Verifies `toString()`, `getDebugData()`, and `DebugWrapper` output formatting.
+  6. `StressTest`: Continuous insertions across capacities 10, 50, 200 ensuring `size <= maxSize` and `size == trueSize()`; randomized operational sequences preserving internal invariants.
+  7. `MutationCoverageTest` (Reflection-assisted):
+     - `testWrapperToString`: Direct string verification of `Wrapper.toString()` returning `[foo, bar, true]`.
+     - `testNextPowerOfTwo`: Exhaustive boundary tests including `0` (returns 1), powers of two, non-powers, and large values up to `1L << 40`.
+     - `testArraySize`: Validates rounding at load factor 0.50f and throws on `1 << 30`.
+     - `testMixHash`: Validates high-bit shift mixing `val ^ (val >>> 16)`.
+     - `testExpensiveGetSecondChance`: Proves secondChance flag flips when false and is preserved when already true on linear probe paths.
+     - `testUpdateCollidedKey`: Exercises linear probing branch `ptr + 1` during collided key update at full capacity.
+     - `testEvictSecondChanceAndClockHand`: Proves clock hand advances forward (+1) rather than backward (-1) during second-chance sweep.
+     - `testDebugWrapperBitwiseMask`: Verifies truePosition bitwise mask calculation against `mixHash`.
+
+#### Strengths:
+- **100.0% Mutation Kill Rate (104/104 killed) & 100.0% JaCoCo Coverage (700/700 instructions)**: Kills every single mutant.
+- **Strict Encapsulation Preserved**: Unlike `demo11`, all internal helpers (`Wrapper`, `mixHash`, `nextPowerOfTwo`) remain strictly `private` in production code and are inspected through reflection.
+- **Clock Hand Sweep & Direction Verification**: Validates clock hand progression direction (`+1`) and second-chance flag clearance.
+
+#### Weaknesses & Gaps:
+- Missing circular buffer wrap-around deletion tests across array boundary.
+- Does not test null key or null value rejection.
+
+---
+
 ## Cross-Comparison Matrix
 
-| Category / Feature | demo0 | demo1 | demo2 | demo3 | demo4 | demo5 | demo6 | demo7 | demo8 | demo9 | demo11 |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Testing Paradigm: Pure Black-Box** | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Testing Paradigm: Diagnostic API Hooks** | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Testing Paradigm: Invariant White-Box Engine** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Testing Paradigm: Intrusive Private Reflection**| ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| **Constructor: maxSize < 4 Rejection** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Constructor: maxSize == 4 Minimum** | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Constructor: Excessive Size (> 1<<30)**| ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| **Capacity Math / Power-of-Two Size** | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ |
-| **Basic Put, Get & Overwrite** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Overwrite At Capacity Does Not Evict**| ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Remove Existing & Decrement Size** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Remove on Empty Map** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
-| **Clear Idempotency on Empty Map** | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Null Key Rejected on Put/Get/Del** | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| **Null Key Rejected on getRaw()** | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ |
-| **Null Value Rejected on Put** | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| **getRaw() Reads Without LRU Effect** | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Fresh Entry Has Second Chance == true**| ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| **get() Flips Second Chance to true** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **expensiveGet() Flips Second Chance** | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| **Overwrite Resets Second Chance to true**| ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Eviction Keeps Size Bounded** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Untouched / Cold Entries Evicted** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Touched / Hot Entries Survive** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Clock Hand Continuity Across Evictions**| ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
-| **Collision Probing On Insert/Get** | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Cluster Head Removal & Realignment** | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Cluster Middle Removal & Realignment** | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Cluster Tail Removal** | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ |
-| **Realign Preserves Second Chance Bit** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
-| **Circular Boundary Wrap-Around Probing**| ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
-| **Circular Boundary Wrap-Around Deletion**| ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ |
-| **keys() Returns Defensive Copy** | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ |
-| **Diagnostics: occupiedSpace()** | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ |
-| **Diagnostics: trueSize() Matches size()**| ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ |
-| **Diagnostics: getDebugData() Validated** | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | ✅ |
-| **Diagnostics: toString() Output Tested** | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Diagnostics: toString() 1024 Truncation**| ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
-| **Continuous Heavy Eviction Stress Test** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **PIT Mutation Score** | 84.6% | 86.5% | 92.3% | 92.3% | 58.7% | 81.7% | 94.2% | 91.3% | 84.6% | **100.0%**| **100.0%**|
+| Category / Feature | demo0 | demo1 | demo2 | demo3 | demo4 | demo5 | demo6 | demo7 | demo8 | demo9 | demo11 | demo12 |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Testing Paradigm: Pure Black-Box** | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Testing Paradigm: Diagnostic API Hooks** | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Testing Paradigm: Invariant White-Box Engine** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Testing Paradigm: Intrusive Private Reflection**| ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| **Constructor: maxSize < 4 Rejection** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Constructor: maxSize == 4 Minimum** | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Constructor: Excessive Size (> 1<<30)**| ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| **Capacity Math / Power-of-Two Size** | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ |
+| **Basic Put, Get & Overwrite** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Overwrite At Capacity Does Not Evict**| ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Remove Existing & Decrement Size** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Remove on Empty Map** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| **Clear Idempotency on Empty Map** | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Null Key Rejected on Put/Get/Del** | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| **Null Key Rejected on getRaw()** | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
+| **Null Value Rejected on Put** | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| **getRaw() Reads Without LRU Effect** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Fresh Entry Has Second Chance == true**| ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ |
+| **get() Flips Second Chance to true** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **expensiveGet() Flips Second Chance** | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| **Overwrite Resets Second Chance to true**| ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Eviction Keeps Size Bounded** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Untouched / Cold Entries Evicted** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Touched / Hot Entries Survive** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Clock Hand Continuity Across Evictions**| ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | ✅ |
+| **Collision Probing On Insert/Get** | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Cluster Head Removal & Realignment** | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Cluster Middle Removal & Realignment** | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Cluster Tail Removal** | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ |
+| **Realign Preserves Second Chance Bit** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| **Circular Boundary Wrap-Around Probing**| ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| **Circular Boundary Wrap-Around Deletion**| ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| **keys() Returns Defensive Copy** | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ |
+| **Diagnostics: occupiedSpace()** | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ | ✅ |
+| **Diagnostics: trueSize() Matches size()**| ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ |
+| **Diagnostics: getDebugData() Validated** | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| **Diagnostics: toString() Output Tested** | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Diagnostics: toString() 1024 Truncation**| ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| **Continuous Heavy Eviction Stress Test** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **PIT Mutation Score** | 95.1% | 86.5% | 92.3% | 92.3% | 58.7% | 81.7% | 94.2% | 91.3% | 84.6% | **100.0%**| **100.0%**| **100.0%**|
 
 ---
 
 ## In-Depth Comparative Analysis
 
-### 1. Tier 1: The Champions — demo9 vs demo6 vs demo2
+### 1. Tier 1: The Champions & Modernized Baseline — demo9, demo12, demo0, demo6, and demo2
 - **demo9 (Gemini 3.8 Flash High Antigravity)** represents the pinnacle of mutation testing rigor in this project, achieving a perfect **100.0% PIT score (104/104 killed)** and **100.0% JaCoCo coverage**. It is the only test suite that:
   1. Proves that realigning an entry during cluster deletion preserves its `secondChance` bit (`realignPreservesSecondChanceFlag`).
   2. Tests `expensiveGet` setting the second chance flag on the slow probe path.
   3. Tests the 1024-slot cutoff in `toString()` for very large maps.
   4. Tests the `1 << 30` capacity overflow limit in `arraySize`.
+- **demo12 (Gemini 3.8 Flash High Antigravity Rework)** achieves a flawless **100.0% PIT score (104/104 killed)** and **100.0% JaCoCo coverage (700/700 instructions)** across 743 lines and 27 tests (29 executions). It improves upon `demo11` by retaining strict production encapsulation: the internal static `Wrapper` class, `mixHash`, and `nextPowerOfTwo` remain completely `private` in `LRUClockMap.java`. It tests them cleanly using reflection while adding explicit tests for the `evict()` clock hand progression direction (`+ 1` linear advancement) and `DebugWrapper` bitwise masks.
+- **demo0 (Xceptance Baseline Modernized)** has evolved into a premier diagnostic black-box test suite (37 tests, 1,017 lines, JUnit 5 Jupiter). With the addition of `testGetRaw()`—which provides an elegant functional proof of the second-chance mechanism without reflection by showing that `get()` preserves cached entries during eviction while `getRaw()` permits eviction—alongside complete null-key rejection (`testGetNull`, `testPutKeyNull`, `testRemoveNull`), null value handling (`testPutValueNull`), `trueSize()` checks, and slot-level diagnostic assertions (`getDebugData()`), it achieves a **95.1% PIT mutation score (98/103 killed)** and **97.3% instruction coverage (680/699)**, the highest of any non-reflective test suite.
 - **demo6 (Claude Opus 5 Ultra)** is the most conceptually profound test suite. Its `assertHealthy` validation algorithm traces every single occupied entry back to its home slot on every mutation, verifying zero broken chains. Furthermore, demo6 empirically discovers and tests that second-chance protection degrades and fails for `maxSize < 24` due to rapid clock hand sweep wrap-around.
 - **demo2 (Kimi K3)** is the cleanest and most comprehensive pure black-box suite (38 tests). It provides granular second-chance flag inspections, circular wrap-around probing, and deterministic clock order tests without relying on private method reflection.
 
@@ -509,9 +556,8 @@ Unlike `FastHashMap` (where each AI model implemented its own hash map from scra
 - **demo7 (Qwen 38 max XHigh)** contains 24 clean tests with clock hand continuity verification, but lacks `@Nested` organization and misses circular buffer wrap-around.
 - **demo5 (Deepseek V4 Flash Max)** has 26 tests with dual random fuzzers, proving that the last inserted entry always survives eviction, but lacks structural grouping.
 
-### 4. Tier 4: The Deficient Suites — demo4 and demo0
+### 4. Tier 4: The Deficient Suite — demo4
 - **demo4 (Gemma 4 31B Thinking)** is severely deficient (11 tests, 58.5% coverage, 58.7% mutation score). It uses non-guaranteed String `"Aa"`/`"BB"` collisions and lacks cluster repair testing.
-- **demo0 (Xceptance Baseline)** represents the original legacy test bench: strong on eviction scenarios, but completely blind to null contracts, `getRaw()`, and diagnostic APIs.
 
 ---
 
@@ -526,11 +572,10 @@ Unlike `FastHashMap` (where each AI model implemented its own hash map from scra
    - What if all entries have `secondChance == true`? The clock algorithm sweeps through, flips all to `false`, and evicts on the second pass. While several tests assert that eviction finishes, none test worst-case sweep latency across massive tables.
 
 ### 2. Specific Gaps in Individual Suites
-- **Missing `getRaw()` Verification**: `demo0`.
-- **Missing Null Key Rejection**: `demo0`, `demo1`, `demo11`.
-- **Missing Null Value Rejection**: `demo0`, `demo1`, `demo2`, `demo4`, `demo11`.
-- **Missing Circular Wrap-Around Deletion**: `demo0`, `demo1`, `demo4`, `demo5`, `demo7`, `demo8`, `demo11`.
-- **Missing Diagnostic API Tests (`trueSize`, `getDebugData`)**: `demo0`, `demo4`, `demo7`.
+- **Missing Null Key Rejection**: `demo1`, `demo11`, `demo12`.
+- **Missing Null Value Handling/Rejection**: `demo1`, `demo2`, `demo4`, `demo11`, `demo12`.
+- **Missing Circular Wrap-Around Deletion**: `demo0`, `demo1`, `demo4`, `demo5`, `demo7`, `demo8`, `demo11`, `demo12`.
+- **Missing Diagnostic API Tests (`trueSize`)**: `demo4`, `demo7` (`getDebugData` missing in `demo4`, `demo7`).
 - **Missing Snapshot Copy Mutation Protection**: `demo0`, `demo4`, `demo5`, `demo7`, `demo8`.
 
 ---
@@ -538,36 +583,38 @@ Unlike `FastHashMap` (where each AI model implemented its own hash map from scra
 ## Test Quality Evaluation
 
 ### 1. Clock Algorithm Eviction Rigor
-- **Elite (`demo9`, `demo6`, `demo2`)**: Explicitly verifies second-chance bit toggling, contrasts `get()` vs `getRaw()`, asserts clock hand pointer advancement, and tests eviction cluster realignment.
-- **Moderate (`demo1`, `demo3`, `demo5`, `demo7`, `demo8`, `demo11`)**: Checks that touched entries survive and size remains bounded, but lacks granular pointer tracking.
-- **Weak (`demo4`, `demo0`)**: Checks basic size bounding without proving second-chance mechanics.
+- **Elite (`demo9`, `demo12`, `demo0`, `demo6`, `demo2`)**: Explicitly verifies second-chance bit toggling, contrasts `get()` vs `getRaw()` with empirical eviction survival/drop proofs, asserts clock hand pointer advancement, and tests eviction cluster realignment.
+- **Moderate (`demo1`, `demo3`, `demo5`, `demo7`, `demo8`, `demo11`)**: Checks that touched entries survive and size remains bounded, but lacks granular pointer tracking or behavioral `getRaw()` distinction.
+- **Weak (`demo4`)**: Checks basic size bounding without proving second-chance mechanics.
 
-### 2. Probing and Realignment Integrity
-- The defining challenge in an open-addressing LRU map is that **both eviction and removal create holes** that require backward shifting/realignment.
-- `demo9`, `demo6`, and `demo3` excel by testing that deletion and eviction across the array boundary properly realign subsequent entries without dropping second-chance flags.
+### 2. Algorithmic Collision Verification
+- **Knuth 6.4R Cluster Repair**: `demo9`, `demo6`, `demo3`, `demo2`, and `demo8` explicitly test head, middle, and tail cluster removals.
+- **Circular Probing**: `demo2`, `demo9`, `demo6`, and `demo3` verify wrap-around probing and deletion across the backing array boundary.
 
-### 3. Architecture & Style
-- `demo9`, `demo1`, `demo11`, `demo2`, and `demo6` utilize JUnit 5 `@Nested` classes with descriptive `@DisplayName` annotations.
-- `demo9`, `demo1`, and `demo11` leverage AssertJ fluent assertions (`assertThat`), providing actionable diffs upon assertion failures.
+### 3. Architecture & Cleanliness
+- **Best in Class**: `demo1`, `demo9`, `demo11`, `demo12`, and `demo2` utilize JUnit 5 `@Nested` classes with clear `@DisplayName` descriptions representing BDD specifications.
+- **AssertJ vs JUnit Jupiter**: `demo1`, `demo9`, `demo11`, and `demo12` benefit significantly from AssertJ fluent assertions (`assertThat(map.get(k)).isEqualTo(...)`), producing much clearer failure messages than standard JUnit assertions.
 
-### 4. Black-Box vs. White-Box Testing Strategies: Four Distinct Paradigms
+### 4. Determinism & Reproducibility
+- Suites `demo0`, `demo1`, `demo2`, `demo3`, `demo5`, `demo6`, `demo7`, `demo8`, `demo9`, `demo11`, and `demo12` all use fixed random seeds or deterministic loops, guaranteeing 100% reproducible test execution.
 
-The eleven suites demonstrate four fundamentally different philosophical approaches to testing visibility, encapsulation, and internal mechanics:
+---
+
+## Comprehensive Classification & Architectural Paradigms
 
 ```
-                      Black-Box vs. White-Box Spectrum
 [Pure Black-Box] ──> [Diagnostic Black-Box] ──> [Invariant White-Box] ──> [Intrusive Reflection]
-  demo0, demo4         demo1, demo2, demo3        demo6                     demo9, demo11
-                       demo5, demo7, demo8
+     demo4             demo0, demo1, demo2        demo6                     demo9, demo11, demo12
+                       demo3, demo5, demo7, demo8
 ```
 
-#### Paradigm A: Pure Black-Box Testing (`demo0`, `demo4`)
+#### Paradigm A: Pure Black-Box Testing (`demo4`)
 * **Philosophy**: Restricts tests strictly to the standard map operations (`put`, `get`, `remove`, `size`, `clear`, `keys`) without observing internal states.
 * **Critique & Limitations**: For complex algorithmic structures like an open-addressing LRU clock map, pure black-box testing exhibits severe blind spots:
   - In `demo4`, black-box tests passed while leaving 41.5% of instructions and 41.3% of mutants untouched. Mutants that corrupted clock hand pointer progression or failed to clear `secondChance` bits survived unnoticed.
-  - In `demo0`, despite 861 lines of code, the suite never noticed the existence of `getRaw()`, `occupiedSpace()`, or `getDebugData()`.
+  - `demo0`, originally a pure black-box test bench, was modernized into the diagnostic tier by adding tests for `toString()`, `getDebugData()`, `getRaw()` behavioral distinction, and null contracts, which boosted its mutation score from 84.6% to 95.1%.
 
-#### Paradigm B: Diagnostic Black-Box Testing (`demo1`, `demo2`, `demo3`, `demo5`, `demo7`, `demo8`)
+#### Paradigm B: Diagnostic Black-Box Testing (`demo0`, `demo1`, `demo2`, `demo3`, `demo5`, `demo7`, `demo8`)
 * **Philosophy**: Leverages non-intrusive diagnostic hooks intentionally built into the class by the author (`getDebugData()`, `trueSize()`, `occupiedSpace()`, `getRaw()`).
 * **Why it Excels**:
   - `LRUClockMap` provides `getDebugData()` specifically to allow observers to inspect slot positions and `secondChance` flags without exposing or modifying internal arrays.
@@ -580,10 +627,10 @@ The eleven suites demonstrate four fundamentally different philosophical approac
   - It empirically discovers and asserts the boundary condition where the second-chance algorithm breaks down for small capacities (`maxSize < 24`).
   - It bridges black-box API interactions with continuous white-box structural guarantees.
 
-#### Paradigm D: Intrusive Reflection Testing (`demo9`, `demo11`)
+#### Paradigm D: Intrusive Reflection Testing (`demo9`, `demo11`, `demo12`)
 * **Philosophy**: Uses Java reflection (`setAccessible(true)`) to directly invoke private static methods (`arraySize`, `nextPowerOfTwo`, `mixHash`, `Wrapper.toString()`).
 * **Trade-Off Analysis**:
-  - **Pros**: It enables 100.0% branch coverage and kills 100.0% of PIT mutants (104/104 in `demo9`), reaching boundary conditions (such as the `1 << 30` capacity ceiling in `arraySize`) that are difficult to trigger through public constructors.
+  - **Pros**: It enables 100.0% branch coverage and kills 100.0% of PIT mutants (104/104 in `demo9` and `demo12`, 102/102 in `demo11`), reaching boundary conditions (such as the `1 << 30` capacity ceiling in `arraySize`) that are difficult to trigger through public constructors.
   - **Cons**: It tightly couples the test suite to private implementation details. If a maintainer renames or refactors `nextPowerOfTwo` to use `Integer.numberOfLeadingZeros`, the reflection tests will break at runtime despite the public contract remaining unchanged.
 
 ---
@@ -592,7 +639,7 @@ The eleven suites demonstrate four fundamentally different philosophical approac
 
 ```
 LRUClockMapTest (Ultimate Synthesis)
-├── 1. ConstructorAndCapacityTests (from demo9 & demo3)
+├── 1. ConstructorAndCapacityTests (from demo9, demo3 & demo12)
 │   ├── maxSize < 4 throws IllegalArgumentException
 │   ├── maxSize == 4 initializes capacity 8
 │   ├── Power-of-two capacity math (arraySize at 0.50f load factor)
@@ -607,7 +654,7 @@ LRUClockMapTest (Ultimate Synthesis)
 │   ├── Remove existing returns old value and decrements size
 │   ├── Remove absent returns null and preserves size
 │   └── Clear resets size to 0 and re-allows insertion
-├── 4. SecondChanceAndClockEvictionTests (from demo9, demo6 & demo2)
+├── 4. SecondChanceAndClockEvictionTests (from demo9, demo12, demo6 & demo2)
 │   ├── Fresh entry initializes with secondChance == true
 │   ├── get() refreshes secondChance to true
 │   ├── expensiveGet() (slow probe path) refreshes secondChance to true
@@ -616,7 +663,7 @@ LRUClockMapTest (Ultimate Synthesis)
 │   ├── Update at full capacity does NOT trigger eviction
 │   ├── Eviction keeps size bounded at maxSize
 │   ├── Untouched entries are evicted while touched entries survive
-│   ├── Clock hand sweeps continuously without resetting to 0
+│   ├── Clock hand sweeps continuously without resetting to 0 and advances forward (+1) (from demo12 & demo9)
 │   └── Degradation documented for small N (< 24)
 ├── 5. CollisionAndProbingTests (from demo9, demo3 & demo2)
 │   ├── Multiple colliding keys stored and retrieved

@@ -1,4 +1,4 @@
-package org.jugsaxony.demo1;
+package org.jugsaxony.demo11;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

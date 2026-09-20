@@ -32,7 +32,7 @@ create proper and sufficient test cases
 DO NO CHECK ANYTHING OUTSIDE OF THE FOLDER!!!
 ---
 
-Do not look at anything outside of the FOLDER demo6/ !!!
+Do not look at anything outside of the FOLDER demo7/ !!!
 
 You will find untested code in the package com.xceptance
 
