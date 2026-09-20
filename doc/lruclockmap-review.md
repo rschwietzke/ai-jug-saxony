@@ -635,6 +635,160 @@ Unlike `FastHashMap` (where each AI model implemented its own hash map from scra
 
 ---
 
+## Code Quality & Engineering Aesthetics: Comments, Styling, Simplicity, and Maintainability
+
+In an LRU cache based on open addressing and the second-chance clock algorithm, testing involves subtle temporal behaviors: clock hand pointer progression, cache eviction survival vs. eviction drops, second-chance bit resets, and linear probing cluster repairs. This section evaluates the twelve `LRUClockMapTest` suites in terms of code aesthetics, commenting quality, architectural simplicity, and maintainability.
+
+### 1. Master Code Quality & Engineering Scorecard
+
+| Module | Comments & Documentation | Styling & Idiomatic Java | Simplicity & Cognitive Load | Maintainability & Smells | Overall Code Quality Grade | Primary Engineering Character |
+| :--- | :--- | :--- | :--- | :--- | :---: | :--- |
+| **demo0** | **Outstanding**: Conversational human rationale; step-by-step eviction narration; insightful notes on AI oversights. | **Fair**: Mixed legacy style (`public` methods/classes, flat layout); clean use of Java records (`Tuple`). | **Exceptional**: Elegant twin-map behavioral proof in `testGetRaw()`; zero reflection; step-by-step clarity. | **Low Smells**: Purely non-reflective; uses built-in diagnostic hooks cleanly. | **A-** | *Masterful Black-Box Proof*: Unsurpassed conceptual clarity; slight legacy JUnit 4 formatting. |
+| **demo1** | **Good**: Self-documenting `@DisplayName` hierarchy; clean BDD structure. | **Excellent**: Pure JUnit 5 package-private; AssertJ fluent assertions; `@Nested` BDD hierarchy. | **Very High**: Short, focused tests (8–20 lines); single responsibility per test method. | **Low Smells**: Clean isolation; no shared state; standard wildcard import. | **A** | *Modern BDD Standard*: Highly readable, structured, and pleasant to maintain. |
+| **demo2** | **Very Good**: Clear comments explaining deterministic slot layout (capacity 8, mask 7) and key-to-slot mapping. | **Very Good**: Clean JUnit Jupiter assertions; `@Nested` BDD structure with `@DisplayName`; package-private. | **Very High**: Granular tests; elegant `secondChanceOf` helper isolating array inspection. | **Low Smells**: No reflection; strictly black-box with package-level diagnostic hooks. | **A** | *Black-Box Precision*: Disciplined, transparent, and exceptionally clean. |
+| **demo3** | **Sparse**: Almost zero comments; relies on long expressive method names. | **Good**: Allman braces; package-private; `@Nested` classes without `@DisplayName`. | **Moderate**: Compact and dense; verifies multiple invariants in tight loops. | **Low Smells**: Clean local test helpers; no shared mutable state. | **B+** | *Dense & Disciplined*: High rigor and thoroughness, but terse documentation. |
+| **demo4** | **Abysmal**: Zero comments throughout entire file. | **Deficient**: Flat class layout; wildcard static imports; misses branch conditions completely. | **Trivial**: Shallow smoke tests giving a false illusion of correctness (58.5% coverage). | **High Smells**: Assumes string `"Aa"` and `"BB"` collide; ignores second-chance and clock hand mechanics. | **F** | *Deficient AI Generation*: Low-effort, shallow, and technically negligent. |
+| **demo5** | **Sparse**: Minimal comments; short Javadoc headers. | **Fair**: Flat class layout; standard JUnit Jupiter; explicit imports. | **High**: Linear and predictable; readable step-by-step eviction checks. | **Moderate**: Flat monolithic class (631 lines) lacks structural grouping. | **B** | *Solid Workhorse*: Competent coverage, clean code, but uninspired architecture. |
+| **demo6** | **Unrivaled**: Literate documentation; discovers & documents mathematical clock breakdown for $N < 24$. | **Very Good**: Clean `@Nested` suites; numbered test methods (`L01_...`); custom failure messages everywhere. | **Low–Moderate**: High cognitive load due to continuous `assertHealthy` invariant tracing engine. | **Moderate**: Execution runtime overhead; tightly coupled to package-private diagnostic methods. | **A** | *Algorithmic Masterpiece*: Deepest theoretical and empirical insight in the repository. |
+| **demo7** | **Noisy**: Section divider banners (`// 6.1 Basic behavior // ------`); minimal rationale comments. | **Fair**: Flat structure; standard Jupiter assertions; shared mutable fixture. | **High**: Straightforward tests; verifies clock hand continuation across evictions. | **Moderate**: Flat layout; lacks `@Nested` structure; misses circular wrap-around. | **B-** | *Mechanical Standard*: Competent, clean syntax, but cosmetically divided by ASCII banners. |
+| **demo8** | **Noisy**: ASCII separator banners (`// ====================`); minimal explanatory text. | **Fair**: `public class` / `public void`; wildcard assertion imports; flat layout. | **High**: Linear, straightforward tests; clean iterative middle-collision removal. | **Moderate**: Boilerplate clutter; missing view independence verification. | **B-** | *Boilerplate Heavy*: Solid functional checks wrapped in verbose, legacy styling. |
+| **demo9** | **Very Good**: Targeted comments on 1024-slot toString cutoff, bit-math, and clock hand sweep. | **Exceptional**: Modern `@Nested` BDD; AssertJ fluent assertions; reflection cleanly isolated. | **High**: Expressive, highly readable test methods; clear distinction between public and reflection tests. | **Low Smells**: Impeccable formatting; no shared mutable state. | **A+** | *Comprehensive Master*: Flawless styling, 100% mutation score, and superb readability. |
+| **demo11** | **Sparse**: Comments focused on mutation-killing workarounds. | **Good**: Inherits demo1's `@Nested` AssertJ layout; clean package-private methods. | **Moderate**: Reflection on internal methods increases test body complexity. | **Moderate**: High coupling to private static methods. | **B+** | *Mutation Specialist*: Clean AssertJ style, but test code burdened by reflection. |
+| **demo12** | **Good**: Explains reflection targets, clock hand forward progression, and bitwise truePosition masks. | **Very Good**: Preserves demo1's clean AssertJ BDD layout; encapsulates reflection in dedicated nested class. | **High (Split)**: Public contract tests are crisp and concise; reflection section carries reflection boilerplate. | **Low Production Smell**: Keeps production class strictly encapsulated; tests private internals via reflection. | **A-** | *Surgical Mutation Suite*: Pristine production boundaries combined with rigorous reflective testing. |
+
+---
+
+### 2. Comments & Documentation: Literate Analysis vs. Decorative Banners
+
+#### A. Groundbreaking Empirical Analysis (demo6)
+`demo6` provides what is arguably the most valuable single piece of documentation in the entire repository: an empirical and mathematical explanation of why the second-chance clock algorithm breaks down for small capacities:
+```java
+/* One measured limit is worth knowing before reading L17 and L18: the protection a read buys only
+ * works from roughly 24 entries upwards. Below that the clock hand wraps around so quickly that it
+ * can clear an entry's flag and evict it in the same sweep, so on a map of 4 or 8 a hot entry is not
+ * kept at all. That is the "not really predictable" the class doc warns about, and the tests assert
+ * the strong property only for the sizes where it actually holds. */
+```
+This is the epitome of **high-value test documentation**: it explains non-obvious algorithmic behavior, validates the author's intentional design trade-offs, and documents why specific test parameters (e.g. `maxSize = 32`) were chosen.
+
+#### B. Conversational Human Rationale & Narrative Clarity (demo0)
+In `demo0`, `LRUClockMapTest` features candid, human-written commentary that narrates test execution like a lab notebook:
+```java
+// we have to make sure we can "feel" that the LRU is not used
+// without going "dark", compare to the same with get()
+...
+// we lost K1 in both but now, we have all markers false but K5
+// flip K2 to give it a chance
+...
+// saved K2 in m1, mRaw is unchanged
+...
+// we lost K2 because our last K2 get did not flip the secondChance
+```
+These comments illuminate the exact state progression of the clock hand and second-chance bits, turning a complex eviction test into an intuitive, readable story. Additionally, comments such as:
+```java
+// AI was wrong here and did not consider the ability to use a class with hashcode control.
+```
+capture real-world engineering problem-solving during code review.
+
+#### C. Exploiting Deterministic Geometry (demo2)
+`demo2` provides concise, high-value commentary explaining the geometric properties of the backing array:
+```java
+/* Many tests exploit the deterministic internal layout: with maxSize 4 the
+ * backing array has capacity 8 (mask 7), and small non-negative Integer keys
+ * hash to themselves, so key i lands in slot i. This makes the clock eviction
+ * order fully predictable. */
+```
+This explains immediately *why* the test assertions look the way they do, without forcing the reader to reverse-engineer the math.
+
+#### D. Noise vs. Silence (demo8, demo7 vs. demo4)
+- **demo8** and **demo7** again clutter the file with ASCII separator banners (`// ====================`, `// --------------------`) and trivial comments (`// test put`).
+- **demo4** is completely devoid of comments, failing to explain any aspect of the second-chance mechanism.
+
+---
+
+### 3. Code Styling, Formatting & Idiomatic Modern Java
+
+#### A. Structural Architecture: `@Nested` BDD Hierarchies vs. Flat Monoliths
+- **BDD Grouping (demo1, demo2, demo6, demo9, demo11, demo12)**:
+  Tests are organized into logical domains:
+  - `ConstructorValidation`
+  - `BasicOperations`
+  - `CollisionAndProbing`
+  - `SecondChanceAndEviction`
+  - `DiagnosticsAndToString`
+  - `StressAndFuzzing`
+  In IDEs and build reports, this hierarchy produces clear tree structures that group failures by functional domain.
+- **Flat Monoliths (demo0, demo4, demo5, demo7, demo8)**:
+  All tests sit at the root level of a single 500–1,000 line class. While functional, finding related tests requires text searching or scrolling through dozens of methods.
+
+#### B. Assertion Elegance: Fluent AssertJ vs. Static Jupiter
+- **AssertJ Fluent Assertions (demo1, demo9, demo11, demo12)**:
+  ```java
+  assertThat(map.get("key")).isEqualTo("value");
+  assertThat(map.size()).isEqualTo(4);
+  assertThat(map.trueSize()).isEqualTo(4);
+  assertThat(map.keys()).containsExactlyInAnyOrder("k1", "k2", "k3", "k4");
+  ```
+  Fluent chaining allows compact multi-assertion checks and automatically generates crystal-clear failure messages without requiring manual string formatting.
+- **JUnit Jupiter with Informative Messages (demo6, demo0)**:
+  `demo6` diligently provides custom message strings on every assertion (`assertEquals(..., "size and occupied slots differ")`), avoiding the typical drawback of Jupiter assertions.
+
+#### C. Clean Helper Abstractions
+- **demo2's `secondChanceOf`**:
+  ```java
+  private static <K, V> boolean secondChanceOf(final LRUClockMap<K, V> map, final K key) {
+      for (final var dw : map.getDebugData()) {
+          if (dw != null && dw.key.equals(key)) return dw.secondChance;
+      }
+      throw new AssertionError("key not found in map: " + key);
+  }
+  ```
+  This 9-line helper abstracts away array iteration, making tests that verify second-chance toggling read cleanly:
+  ```java
+  assertTrue(secondChanceOf(map, 1));
+  map.getRaw(1);
+  assertTrue(secondChanceOf(map, 1));
+  ```
+- **demo0's `record Tuple<K, V>` and `TestString`**:
+  `demo0` introduces a clean `record Tuple<K, V>(K k, V v) {}` and a deterministic `TestString` class with controllable hash codes, enabling predictable collisions and eviction paths without mocking libraries.
+
+---
+
+### 4. Simplicity, Cognitive Load & Architectural Cleanliness
+
+#### A. The Masterpiece of Conceptual Simplicity: demo0's `testGetRaw()`
+How do you prove that `getRaw()` does not touch the second-chance bit, while `get()` does, **without** using reflection or relying on white-box diagnostics?
+`demo0` solves this with brilliant conceptual simplicity:
+1. Create two identical maps: `m1` and `mRaw` of capacity 4.
+2. Insert 4 elements (`K1` through `K4`) into both.
+3. Insert `K5` into both (evicting `K1` in both; now `K2` through `K4` have `secondChance == false`, `K5` has `true`).
+4. Read `K2` with `m1.get(K2)` (refreshing its second chance to `true`).
+5. Read `K2` with `mRaw.getRaw(K2)` (leaving its second chance as `false`).
+6. Insert `K6` into both.
+7. **Verification**: In `m1`, `K2` survived (evicting `K3`). In `mRaw`, `K2` was evicted!
+
+This test requires **zero** access to internal fields, **zero** reflection, and **zero** mock objects. It is a pure, elegant, functional proof of behavior that any junior engineer can read, understand, and debug.
+
+#### B. Cognitive Overhead of Verification Engines (demo6)
+While `demo0` relies on narrative simplicity, `demo6` introduces a full invariant verification engine: `assertHealthy(map, maxSize)` is invoked dozens of times. It iterates through all slots in `getDebugData()`, computes `homeSlot`, traces the linear probe chain from `homeSlot` to the current slot, checks for gaps, verifies bounds, and checks `occupiedSpace`.
+- **Value**: Catches transient corruptions that standard tests miss.
+- **Cost**: Substantial cognitive overhead. The verification helper alone is 50 lines of algorithmic code, adding a layer of complexity where the test verification machinery is almost as intricate as the production class under test.
+
+---
+
+### 5. Over-Engineering vs. Pragmatic Craftsmanship
+
+#### A. The Spectrum of Diagnostic Visibility
+The twelve suites illustrate four distinct engineering philosophies regarding internal visibility:
+
+1. **Pure Black-Box Ignorance (`demo4`)**: Refuses to inspect diagnostics. Misses over 40% of code paths and passes despite broken clock mechanics.
+2. **Diagnostic Black-Box Craftsmanship (`demo0`, `demo2`, `demo3`, `demo1`)**: Leverages the package-private `getDebugData()`, `trueSize()`, and `occupiedSpace()` methods that the component author deliberately exposed for observability. Clean, portable, robust, and zero reflection.
+3. **Continuous Invariant Engine (`demo6`)**: Builds an active assertion framework on top of diagnostic hooks.
+4. **Intrusive Private Reflection (`demo9`, `demo11`, `demo12`)**: Uses `Method.setAccessible(true)` to inspect private bitshifts, static power-of-two rounding, and inner `Wrapper` class `toString()` methods to reach 100% mutation scores.
+   - **demo12** manages this with the highest architectural discipline by sequestering reflection strictly within a dedicated `MutationCoverageTest` nested class, ensuring that standard specification tests remain clean, elegant, and unpolluted by reflection mechanics.
+
+---
+
 ## Architectural Blueprint for the "Ultimate" LRUClockMap Test Suite
 
 ```

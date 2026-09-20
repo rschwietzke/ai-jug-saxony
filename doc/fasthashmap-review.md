@@ -586,6 +586,121 @@ The following table provides a functional comparison across all 12 test suites:
 
 ---
 
+## Code Quality & Engineering Aesthetics: Comments, Styling, Simplicity, and Maintainability
+
+Beyond functional coverage, mutation score, and algorithmic correctness, the readability, maintainability, and architectural discipline of test code determine its long-term value. This section evaluates the twelve `FastHashMapTest` suites through the lens of software craftsmanship: commenting practices, code styling, cognitive load, idiomatic use of modern Java, and testing anti-patterns.
+
+### 1. Master Code Quality & Engineering Scorecard
+
+| Module | Comments & Documentation | Styling & Idiomatic Java | Simplicity & Cognitive Load | Maintainability & Smells | Overall Code Quality Grade | Primary Engineering Character |
+| :--- | :--- | :--- | :--- | :--- | :---: | :--- |
+| **demo0** | **Good**: Insightful developer notes; Javadoc on helpers; clear intent. | **Fair**: Mixed legacy style (`public` methods/classes, flat layout); JUnit Jupiter static asserts. | **High**: Straightforward narrative tests; minimal indirection; clear step-by-step logic. | **Moderate**: Unchecked casts in `MockKey`; unseeded shuffles in `hitEachSlot`. | **B+** | *Pragmatic Baseline*: Clean, linear, readable; slight legacy JUnit 4 carryovers. |
+| **demo1** | **Good**: Self-documenting `@DisplayName` sentences; concise, focused tests. | **Excellent**: Pure JUnit 5 package-private; AssertJ fluent assertions; `@Nested` BDD hierarchy. | **Very High**: Short, lean test methods (5–15 lines); single responsibility per test. | **Low Smells**: Wildcard import (`java.util.*`), otherwise pristine. | **A** | *Modern BDD Standard*: Idiomatic, readable, high signal-to-noise ratio. |
+| **demo2** | **Good**: Pragmatic comments explaining non-obvious setup (e.g., hash keys). Typo: "JUnit 6". | **Very Good**: Strict JUnit Jupiter; clean `@Nested` classes; package-private visibility. | **High**: Excellent test granularity; clean helper abstractions (`FixedHashKey`). | **Low Smells**: Excellent encapsulation; purely black-box; no mutable fixture leaks. | **A-** | *Black-Box Artisan*: Disciplined, structured, and completely self-contained. |
+| **demo3** | **Sparse**: Almost zero comments; relies entirely on long method names. | **Good**: Allman braces; package-private; `@Nested` classes without `@DisplayName`. | **Moderate**: Dense and mathematically compact; higher cognitive load per test method. | **Low Smells**: Immutable test instances; clean local helper functions. | **B+** | *Dense & Mathematical*: High rigor, high density, but terse documentation. |
+| **demo4** | **Abysmal**: Zero comments throughout entire file. | **Deficient**: Wildcard static assertion imports; double-negative assertions (`assertFalse(x == false)`). | **Trivial**: Shallow smoke tests (2–4 lines) masking catastrophic coverage gaps. | **High Smells**: Shared mutable state (`@BeforeEach map`); non-deterministic string collision assumption. | **F** | *Deficient AI Slop*: Uninformative, sloppy, structurally defective. |
+| **demo5** | **Sparse**: Minimal Javadoc on helper class; no inline comments. | **Fair**: Flat class layout; `public class`; standard JUnit Jupiter static assertions. | **High**: Simple, linear tests; easy to follow individual methods. | **Moderate**: Flat monolithic file (428 lines) makes visual navigation tedious. | **B-** | *Workhorse Simplicity*: Legible and unpretentious, but architecturally uninspired. |
+| **demo6** | **Exceptional**: Literate programming; deep treatises explaining internal invariants and why. | **Very Good**: Hierarchical `@Nested` suites; numbered test methods (`T01_...`); custom failure messages. | **Low–Moderate**: Heavy verification machinery (`assertHealthy`); significant conceptual overhead. | **Moderate**: Tight white-box coupling to internal methods; execution runtime penalty. | **A-** | *Algorithmic Treatise*: Unmatched documentation and rigor, but heavily over-engineered for routine CI. |
+| **demo7** | **Noisy**: Decorative ASCII banners (`// 6.1 Basic behavior // ------`); few rationale comments. | **Fair**: Flat structure; standard Jupiter asserts; shared mutable fixture. | **High**: Simple, predictable test routines; clean comparator utility. | **Critical Flaw**: Complete behavioral disconnect (passed 100% on wrong chained map). | **C+** | *Mechanical & Superficial*: Clean syntax masking fundamental specification failure. |
+| **demo8** | **Noisy**: Heavy ASCII section banners (`// ====================`); minimal explanatory text. | **Fair**: `public class` / `public void`; wildcard assertion import; shared mutable fixture. | **High**: Linear and readable; straightforward assertion sequences. | **Moderate**: Boilerplate clutter; missing view independence verification. | **B-** | *Boilerplate Heavy*: Competent functional coverage wrapped in verbose, legacy styling. |
+| **demo9** | **Very Good**: Targeted comments on Knuth 6.4R invariants and bitwise edge cases. | **Exceptional**: Modern Java `record`; `@Nested` BDD with `@DisplayName`; fluent AssertJ. | **High**: Elegant balance of expressive assertions and concise test bodies. | **Low Smells**: Clean test isolation; no shared state; reflection isolated to edge math. | **A+** | *State-of-the-Art Benchmark*: Combines modern Java idiomatic elegance with surgical rigor. |
+| **demo11** | **Sparse**: Focused almost exclusively on mutation-killing workarounds. | **Good**: Inherits demo1's `@Nested` AssertJ layout; clean package-private methods. | **Moderate**: Direct access to exposed internals lowers test abstraction quality. | **High Architectural Smell**: Breaks production encapsulation (exposes package-private arrays). | **B** | *Mutation Over-Fitted*: High score achieved by damaging production code boundaries. |
+| **demo12** | **Good**: Clear comments explaining reflection targets, resize edge cases, and mutation rationale. | **Very Good**: Preserves clean BDD structure; dedicated `MutationCoverageTest` nested class. | **High (Split)**: Public tests are crystal clear; reflection suite has inherent boilerplate. | **Low Production Smell**: Keeps production class strictly encapsulated via private reflection. | **A-** | *Surgical Hybrid*: Preserves pristine production code while maintaining strict mutation verification. |
+
+---
+
+### 2. Comments & Documentation: Literate Explanations vs. Silence vs. Noise
+
+A critical differentiator among the test suites is whether comments communicate **why** a test exists, merely repeat **what** the code already does, or are absent altogether:
+
+#### A. Literate Explanations & Algorithmic Rationale (demo6, demo9, demo0)
+- **demo6** sets the benchmark for literate testing. Every section opens with extensive Javadoc explaining the specific physical and algorithmic invariants under verification (e.g., explaining why continuous linear probing requires that no slot leak occurs and that `checkChainInvariant()` confirms the absence of gaps). Inline comments explain the mechanics of probe displacement and tombstone evasion.
+- **demo9** uses concise, targeted documentation for complex algorithmic nuances, such as annotating `collisionInterleavedWithDifferentNaturalHomes` to explain Knuth's Algorithm 6.4R invariant: *entries must never be shifted backward past their natural home slot during cluster repair*.
+- **demo0** features pragmatic, conversational human commentary documenting why specific tests were constructed (e.g., highlighting that AI generation had missed controllable hash code classes, or explaining why tombstone churn must be differentially compared against `java.util.HashMap`).
+
+#### B. The Trap of ASCII Banners & Redundant Comments (demo8, demo7)
+- **demo8** and **demo7** exhibit an anti-pattern common in AI-generated code: filling the file with decorative ASCII dividers:
+  ```java
+  // =========================================================================
+  // Construction & Initialization
+  // =========================================================================
+  ```
+  While visually separating sections, these banners substitute for proper JUnit 5 `@Nested` classes. Furthermore, comments in these suites often state the obvious (e.g., `// Update the value for "key1"` right above `map.put("key1", "val2");`), which adds cognitive noise without conveying intent.
+
+#### C. Self-Documenting BDD via `@DisplayName` (demo1, demo2, demo12)
+- **demo1**, **demo2**, and **demo12** demonstrate that test code can be self-documenting without relying on inline comments. By structuring tests in nested hierarchies with descriptive `@DisplayName` annotations (e.g., `@DisplayName("Put overwrite should return old value and update mapping")`), the test runner output itself reads like an executable specification document.
+
+#### D. Complete Silence & Cryptic Brevity (demo4, demo3)
+- **demo4** contains zero comments across its 112 lines, providing no indication of what invariants or edge cases are intended to be checked.
+- **demo3** also omits comments almost entirely, but compensates with exceptionally descriptive, expressive method names (e.g., `equalButNonIdenticalKeysAddressTheSameMapping`). While readable for senior engineers, the lack of explanatory comments on complex hash bit tests (`0x12340000`, `0x00001234`) increases cognitive effort.
+
+---
+
+### 3. Code Styling, Formatting & Idiomatic Modern Java
+
+#### A. Modern JUnit 5 Conventions vs. JUnit 4 Habits
+- **Package-Private Visibility**: In JUnit 5, classes and test methods do not need to be `public`. Modern suites (**demo1, demo2, demo3, demo6, demo9, demo11, demo12**) correctly declare both classes and methods package-private (`class FastHashMapTest`, `void testEmptyMap()`). In contrast, **demo0, demo5, and demo8** retain the legacy JUnit 4 habit of declaring `public class FastHashMapTest` and `public void test...()`.
+- **Import Cleanliness**:
+  - **Best Practice**: **demo1, demo2, demo3, demo6, demo9, demo11, demo12** use explicit, targeted static imports for assertions.
+  - **Anti-Pattern**: **demo4** and **demo8** rely on wildcard assertion imports (`import static org.junit.jupiter.api.Assertions.*;`), which pollutes the namespace and obscures the origin of assertions.
+
+#### B. Assertion Styling: AssertJ Fluent Assertions vs. JUnit Jupiter Static Asserts
+- **AssertJ (demo1, demo9, demo11, demo12)**:
+  AssertJ provides fluent, readable assertions that follow natural language syntax:
+  ```java
+  assertThat(map.put("key1", "val2")).isEqualTo("val1");
+  assertThat(map.keys()).containsExactlyInAnyOrder("a", "b", "c");
+  assertThatNullPointerException()
+      .isThrownBy(() -> map.get(null))
+      .withMessage("Key cannot be null");
+  ```
+  When an assertion fails, AssertJ prints rich, multi-line diagnostic diffs showing expected vs. actual collections or message mismatches, vastly simplifying debugging.
+- **Standard JUnit Jupiter (demo0, demo2, demo3, demo5, demo6, demo7, demo8)**:
+  Functional and lightweight, but parameter order (`assertEquals(expected, actual)`) is frequently inverted by developers, and failure messages on collection mismatches are terse unless custom failure strings are manually supplied (as demo6 diligently does).
+- **The Double-Negative Anti-Pattern (demo4)**:
+  In demo4, line 62 contains:
+  ```java
+  assertFalse(map.keys().contains("nullVal") == false);
+  ```
+  This double negative (`assertFalse(... == false)`) is a severe readability smell, demonstrating poor model attention during code generation.
+
+#### C. Modern Java Constructs (Records, Pattern Matching, Generics)
+- **demo9** and **demo0** leverage modern Java constructs effectively. demo9 defines its collision fixture as a concise Java record:
+  ```java
+  record FixedHashKey(int id, int hash) { ... }
+  ```
+  This avoids 30+ lines of tedious getter/constructor boilerplate seen in demo2, demo5, and demo7.
+- **demo0** also uses records (`record Tuple<K, V>(K k, V v) {}`) and modern `var` in exception assertions (`var ex = assertThrows(...)`).
+
+---
+
+### 4. Simplicity, Cognitive Load & Architectural Cleanliness
+
+#### A. Single Responsibility & Test Method Length
+- **Short & Focused (demo1, demo2, demo8, demo9)**: Test methods average 8–18 lines, testing a single lifecycle step or edge condition. If an assertion fails, the failure immediately isolates the broken behavior.
+- **Dense & Multi-Assertion (demo3, demo6, demo0)**: Methods are longer (30–60 lines) and execute full multi-step lifecycle journeys. While excellent for stress-testing realistic usage patterns, a failure on line 45 requires investigating all preceding state mutations to understand the failure context.
+
+#### B. Fixture Lifecycle: Isolated Instances vs. Shared Mutable State
+- **Clean Isolation (demo0, demo1, demo2, demo3, demo6, demo9, demo11, demo12)**: Each test method instantiates its own `new FastHashMap<>()`. Tests are fully isolated, with zero risk of order-dependent cross-contamination or hidden side-effects.
+- **Shared Mutable State Anti-Pattern (demo4, demo7, demo8)**: These suites declare an instance field `private FastHashMap<String, ...> map;` initialized in a `@BeforeEach setUp()` method. While standard in legacy unit testing, shared fixture fields introduce subtle risks:
+  - If a test forgets to use the fixture and initializes a local map, or conversely modifies shared state expecting isolation, mental overhead increases.
+  - In parameter-rich data structures like hash maps (where testing different capacities and load factors is essential), a fixed `@BeforeEach` default map is rarely useful, forcing tests to repeatedly overwrite the field anyway.
+
+---
+
+### 5. Over-Engineering vs. Pragmatic Craftsmanship
+
+#### A. The Mutation-Testing Paradox (demo11 vs. demo12 vs. demo2)
+- To achieve a 100% PIT mutation score, **demo11** broke production encapsulation, making backing arrays (`keys`, `values`) and bit-twiddling utilities package-private so tests could assert that arrays are nulled out and bitshifts are correct. This is **over-engineering to satisfy a metric at the expense of production code design**.
+- **demo12** demonstrates a superior engineering compromise: it keeps production code strictly `private` and encapsulates all reflection-based mutation tests inside a dedicated, isolated `@Nested class MutationCoverageTest`.
+- **demo2** takes the purest engineering stance: it proves that **100% pure black-box testing** can achieve exceptional confidence (Tier 1) without writing a single line of reflection or leaking any internal fields.
+
+#### B. Invariant Verification Engines (demo6)
+- **demo6** embeds an entire verification sub-framework inside the test suite: `assertHealthy()` checks size invariants, slot leakage, and calls `checkChainInvariant()` on every step.
+- While architecturally breathtaking for a library author during initial development, continuous invariant checking adds noticeable execution overhead and makes the test suite completely non-portable to any other implementation of `FastHashMap`.
+
+---
+
 ## Architectural Blueprint for the "Ultimate" FastHashMap Test Suite
 
 To build the definitive test suite for open-addressing hash maps, one should synthesize the strengths of the top suites:
