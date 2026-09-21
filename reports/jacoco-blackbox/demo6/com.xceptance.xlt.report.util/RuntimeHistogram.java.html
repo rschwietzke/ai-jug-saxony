@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RuntimeHistogram.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">demo6</a> &gt; <a href="index.source.html" class="el_package">com.xceptance.xlt.report.util</a> &gt; <span class="el_source">RuntimeHistogram.java</span></div><h1>RuntimeHistogram.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2005-2025 Xceptance Software Technologies GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.xceptance.xlt.report.util;
+
+import java.util.Arrays;
+
+import com.xceptance.xlt.report.util.lucene.BitUtil;
+
+/**
+ * The {@link RuntimeHistogram} class calculates any percentile from the &lt;code&gt;int&lt;/code&gt; values added. In contrast to
+ * other implementations, this class does not store any value added, but counts the occurrences of each value. This
+ * approach saves memory if the values added are in roughly the same range.
+ */
+public class RuntimeHistogram
+{
+    /**
+     * The default precision, power of 2 for shifting aka this is 1&lt;&lt;0 = 1 (no precision loss).
+     */
+    private static final int DEFAULT_PRECISION = 1;
+
+    /**
+     * The buckets allocated so far.
+     */
+    private int[] countPerBucket;
+
+    /**
+     * Value at the first index.
+     */
+<span class="nc" id="L42">    private int firstIndexValue = Integer.MAX_VALUE;</span>
+
+    /**
+     * Value at the last index.
+     */
+<span class="nc" id="L47">    private int lastIndexValue = Integer.MIN_VALUE;</span>
+
+    /**
+     * What is the desired precision? We accept loss of precision in order 
+     * to save memory.
+     */
+    private final int precision;
+
+    /**
+     * The number of values added so far
+     */
+    private int valueCount;
+
+    /**
+     * Constructor.
+     */
+    public RuntimeHistogram()
+    {
+<span class="nc" id="L65">        this(DEFAULT_PRECISION);</span>
+<span class="nc" id="L66">    }</span>
+
+    /**
+     * Constructor. Precision defines the size of each bucket. E.g. a precision of 8 means that values 0-7 go into
+     * that bucket. To be fast, this must be a power of 2.
+     *
+     * @param precision
+     *            the precision to use
+     */
+    public RuntimeHistogram(final int precision)
+<span class="nc" id="L76">    {</span>
+        // get us the power of two for shifting
+<span class="nc" id="L78">        final var nPoT = BitUtil.nextHighestPowerOfTwo(precision);</span>
+<span class="nc" id="L79">        this.precision = Integer.numberOfTrailingZeros(nPoT);</span>
+<span class="nc" id="L80">    }</span>
+
+    /**
+     * Adds a value to this median calculator.
+     *
+     * @param value
+     *            the value to add
+     */
+    public void addValue(final int value)
+    {
+<span class="nc" id="L90">        final int index = value &gt;&gt; this.precision;</span>
+<span class="nc" id="L91">        this.valueCount++;</span>
+
+        // grow/shift values array if necessary
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (index &lt; this.firstIndexValue)</span>
+        {
+<span class="nc" id="L96">            grow(index);</span>
+        }
+<span class="nc bnc" id="L98" title="All 2 branches missed.">        else if (index &gt; this.lastIndexValue)</span>
+        {
+<span class="nc" id="L100">            grow(index);</span>
+        }
+        else
+        {
+<span class="nc" id="L104">            this.countPerBucket[index - this.firstIndexValue]++;</span>
+        }
+<span class="nc" id="L106">    }</span>
+
+    /**
+     * Grows the bucket array by the specified number of buckets.
+     *
+     * @param the new index position to cover
+     */
+    private void grow(final int newIndexPositionToSupport)
+    {
+        // ok, to avoid frequent checks for the valueCount == 0 we check here
+        // for out of bound values when we do that for the first time
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (firstIndexValue == Integer.MAX_VALUE)</span>
+        {
+<span class="nc" id="L119">            this.countPerBucket = new int[1];</span>
+<span class="nc" id="L120">            this.firstIndexValue = this.lastIndexValue = newIndexPositionToSupport;</span>
+<span class="nc" id="L121">            this.countPerBucket[0] = 1;</span>
+
+<span class="nc" id="L123">            return;</span>
+        }
+
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        if (newIndexPositionToSupport &lt; this.firstIndexValue)</span>
+        {
+            // grow left and shift our contents to the right
+<span class="nc" id="L129">            final int delta = this.firstIndexValue - newIndexPositionToSupport;</span>
+<span class="nc" id="L130">            final int[] oldCountPerBucket = this.countPerBucket;</span>
+
+<span class="nc" id="L132">            this.countPerBucket = new int[this.countPerBucket.length + delta];</span>
+            // copy and shift existing values to the right
+<span class="nc" id="L134">            System.arraycopy(oldCountPerBucket, 0, this.countPerBucket, delta, oldCountPerBucket.length);</span>
+
+<span class="nc" id="L136">            this.firstIndexValue = newIndexPositionToSupport;</span>
+<span class="nc" id="L137">            this.countPerBucket[0] = 1;</span>
+<span class="nc" id="L138">        }</span>
+        else
+        {
+            // just increase the size
+<span class="nc" id="L142">            final int delta = newIndexPositionToSupport - this.lastIndexValue;</span>
+<span class="nc" id="L143">            this.countPerBucket = Arrays.copyOf(this.countPerBucket, this.countPerBucket.length + delta);</span>
+
+<span class="nc" id="L145">            this.lastIndexValue = newIndexPositionToSupport;</span>
+<span class="nc" id="L146">            this.countPerBucket[this.countPerBucket.length - 1] = 1;</span>
+
+        }
+<span class="nc" id="L149">    }</span>
+
+    /**
+     * Returns the number of values added.
+     * 
+     * @return the number of values added
+     */
+    public int getValueCount()
+    {
+<span class="nc" id="L158">        return valueCount;</span>
+    }
+
+    /**
+     * Returns the median of the values added.
+     *
+     * @return the median value
+     */
+    public double getMedianValue()
+    {
+<span class="nc" id="L168">        return getPercentile(50.0);</span>
+    }
+
+    /**
+     * Returns the p-th quantile of the values added.
+     *
+     * @param p
+     *            the p 0.0 &amp;lt; p &amp;lt;= 1.0
+     * @return the p-th percentile
+     */
+    public double getQuantile(final double p)
+    {
+<span class="nc" id="L180">        return getPercentile(p * 100.0);</span>
+    }
+
+    /**
+     * Returns the p-th percentile of the values added.
+     *
+     * @param p
+     *            the p (0 &amp;lt;= p &amp;le; 100)
+     * @return the p-th percentile
+     */
+    public double getPercentile(final double p)
+    {
+        // we don't support 0 but for comparison with other algorithms
+        // we need that
+<span class="nc bnc" id="L194" title="All 4 branches missed.">        if (p &lt; 0.0 || p &gt; 100.0)</span>
+        {
+<span class="nc" id="L196">            throw new IllegalArgumentException(&quot;Value of parameter 'p' must be in range (0, 100], but was &quot; + p);</span>
+        }
+
+        // see https://de.wikipedia.org/wiki/Quantil#Berechnung_empirischer_Quantile
+
+        double value;
+
+<span class="nc bnc" id="L203" title="All 2 branches missed.">        if (valueCount == 0)</span>
+        {
+<span class="nc" id="L205">            value = 0.0;</span>
+        }
+<span class="nc bnc" id="L207" title="All 2 branches missed.">        else if (p == 0.0)</span>
+        {
+<span class="nc" id="L209">            value = firstIndexValue &lt;&lt; precision;</span>
+        }
+<span class="nc bnc" id="L211" title="All 2 branches missed.">        else if (p == 100.0)</span>
+        {
+<span class="nc" id="L213">            value = lastIndexValue &lt;&lt; precision;</span>
+        }
+        else
+        {
+<span class="nc" id="L217">            final double np = ((double)valueCount) * (p / 100.0d);</span>
+
+            // even number of values -&gt; mean of two adjacent values
+<span class="nc bnc" id="L220" title="All 2 branches missed.">            if ((np % 1.0) == 0.0)</span>
+            {
+                // get two adjacent values and calculate the mean of both
+<span class="nc" id="L223">                final int value1 = getValueByCount(np);</span>
+<span class="nc" id="L224">                final int value2 = getValueByCount(np + 1);</span>
+
+<span class="nc" id="L226">                value = (value1 + value2) / 2.0d;</span>
+<span class="nc" id="L227">            }</span>
+            else
+            {
+                // just get the corresponding value when odd
+<span class="nc" id="L231">                value = getValueByCount(Math.ceil(np));</span>
+            }
+        }
+
+<span class="nc" id="L235">        return value;</span>
+    }
+
+    /**
+     * Returns if the histogram is empty.
+     * 
+     * @return true if empty, false otherwise
+     */
+    public boolean isEmpty()
+    {
+<span class="nc bnc" id="L245" title="All 2 branches missed.">        return valueCount == 0;</span>
+    }
+    
+    /**
+     * Returns the number of values that fall into the specified value range.
+     *
+     * @param start the start value (inclusive)
+     * @param end the end value (inclusive)
+     * 
+     * @return the number of values in the range
+     */
+    public long getCountForValue(final int start, final int end)
+    {
+<span class="nc bnc" id="L258" title="All 2 branches missed.">        if (start &gt; end)</span>
+        {
+<span class="nc" id="L260">            throw new IllegalArgumentException(&quot;Start value must be less than or equal to end value&quot;);</span>
+        }
+
+<span class="nc bnc" id="L263" title="All 2 branches missed.">        if (valueCount == 0)</span>
+        {
+            // there is nothing stored
+<span class="nc" id="L266">            return 0;</span>
+        }
+
+        // Convert values to bucket indices
+<span class="nc" id="L270">        final int startIndex = start &gt;&gt; this.precision;</span>
+<span class="nc" id="L271">        final int endIndex = end &gt;&gt; this.precision;</span>
+
+        // Check if range is completely outside our data
+<span class="nc bnc" id="L274" title="All 4 branches missed.">        if (endIndex &lt; this.firstIndexValue || startIndex &gt; this.lastIndexValue)</span>
+        {
+<span class="nc" id="L276">            return 0;</span>
+        }
+
+        // Clamp indices to our actual bucket range and move the index
+        // by our minimal index value offset, in case it is not zero, we
+        // safe us the empty ranges at the begin
+<span class="nc" id="L282">        final int firstBucket = Math.max(0, startIndex - this.firstIndexValue);</span>
+<span class="nc" id="L283">        final int lastBucket = Math.min(this.countPerBucket.length - 1, endIndex - this.firstIndexValue);</span>
+
+        // Sum up counts in the relevant buckets
+<span class="nc" id="L286">        long count = 0;</span>
+<span class="nc bnc" id="L287" title="All 2 branches missed.">        for (int i = firstBucket; i &lt;= lastBucket; i++)</span>
+        {
+<span class="nc" id="L289">            count += this.countPerBucket[i];</span>
+        }
+
+<span class="nc" id="L292">        return count;</span>
+    }
+
+    /**
+     * Returns the value that belong to the last index entry which 
+     * fulfilled the condition of having at least the given number of values.
+     *
+     * @param totalCount the total count to reach
+     * @return the value corrected to precision
+     */
+    private int getValueByCount(final double totalCount)
+    {
+        // find the bucket that holds the value with the given index
+<span class="nc" id="L305">        int bucketIndex = -1;</span>
+<span class="nc" id="L306">        double count = 0;</span>
+
+<span class="nc bnc" id="L308" title="All 2 branches missed.">        while (count &lt; totalCount)</span>
+        {
+<span class="nc" id="L310">            count += countPerBucket[++bucketIndex];</span>
+        }
+
+        // reconstruct the value
+<span class="nc" id="L314">        return (firstIndexValue + bucketIndex) &lt;&lt; precision;</span>
+    }
+
+    /**
+     * Returns the number of allocated buckets.
+     *
+     * @return the number of buckets used
+     */
+    public int getNumberOfBuckets()
+    {
+<span class="nc bnc" id="L324" title="All 2 branches missed.">        return countPerBucket != null ? countPerBucket.length : 0;</span>
+    }
+
+    /**
+     * Returns the precision used. 1 means, we keep all values as is.
+     * 2 means, we reduce the result precision by a factor of 2, 4 means by a factor of 4, etc.
+     * 
+     * @return the precision
+     */
+    public int getPrecision()
+    {
+<span class="nc" id="L335">        return 1 &lt;&lt; precision;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

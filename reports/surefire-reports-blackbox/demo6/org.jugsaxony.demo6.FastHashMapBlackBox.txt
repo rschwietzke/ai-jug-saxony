@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: org.jugsaxony.demo6.FastHashMapBlackBox
+-------------------------------------------------------------------------------
+Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.234 s -- in org.jugsaxony.demo6.FastHashMapBlackBox

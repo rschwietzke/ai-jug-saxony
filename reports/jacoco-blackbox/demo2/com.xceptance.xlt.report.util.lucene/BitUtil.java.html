@@ -1,0 +1,841 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BitUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">demo2</a> &gt; <a href="index.source.html" class="el_package">com.xceptance.xlt.report.util.lucene</a> &gt; <span class="el_source">BitUtil.java</span></div><h1>BitUtil.java</h1><pre class="source lang-java linenums">/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.xceptance.xlt.report.util.lucene; // from org.apache.solr.util rev 555343
+
+/**  
+ * A variety of high efficiency bit twiddling routines.
+ * @lucene.internal
+ */
+public final class BitUtil {
+
+  private BitUtil() {} // no instance
+
+  /** Returns the number of bits set in the long */
+  public static int pop(long x) {
+  /* Hacker's Delight 32 bit pop function:
+   * http://www.hackersdelight.org/HDcode/newCode/pop_arrayHS.cc
+   *
+  int pop(unsigned x) {
+     x = x - ((x &gt;&gt; 1) &amp; 0x55555555);
+     x = (x &amp; 0x33333333) + ((x &gt;&gt; 2) &amp; 0x33333333);
+     x = (x + (x &gt;&gt; 4)) &amp; 0x0F0F0F0F;
+     x = x + (x &gt;&gt; 8);
+     x = x + (x &gt;&gt; 16);
+     return x &amp; 0x0000003F;
+    }
+  ***/
+
+    // 64 bit java version of the C function from above
+<span class="nc" id="L44">    x = x - ((x &gt;&gt;&gt; 1) &amp; 0x5555555555555555L);</span>
+<span class="nc" id="L45">    x = (x &amp; 0x3333333333333333L) + ((x &gt;&gt;&gt;2 ) &amp; 0x3333333333333333L);</span>
+<span class="nc" id="L46">    x = (x + (x &gt;&gt;&gt; 4)) &amp; 0x0F0F0F0F0F0F0F0FL;</span>
+<span class="nc" id="L47">    x = x + (x &gt;&gt;&gt; 8);</span>
+<span class="nc" id="L48">    x = x + (x &gt;&gt;&gt; 16);</span>
+<span class="nc" id="L49">    x = x + (x &gt;&gt;&gt; 32);</span>
+<span class="nc" id="L50">    return ((int)x) &amp; 0x7F;</span>
+  }
+
+  /*** Returns the number of set bits in an array of longs. */
+  public static long pop_array(long A[], int wordOffset, int numWords) {
+    /*
+    * Robert Harley and David Seal's bit counting algorithm, as documented
+    * in the revisions of Hacker's Delight
+    * http://www.hackersdelight.org/revisions.pdf
+    * http://www.hackersdelight.org/HDcode/newCode/pop_arrayHS.cc
+    *
+    * This function was adapted to Java, and extended to use 64 bit words.
+    * if only we had access to wider registers like SSE from java...
+    *
+    * This function can be transformed to compute the popcount of other functions
+    * on bitsets via something like this:
+    * sed 's/A\[\([^]]*\)\]/\(A[\1] \&amp; B[\1]\)/g'
+    *
+    */
+<span class="nc" id="L69">    int n = wordOffset+numWords;</span>
+<span class="nc" id="L70">    long tot=0, tot8=0;</span>
+<span class="nc" id="L71">    long ones=0, twos=0, fours=0;</span>
+
+    int i;
+<span class="nc bnc" id="L74" title="All 2 branches missed.">    for (i = wordOffset; i &lt;= n - 8; i+=8) {</span>
+      /***  C macro from Hacker's Delight
+       #define CSA(h,l, a,b,c) \
+       {unsigned u = a ^ b; unsigned v = c; \
+       h = (a &amp; b) | (u &amp; v); l = u ^ v;}
+       ***/
+
+      long twosA,twosB,foursA,foursB,eights;
+
+      // CSA(twosA, ones, ones, A[i], A[i+1])
+      {
+<span class="nc" id="L85">        long b=A[i], c=A[i+1];</span>
+<span class="nc" id="L86">        long u=ones ^ b;</span>
+<span class="nc" id="L87">        twosA=(ones &amp; b)|( u &amp; c);</span>
+<span class="nc" id="L88">        ones=u^c;</span>
+      }
+      // CSA(twosB, ones, ones, A[i+2], A[i+3])
+      {
+<span class="nc" id="L92">        long b=A[i+2], c=A[i+3];</span>
+<span class="nc" id="L93">        long u=ones^b;</span>
+<span class="nc" id="L94">        twosB =(ones&amp;b)|(u&amp;c);</span>
+<span class="nc" id="L95">        ones=u^c;</span>
+      }
+      //CSA(foursA, twos, twos, twosA, twosB)
+      {
+<span class="nc" id="L99">        long u=twos^twosA;</span>
+<span class="nc" id="L100">        foursA=(twos&amp;twosA)|(u&amp;twosB);</span>
+<span class="nc" id="L101">        twos=u^twosB;</span>
+      }
+      //CSA(twosA, ones, ones, A[i+4], A[i+5])
+      {
+<span class="nc" id="L105">        long b=A[i+4], c=A[i+5];</span>
+<span class="nc" id="L106">        long u=ones^b;</span>
+<span class="nc" id="L107">        twosA=(ones&amp;b)|(u&amp;c);</span>
+<span class="nc" id="L108">        ones=u^c;</span>
+      }
+      // CSA(twosB, ones, ones, A[i+6], A[i+7])
+      {
+<span class="nc" id="L112">        long b=A[i+6], c=A[i+7];</span>
+<span class="nc" id="L113">        long u=ones^b;</span>
+<span class="nc" id="L114">        twosB=(ones&amp;b)|(u&amp;c);</span>
+<span class="nc" id="L115">        ones=u^c;</span>
+      }
+      //CSA(foursB, twos, twos, twosA, twosB)
+      {
+<span class="nc" id="L119">        long u=twos^twosA;</span>
+<span class="nc" id="L120">        foursB=(twos&amp;twosA)|(u&amp;twosB);</span>
+<span class="nc" id="L121">        twos=u^twosB;</span>
+      }
+
+      //CSA(eights, fours, fours, foursA, foursB)
+      {
+<span class="nc" id="L126">        long u=fours^foursA;</span>
+<span class="nc" id="L127">        eights=(fours&amp;foursA)|(u&amp;foursB);</span>
+<span class="nc" id="L128">        fours=u^foursB;</span>
+      }
+<span class="nc" id="L130">      tot8 += pop(eights);</span>
+    }
+
+    // handle trailing words in a binary-search manner...
+    // derived from the loop above by setting specific elements to 0.
+    // the original method in Hackers Delight used a simple for loop:
+    //   for (i = i; i &lt; n; i++)      // Add in the last elements
+    //  tot = tot + pop(A[i]);
+
+<span class="nc bnc" id="L139" title="All 2 branches missed.">    if (i&lt;=n-4) {</span>
+      long twosA, twosB, foursA, eights;
+      {
+<span class="nc" id="L142">        long b=A[i], c=A[i+1];</span>
+<span class="nc" id="L143">        long u=ones ^ b;</span>
+<span class="nc" id="L144">        twosA=(ones &amp; b)|( u &amp; c);</span>
+<span class="nc" id="L145">        ones=u^c;</span>
+      }
+      {
+<span class="nc" id="L148">        long b=A[i+2], c=A[i+3];</span>
+<span class="nc" id="L149">        long u=ones^b;</span>
+<span class="nc" id="L150">        twosB =(ones&amp;b)|(u&amp;c);</span>
+<span class="nc" id="L151">        ones=u^c;</span>
+      }
+      {
+<span class="nc" id="L154">        long u=twos^twosA;</span>
+<span class="nc" id="L155">        foursA=(twos&amp;twosA)|(u&amp;twosB);</span>
+<span class="nc" id="L156">        twos=u^twosB;</span>
+      }
+<span class="nc" id="L158">      eights=fours&amp;foursA;</span>
+<span class="nc" id="L159">      fours=fours^foursA;</span>
+
+<span class="nc" id="L161">      tot8 += pop(eights);</span>
+<span class="nc" id="L162">      i+=4;</span>
+    }
+
+<span class="nc bnc" id="L165" title="All 2 branches missed.">    if (i&lt;=n-2) {</span>
+<span class="nc" id="L166">      long b=A[i], c=A[i+1];</span>
+<span class="nc" id="L167">      long u=ones ^ b;</span>
+<span class="nc" id="L168">      long twosA=(ones &amp; b)|( u &amp; c);</span>
+<span class="nc" id="L169">      ones=u^c;</span>
+
+<span class="nc" id="L171">      long foursA=twos&amp;twosA;</span>
+<span class="nc" id="L172">      twos=twos^twosA;</span>
+
+<span class="nc" id="L174">      long eights=fours&amp;foursA;</span>
+<span class="nc" id="L175">      fours=fours^foursA;</span>
+
+<span class="nc" id="L177">      tot8 += pop(eights);</span>
+<span class="nc" id="L178">      i+=2;</span>
+    }
+
+<span class="nc bnc" id="L181" title="All 2 branches missed.">    if (i&lt;n) {</span>
+<span class="nc" id="L182">      tot += pop(A[i]);</span>
+    }
+
+<span class="nc" id="L185">    tot += (pop(fours)&lt;&lt;2)</span>
+<span class="nc" id="L186">            + (pop(twos)&lt;&lt;1)</span>
+<span class="nc" id="L187">            + pop(ones)</span>
+            + (tot8&lt;&lt;3);
+
+<span class="nc" id="L190">    return tot;</span>
+  }
+
+  /** Returns the popcount or cardinality of the two sets after an intersection.
+   * Neither array is modified.
+   */
+  public static long pop_intersect(long A[], long B[], int wordOffset, int numWords) {
+    // generated from pop_array via sed 's/A\[\([^]]*\)\]/\(A[\1] \&amp; B[\1]\)/g'
+<span class="nc" id="L198">    int n = wordOffset+numWords;</span>
+<span class="nc" id="L199">    long tot=0, tot8=0;</span>
+<span class="nc" id="L200">    long ones=0, twos=0, fours=0;</span>
+
+    int i;
+<span class="nc bnc" id="L203" title="All 2 branches missed.">    for (i = wordOffset; i &lt;= n - 8; i+=8) {</span>
+      long twosA,twosB,foursA,foursB,eights;
+
+      // CSA(twosA, ones, ones, (A[i] &amp; B[i]), (A[i+1] &amp; B[i+1]))
+      {
+<span class="nc" id="L208">        long b=(A[i] &amp; B[i]), c=(A[i+1] &amp; B[i+1]);</span>
+<span class="nc" id="L209">        long u=ones ^ b;</span>
+<span class="nc" id="L210">        twosA=(ones &amp; b)|( u &amp; c);</span>
+<span class="nc" id="L211">        ones=u^c;</span>
+      }
+      // CSA(twosB, ones, ones, (A[i+2] &amp; B[i+2]), (A[i+3] &amp; B[i+3]))
+      {
+<span class="nc" id="L215">        long b=(A[i+2] &amp; B[i+2]), c=(A[i+3] &amp; B[i+3]);</span>
+<span class="nc" id="L216">        long u=ones^b;</span>
+<span class="nc" id="L217">        twosB =(ones&amp;b)|(u&amp;c);</span>
+<span class="nc" id="L218">        ones=u^c;</span>
+      }
+      //CSA(foursA, twos, twos, twosA, twosB)
+      {
+<span class="nc" id="L222">        long u=twos^twosA;</span>
+<span class="nc" id="L223">        foursA=(twos&amp;twosA)|(u&amp;twosB);</span>
+<span class="nc" id="L224">        twos=u^twosB;</span>
+      }
+      //CSA(twosA, ones, ones, (A[i+4] &amp; B[i+4]), (A[i+5] &amp; B[i+5]))
+      {
+<span class="nc" id="L228">        long b=(A[i+4] &amp; B[i+4]), c=(A[i+5] &amp; B[i+5]);</span>
+<span class="nc" id="L229">        long u=ones^b;</span>
+<span class="nc" id="L230">        twosA=(ones&amp;b)|(u&amp;c);</span>
+<span class="nc" id="L231">        ones=u^c;</span>
+      }
+      // CSA(twosB, ones, ones, (A[i+6] &amp; B[i+6]), (A[i+7] &amp; B[i+7]))
+      {
+<span class="nc" id="L235">        long b=(A[i+6] &amp; B[i+6]), c=(A[i+7] &amp; B[i+7]);</span>
+<span class="nc" id="L236">        long u=ones^b;</span>
+<span class="nc" id="L237">        twosB=(ones&amp;b)|(u&amp;c);</span>
+<span class="nc" id="L238">        ones=u^c;</span>
+      }
+      //CSA(foursB, twos, twos, twosA, twosB)
+      {
+<span class="nc" id="L242">        long u=twos^twosA;</span>
+<span class="nc" id="L243">        foursB=(twos&amp;twosA)|(u&amp;twosB);</span>
+<span class="nc" id="L244">        twos=u^twosB;</span>
+      }
+
+      //CSA(eights, fours, fours, foursA, foursB)
+      {
+<span class="nc" id="L249">        long u=fours^foursA;</span>
+<span class="nc" id="L250">        eights=(fours&amp;foursA)|(u&amp;foursB);</span>
+<span class="nc" id="L251">        fours=u^foursB;</span>
+      }
+<span class="nc" id="L253">      tot8 += pop(eights);</span>
+    }
+
+
+<span class="nc bnc" id="L257" title="All 2 branches missed.">    if (i&lt;=n-4) {</span>
+      long twosA, twosB, foursA, eights;
+      {
+<span class="nc" id="L260">        long b=(A[i] &amp; B[i]), c=(A[i+1] &amp; B[i+1]);</span>
+<span class="nc" id="L261">        long u=ones ^ b;</span>
+<span class="nc" id="L262">        twosA=(ones &amp; b)|( u &amp; c);</span>
+<span class="nc" id="L263">        ones=u^c;</span>
+      }
+      {
+<span class="nc" id="L266">        long b=(A[i+2] &amp; B[i+2]), c=(A[i+3] &amp; B[i+3]);</span>
+<span class="nc" id="L267">        long u=ones^b;</span>
+<span class="nc" id="L268">        twosB =(ones&amp;b)|(u&amp;c);</span>
+<span class="nc" id="L269">        ones=u^c;</span>
+      }
+      {
+<span class="nc" id="L272">        long u=twos^twosA;</span>
+<span class="nc" id="L273">        foursA=(twos&amp;twosA)|(u&amp;twosB);</span>
+<span class="nc" id="L274">        twos=u^twosB;</span>
+      }
+<span class="nc" id="L276">      eights=fours&amp;foursA;</span>
+<span class="nc" id="L277">      fours=fours^foursA;</span>
+
+<span class="nc" id="L279">      tot8 += pop(eights);</span>
+<span class="nc" id="L280">      i+=4;</span>
+    }
+
+<span class="nc bnc" id="L283" title="All 2 branches missed.">    if (i&lt;=n-2) {</span>
+<span class="nc" id="L284">      long b=(A[i] &amp; B[i]), c=(A[i+1] &amp; B[i+1]);</span>
+<span class="nc" id="L285">      long u=ones ^ b;</span>
+<span class="nc" id="L286">      long twosA=(ones &amp; b)|( u &amp; c);</span>
+<span class="nc" id="L287">      ones=u^c;</span>
+
+<span class="nc" id="L289">      long foursA=twos&amp;twosA;</span>
+<span class="nc" id="L290">      twos=twos^twosA;</span>
+
+<span class="nc" id="L292">      long eights=fours&amp;foursA;</span>
+<span class="nc" id="L293">      fours=fours^foursA;</span>
+
+<span class="nc" id="L295">      tot8 += pop(eights);</span>
+<span class="nc" id="L296">      i+=2;</span>
+    }
+
+<span class="nc bnc" id="L299" title="All 2 branches missed.">    if (i&lt;n) {</span>
+<span class="nc" id="L300">      tot += pop((A[i] &amp; B[i]));</span>
+    }
+
+<span class="nc" id="L303">    tot += (pop(fours)&lt;&lt;2)</span>
+<span class="nc" id="L304">            + (pop(twos)&lt;&lt;1)</span>
+<span class="nc" id="L305">            + pop(ones)</span>
+            + (tot8&lt;&lt;3);
+
+<span class="nc" id="L308">    return tot;</span>
+  }
+
+  /** Returns the popcount or cardinality of the union of two sets.
+    * Neither array is modified.
+    */
+   public static long pop_union(long A[], long B[], int wordOffset, int numWords) {
+     // generated from pop_array via sed 's/A\[\([^]]*\)\]/\(A[\1] \| B[\1]\)/g'
+<span class="nc" id="L316">     int n = wordOffset+numWords;</span>
+<span class="nc" id="L317">     long tot=0, tot8=0;</span>
+<span class="nc" id="L318">     long ones=0, twos=0, fours=0;</span>
+
+     int i;
+<span class="nc bnc" id="L321" title="All 2 branches missed.">     for (i = wordOffset; i &lt;= n - 8; i+=8) {</span>
+       /***  C macro from Hacker's Delight
+        #define CSA(h,l, a,b,c) \
+        {unsigned u = a ^ b; unsigned v = c; \
+        h = (a &amp; b) | (u &amp; v); l = u ^ v;}
+        ***/
+
+       long twosA,twosB,foursA,foursB,eights;
+
+       // CSA(twosA, ones, ones, (A[i] | B[i]), (A[i+1] | B[i+1]))
+       {
+<span class="nc" id="L332">         long b=(A[i] | B[i]), c=(A[i+1] | B[i+1]);</span>
+<span class="nc" id="L333">         long u=ones ^ b;</span>
+<span class="nc" id="L334">         twosA=(ones &amp; b)|( u &amp; c);</span>
+<span class="nc" id="L335">         ones=u^c;</span>
+       }
+       // CSA(twosB, ones, ones, (A[i+2] | B[i+2]), (A[i+3] | B[i+3]))
+       {
+<span class="nc" id="L339">         long b=(A[i+2] | B[i+2]), c=(A[i+3] | B[i+3]);</span>
+<span class="nc" id="L340">         long u=ones^b;</span>
+<span class="nc" id="L341">         twosB =(ones&amp;b)|(u&amp;c);</span>
+<span class="nc" id="L342">         ones=u^c;</span>
+       }
+       //CSA(foursA, twos, twos, twosA, twosB)
+       {
+<span class="nc" id="L346">         long u=twos^twosA;</span>
+<span class="nc" id="L347">         foursA=(twos&amp;twosA)|(u&amp;twosB);</span>
+<span class="nc" id="L348">         twos=u^twosB;</span>
+       }
+       //CSA(twosA, ones, ones, (A[i+4] | B[i+4]), (A[i+5] | B[i+5]))
+       {
+<span class="nc" id="L352">         long b=(A[i+4] | B[i+4]), c=(A[i+5] | B[i+5]);</span>
+<span class="nc" id="L353">         long u=ones^b;</span>
+<span class="nc" id="L354">         twosA=(ones&amp;b)|(u&amp;c);</span>
+<span class="nc" id="L355">         ones=u^c;</span>
+       }
+       // CSA(twosB, ones, ones, (A[i+6] | B[i+6]), (A[i+7] | B[i+7]))
+       {
+<span class="nc" id="L359">         long b=(A[i+6] | B[i+6]), c=(A[i+7] | B[i+7]);</span>
+<span class="nc" id="L360">         long u=ones^b;</span>
+<span class="nc" id="L361">         twosB=(ones&amp;b)|(u&amp;c);</span>
+<span class="nc" id="L362">         ones=u^c;</span>
+       }
+       //CSA(foursB, twos, twos, twosA, twosB)
+       {
+<span class="nc" id="L366">         long u=twos^twosA;</span>
+<span class="nc" id="L367">         foursB=(twos&amp;twosA)|(u&amp;twosB);</span>
+<span class="nc" id="L368">         twos=u^twosB;</span>
+       }
+
+       //CSA(eights, fours, fours, foursA, foursB)
+       {
+<span class="nc" id="L373">         long u=fours^foursA;</span>
+<span class="nc" id="L374">         eights=(fours&amp;foursA)|(u&amp;foursB);</span>
+<span class="nc" id="L375">         fours=u^foursB;</span>
+       }
+<span class="nc" id="L377">       tot8 += pop(eights);</span>
+     }
+
+
+<span class="nc bnc" id="L381" title="All 2 branches missed.">     if (i&lt;=n-4) {</span>
+       long twosA, twosB, foursA, eights;
+       {
+<span class="nc" id="L384">         long b=(A[i] | B[i]), c=(A[i+1] | B[i+1]);</span>
+<span class="nc" id="L385">         long u=ones ^ b;</span>
+<span class="nc" id="L386">         twosA=(ones &amp; b)|( u &amp; c);</span>
+<span class="nc" id="L387">         ones=u^c;</span>
+       }
+       {
+<span class="nc" id="L390">         long b=(A[i+2] | B[i+2]), c=(A[i+3] | B[i+3]);</span>
+<span class="nc" id="L391">         long u=ones^b;</span>
+<span class="nc" id="L392">         twosB =(ones&amp;b)|(u&amp;c);</span>
+<span class="nc" id="L393">         ones=u^c;</span>
+       }
+       {
+<span class="nc" id="L396">         long u=twos^twosA;</span>
+<span class="nc" id="L397">         foursA=(twos&amp;twosA)|(u&amp;twosB);</span>
+<span class="nc" id="L398">         twos=u^twosB;</span>
+       }
+<span class="nc" id="L400">       eights=fours&amp;foursA;</span>
+<span class="nc" id="L401">       fours=fours^foursA;</span>
+
+<span class="nc" id="L403">       tot8 += pop(eights);</span>
+<span class="nc" id="L404">       i+=4;</span>
+     }
+
+<span class="nc bnc" id="L407" title="All 2 branches missed.">     if (i&lt;=n-2) {</span>
+<span class="nc" id="L408">       long b=(A[i] | B[i]), c=(A[i+1] | B[i+1]);</span>
+<span class="nc" id="L409">       long u=ones ^ b;</span>
+<span class="nc" id="L410">       long twosA=(ones &amp; b)|( u &amp; c);</span>
+<span class="nc" id="L411">       ones=u^c;</span>
+
+<span class="nc" id="L413">       long foursA=twos&amp;twosA;</span>
+<span class="nc" id="L414">       twos=twos^twosA;</span>
+
+<span class="nc" id="L416">       long eights=fours&amp;foursA;</span>
+<span class="nc" id="L417">       fours=fours^foursA;</span>
+
+<span class="nc" id="L419">       tot8 += pop(eights);</span>
+<span class="nc" id="L420">       i+=2;</span>
+     }
+
+<span class="nc bnc" id="L423" title="All 2 branches missed.">     if (i&lt;n) {</span>
+<span class="nc" id="L424">       tot += pop((A[i] | B[i]));</span>
+     }
+
+<span class="nc" id="L427">     tot += (pop(fours)&lt;&lt;2)</span>
+<span class="nc" id="L428">             + (pop(twos)&lt;&lt;1)</span>
+<span class="nc" id="L429">             + pop(ones)</span>
+             + (tot8&lt;&lt;3);
+
+<span class="nc" id="L432">     return tot;</span>
+   }
+
+  /** Returns the popcount or cardinality of A &amp; ~B
+   * Neither array is modified.
+   */
+  public static long pop_andnot(long A[], long B[], int wordOffset, int numWords) {
+    // generated from pop_array via sed 's/A\[\([^]]*\)\]/\(A[\1] \&amp; ~B[\1]\)/g'
+<span class="nc" id="L440">    int n = wordOffset+numWords;</span>
+<span class="nc" id="L441">    long tot=0, tot8=0;</span>
+<span class="nc" id="L442">    long ones=0, twos=0, fours=0;</span>
+
+    int i;
+<span class="nc bnc" id="L445" title="All 2 branches missed.">    for (i = wordOffset; i &lt;= n - 8; i+=8) {</span>
+      /***  C macro from Hacker's Delight
+       #define CSA(h,l, a,b,c) \
+       {unsigned u = a ^ b; unsigned v = c; \
+       h = (a &amp; b) | (u &amp; v); l = u ^ v;}
+       ***/
+
+      long twosA,twosB,foursA,foursB,eights;
+
+      // CSA(twosA, ones, ones, (A[i] &amp; ~B[i]), (A[i+1] &amp; ~B[i+1]))
+      {
+<span class="nc" id="L456">        long b=(A[i] &amp; ~B[i]), c=(A[i+1] &amp; ~B[i+1]);</span>
+<span class="nc" id="L457">        long u=ones ^ b;</span>
+<span class="nc" id="L458">        twosA=(ones &amp; b)|( u &amp; c);</span>
+<span class="nc" id="L459">        ones=u^c;</span>
+      }
+      // CSA(twosB, ones, ones, (A[i+2] &amp; ~B[i+2]), (A[i+3] &amp; ~B[i+3]))
+      {
+<span class="nc" id="L463">        long b=(A[i+2] &amp; ~B[i+2]), c=(A[i+3] &amp; ~B[i+3]);</span>
+<span class="nc" id="L464">        long u=ones^b;</span>
+<span class="nc" id="L465">        twosB =(ones&amp;b)|(u&amp;c);</span>
+<span class="nc" id="L466">        ones=u^c;</span>
+      }
+      //CSA(foursA, twos, twos, twosA, twosB)
+      {
+<span class="nc" id="L470">        long u=twos^twosA;</span>
+<span class="nc" id="L471">        foursA=(twos&amp;twosA)|(u&amp;twosB);</span>
+<span class="nc" id="L472">        twos=u^twosB;</span>
+      }
+      //CSA(twosA, ones, ones, (A[i+4] &amp; ~B[i+4]), (A[i+5] &amp; ~B[i+5]))
+      {
+<span class="nc" id="L476">        long b=(A[i+4] &amp; ~B[i+4]), c=(A[i+5] &amp; ~B[i+5]);</span>
+<span class="nc" id="L477">        long u=ones^b;</span>
+<span class="nc" id="L478">        twosA=(ones&amp;b)|(u&amp;c);</span>
+<span class="nc" id="L479">        ones=u^c;</span>
+      }
+      // CSA(twosB, ones, ones, (A[i+6] &amp; ~B[i+6]), (A[i+7] &amp; ~B[i+7]))
+      {
+<span class="nc" id="L483">        long b=(A[i+6] &amp; ~B[i+6]), c=(A[i+7] &amp; ~B[i+7]);</span>
+<span class="nc" id="L484">        long u=ones^b;</span>
+<span class="nc" id="L485">        twosB=(ones&amp;b)|(u&amp;c);</span>
+<span class="nc" id="L486">        ones=u^c;</span>
+      }
+      //CSA(foursB, twos, twos, twosA, twosB)
+      {
+<span class="nc" id="L490">        long u=twos^twosA;</span>
+<span class="nc" id="L491">        foursB=(twos&amp;twosA)|(u&amp;twosB);</span>
+<span class="nc" id="L492">        twos=u^twosB;</span>
+      }
+
+      //CSA(eights, fours, fours, foursA, foursB)
+      {
+<span class="nc" id="L497">        long u=fours^foursA;</span>
+<span class="nc" id="L498">        eights=(fours&amp;foursA)|(u&amp;foursB);</span>
+<span class="nc" id="L499">        fours=u^foursB;</span>
+      }
+<span class="nc" id="L501">      tot8 += pop(eights);</span>
+    }
+
+
+<span class="nc bnc" id="L505" title="All 2 branches missed.">    if (i&lt;=n-4) {</span>
+      long twosA, twosB, foursA, eights;
+      {
+<span class="nc" id="L508">        long b=(A[i] &amp; ~B[i]), c=(A[i+1] &amp; ~B[i+1]);</span>
+<span class="nc" id="L509">        long u=ones ^ b;</span>
+<span class="nc" id="L510">        twosA=(ones &amp; b)|( u &amp; c);</span>
+<span class="nc" id="L511">        ones=u^c;</span>
+      }
+      {
+<span class="nc" id="L514">        long b=(A[i+2] &amp; ~B[i+2]), c=(A[i+3] &amp; ~B[i+3]);</span>
+<span class="nc" id="L515">        long u=ones^b;</span>
+<span class="nc" id="L516">        twosB =(ones&amp;b)|(u&amp;c);</span>
+<span class="nc" id="L517">        ones=u^c;</span>
+      }
+      {
+<span class="nc" id="L520">        long u=twos^twosA;</span>
+<span class="nc" id="L521">        foursA=(twos&amp;twosA)|(u&amp;twosB);</span>
+<span class="nc" id="L522">        twos=u^twosB;</span>
+      }
+<span class="nc" id="L524">      eights=fours&amp;foursA;</span>
+<span class="nc" id="L525">      fours=fours^foursA;</span>
+
+<span class="nc" id="L527">      tot8 += pop(eights);</span>
+<span class="nc" id="L528">      i+=4;</span>
+    }
+
+<span class="nc bnc" id="L531" title="All 2 branches missed.">    if (i&lt;=n-2) {</span>
+<span class="nc" id="L532">      long b=(A[i] &amp; ~B[i]), c=(A[i+1] &amp; ~B[i+1]);</span>
+<span class="nc" id="L533">      long u=ones ^ b;</span>
+<span class="nc" id="L534">      long twosA=(ones &amp; b)|( u &amp; c);</span>
+<span class="nc" id="L535">      ones=u^c;</span>
+
+<span class="nc" id="L537">      long foursA=twos&amp;twosA;</span>
+<span class="nc" id="L538">      twos=twos^twosA;</span>
+
+<span class="nc" id="L540">      long eights=fours&amp;foursA;</span>
+<span class="nc" id="L541">      fours=fours^foursA;</span>
+
+<span class="nc" id="L543">      tot8 += pop(eights);</span>
+<span class="nc" id="L544">      i+=2;</span>
+    }
+
+<span class="nc bnc" id="L547" title="All 2 branches missed.">    if (i&lt;n) {</span>
+<span class="nc" id="L548">      tot += pop((A[i] &amp; ~B[i]));</span>
+    }
+
+<span class="nc" id="L551">    tot += (pop(fours)&lt;&lt;2)</span>
+<span class="nc" id="L552">            + (pop(twos)&lt;&lt;1)</span>
+<span class="nc" id="L553">            + pop(ones)</span>
+            + (tot8&lt;&lt;3);
+
+<span class="nc" id="L556">    return tot;</span>
+  }
+
+  public static long pop_xor(long A[], long B[], int wordOffset, int numWords) {
+<span class="nc" id="L560">    int n = wordOffset+numWords;</span>
+<span class="nc" id="L561">    long tot=0, tot8=0;</span>
+<span class="nc" id="L562">    long ones=0, twos=0, fours=0;</span>
+
+    int i;
+<span class="nc bnc" id="L565" title="All 2 branches missed.">    for (i = wordOffset; i &lt;= n - 8; i+=8) {</span>
+      /***  C macro from Hacker's Delight
+       #define CSA(h,l, a,b,c) \
+       {unsigned u = a ^ b; unsigned v = c; \
+       h = (a &amp; b) | (u &amp; v); l = u ^ v;}
+       ***/
+
+      long twosA,twosB,foursA,foursB,eights;
+
+      // CSA(twosA, ones, ones, (A[i] ^ B[i]), (A[i+1] ^ B[i+1]))
+      {
+<span class="nc" id="L576">        long b=(A[i] ^ B[i]), c=(A[i+1] ^ B[i+1]);</span>
+<span class="nc" id="L577">        long u=ones ^ b;</span>
+<span class="nc" id="L578">        twosA=(ones &amp; b)|( u &amp; c);</span>
+<span class="nc" id="L579">        ones=u^c;</span>
+      }
+      // CSA(twosB, ones, ones, (A[i+2] ^ B[i+2]), (A[i+3] ^ B[i+3]))
+      {
+<span class="nc" id="L583">        long b=(A[i+2] ^ B[i+2]), c=(A[i+3] ^ B[i+3]);</span>
+<span class="nc" id="L584">        long u=ones^b;</span>
+<span class="nc" id="L585">        twosB =(ones&amp;b)|(u&amp;c);</span>
+<span class="nc" id="L586">        ones=u^c;</span>
+      }
+      //CSA(foursA, twos, twos, twosA, twosB)
+      {
+<span class="nc" id="L590">        long u=twos^twosA;</span>
+<span class="nc" id="L591">        foursA=(twos&amp;twosA)|(u&amp;twosB);</span>
+<span class="nc" id="L592">        twos=u^twosB;</span>
+      }
+      //CSA(twosA, ones, ones, (A[i+4] ^ B[i+4]), (A[i+5] ^ B[i+5]))
+      {
+<span class="nc" id="L596">        long b=(A[i+4] ^ B[i+4]), c=(A[i+5] ^ B[i+5]);</span>
+<span class="nc" id="L597">        long u=ones^b;</span>
+<span class="nc" id="L598">        twosA=(ones&amp;b)|(u&amp;c);</span>
+<span class="nc" id="L599">        ones=u^c;</span>
+      }
+      // CSA(twosB, ones, ones, (A[i+6] ^ B[i+6]), (A[i+7] ^ B[i+7]))
+      {
+<span class="nc" id="L603">        long b=(A[i+6] ^ B[i+6]), c=(A[i+7] ^ B[i+7]);</span>
+<span class="nc" id="L604">        long u=ones^b;</span>
+<span class="nc" id="L605">        twosB=(ones&amp;b)|(u&amp;c);</span>
+<span class="nc" id="L606">        ones=u^c;</span>
+      }
+      //CSA(foursB, twos, twos, twosA, twosB)
+      {
+<span class="nc" id="L610">        long u=twos^twosA;</span>
+<span class="nc" id="L611">        foursB=(twos&amp;twosA)|(u&amp;twosB);</span>
+<span class="nc" id="L612">        twos=u^twosB;</span>
+      }
+
+      //CSA(eights, fours, fours, foursA, foursB)
+      {
+<span class="nc" id="L617">        long u=fours^foursA;</span>
+<span class="nc" id="L618">        eights=(fours&amp;foursA)|(u&amp;foursB);</span>
+<span class="nc" id="L619">        fours=u^foursB;</span>
+      }
+<span class="nc" id="L621">      tot8 += pop(eights);</span>
+    }
+
+
+<span class="nc bnc" id="L625" title="All 2 branches missed.">    if (i&lt;=n-4) {</span>
+      long twosA, twosB, foursA, eights;
+      {
+<span class="nc" id="L628">        long b=(A[i] ^ B[i]), c=(A[i+1] ^ B[i+1]);</span>
+<span class="nc" id="L629">        long u=ones ^ b;</span>
+<span class="nc" id="L630">        twosA=(ones &amp; b)|( u &amp; c);</span>
+<span class="nc" id="L631">        ones=u^c;</span>
+      }
+      {
+<span class="nc" id="L634">        long b=(A[i+2] ^ B[i+2]), c=(A[i+3] ^ B[i+3]);</span>
+<span class="nc" id="L635">        long u=ones^b;</span>
+<span class="nc" id="L636">        twosB =(ones&amp;b)|(u&amp;c);</span>
+<span class="nc" id="L637">        ones=u^c;</span>
+      }
+      {
+<span class="nc" id="L640">        long u=twos^twosA;</span>
+<span class="nc" id="L641">        foursA=(twos&amp;twosA)|(u&amp;twosB);</span>
+<span class="nc" id="L642">        twos=u^twosB;</span>
+      }
+<span class="nc" id="L644">      eights=fours&amp;foursA;</span>
+<span class="nc" id="L645">      fours=fours^foursA;</span>
+
+<span class="nc" id="L647">      tot8 += pop(eights);</span>
+<span class="nc" id="L648">      i+=4;</span>
+    }
+
+<span class="nc bnc" id="L651" title="All 2 branches missed.">    if (i&lt;=n-2) {</span>
+<span class="nc" id="L652">      long b=(A[i] ^ B[i]), c=(A[i+1] ^ B[i+1]);</span>
+<span class="nc" id="L653">      long u=ones ^ b;</span>
+<span class="nc" id="L654">      long twosA=(ones &amp; b)|( u &amp; c);</span>
+<span class="nc" id="L655">      ones=u^c;</span>
+
+<span class="nc" id="L657">      long foursA=twos&amp;twosA;</span>
+<span class="nc" id="L658">      twos=twos^twosA;</span>
+
+<span class="nc" id="L660">      long eights=fours&amp;foursA;</span>
+<span class="nc" id="L661">      fours=fours^foursA;</span>
+
+<span class="nc" id="L663">      tot8 += pop(eights);</span>
+<span class="nc" id="L664">      i+=2;</span>
+    }
+
+<span class="nc bnc" id="L667" title="All 2 branches missed.">    if (i&lt;n) {</span>
+<span class="nc" id="L668">      tot += pop((A[i] ^ B[i]));</span>
+    }
+
+<span class="nc" id="L671">    tot += (pop(fours)&lt;&lt;2)</span>
+<span class="nc" id="L672">            + (pop(twos)&lt;&lt;1)</span>
+<span class="nc" id="L673">            + pop(ones)</span>
+            + (tot8&lt;&lt;3);
+
+<span class="nc" id="L676">    return tot;</span>
+  }
+
+  /* python code to generate ntzTable
+  def ntz(val):
+    if val==0: return 8
+    i=0
+    while (val&amp;0x01)==0:
+      i = i+1
+      val &gt;&gt;= 1
+    return i
+  print ','.join([ str(ntz(i)) for i in range(256) ])
+  ***/
+  /** table of number of trailing zeros in a byte */
+<span class="nc" id="L690">  public static final byte[] ntzTable = {8,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,6,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,7,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,6,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0};</span>
+
+
+  /** Returns number of trailing zeros in a 64 bit long value. */
+  public static int ntz(long val) {
+    // A full binary search to determine the low byte was slower than
+    // a linear search for nextSetBit().  This is most likely because
+    // the implementation of nextSetBit() shifts bits to the right, increasing
+    // the probability that the first non-zero byte is in the rhs.
+    //
+    // This implementation does a single binary search at the top level only
+    // so that all other bit shifting can be done on ints instead of longs to
+    // remain friendly to 32 bit architectures.  In addition, the case of a
+    // non-zero first byte is checked for first because it is the most common
+    // in dense bit arrays.
+
+<span class="nc" id="L706">    int lower = (int)val;</span>
+<span class="nc" id="L707">    int lowByte = lower &amp; 0xff;</span>
+<span class="nc bnc" id="L708" title="All 2 branches missed.">    if (lowByte != 0) return ntzTable[lowByte];</span>
+
+<span class="nc bnc" id="L710" title="All 2 branches missed.">    if (lower!=0) {</span>
+<span class="nc" id="L711">      lowByte = (lower&gt;&gt;&gt;8) &amp; 0xff;</span>
+<span class="nc bnc" id="L712" title="All 2 branches missed.">      if (lowByte != 0) return ntzTable[lowByte] + 8;</span>
+<span class="nc" id="L713">      lowByte = (lower&gt;&gt;&gt;16) &amp; 0xff;</span>
+<span class="nc bnc" id="L714" title="All 2 branches missed.">      if (lowByte != 0) return ntzTable[lowByte] + 16;</span>
+      // no need to mask off low byte for the last byte in the 32 bit word
+      // no need to check for zero on the last byte either.
+<span class="nc" id="L717">      return ntzTable[lower&gt;&gt;&gt;24] + 24;</span>
+    } else {
+      // grab upper 32 bits
+<span class="nc" id="L720">      int upper=(int)(val&gt;&gt;32);</span>
+<span class="nc" id="L721">      lowByte = upper &amp; 0xff;</span>
+<span class="nc bnc" id="L722" title="All 2 branches missed.">      if (lowByte != 0) return ntzTable[lowByte] + 32;</span>
+<span class="nc" id="L723">      lowByte = (upper&gt;&gt;&gt;8) &amp; 0xff;</span>
+<span class="nc bnc" id="L724" title="All 2 branches missed.">      if (lowByte != 0) return ntzTable[lowByte] + 40;</span>
+<span class="nc" id="L725">      lowByte = (upper&gt;&gt;&gt;16) &amp; 0xff;</span>
+<span class="nc bnc" id="L726" title="All 2 branches missed.">      if (lowByte != 0) return ntzTable[lowByte] + 48;</span>
+      // no need to mask off low byte for the last byte in the 32 bit word
+      // no need to check for zero on the last byte either.
+<span class="nc" id="L729">      return ntzTable[upper&gt;&gt;&gt;24] + 56;</span>
+    }
+  }
+
+  /** Returns number of trailing zeros in a 32 bit int value. */
+  public static int ntz(int val) {
+    // This implementation does a single binary search at the top level only.
+    // In addition, the case of a non-zero first byte is checked for first
+    // because it is the most common in dense bit arrays.
+
+<span class="nc" id="L739">    int lowByte = val &amp; 0xff;</span>
+<span class="nc bnc" id="L740" title="All 2 branches missed.">    if (lowByte != 0) return ntzTable[lowByte];</span>
+<span class="nc" id="L741">    lowByte = (val&gt;&gt;&gt;8) &amp; 0xff;</span>
+<span class="nc bnc" id="L742" title="All 2 branches missed.">    if (lowByte != 0) return ntzTable[lowByte] + 8;</span>
+<span class="nc" id="L743">    lowByte = (val&gt;&gt;&gt;16) &amp; 0xff;</span>
+<span class="nc bnc" id="L744" title="All 2 branches missed.">    if (lowByte != 0) return ntzTable[lowByte] + 16;</span>
+    // no need to mask off low byte for the last byte.
+    // no need to check for zero on the last byte either.
+<span class="nc" id="L747">    return ntzTable[val&gt;&gt;&gt;24] + 24;</span>
+  }
+
+  /** returns 0 based index of first set bit
+   * (only works for x!=0)
+   * &lt;br/&gt; This is an alternate implementation of ntz()
+   */
+  public static int ntz2(long x) {
+<span class="nc" id="L755">   int n = 0;</span>
+<span class="nc" id="L756">   int y = (int)x;</span>
+<span class="nc bnc" id="L757" title="All 2 branches missed.">   if (y==0) {n+=32; y = (int)(x&gt;&gt;&gt;32); }   // the only 64 bit shift necessary</span>
+<span class="nc bnc" id="L758" title="All 2 branches missed.">   if ((y &amp; 0x0000FFFF) == 0) { n+=16; y&gt;&gt;&gt;=16; }</span>
+<span class="nc bnc" id="L759" title="All 2 branches missed.">   if ((y &amp; 0x000000FF) == 0) { n+=8; y&gt;&gt;&gt;=8; }</span>
+<span class="nc" id="L760">   return (ntzTable[ y &amp; 0xff ]) + n;</span>
+  }
+
+  /** returns 0 based index of first set bit
+   * &lt;br/&gt; This is an alternate implementation of ntz()
+   */
+  public static int ntz3(long x) {
+   // another implementation taken from Hackers Delight, extended to 64 bits
+   // and converted to Java.
+   // Many 32 bit ntz algorithms are at http://www.hackersdelight.org/HDcode/ntz.cc
+<span class="nc" id="L770">   int n = 1;</span>
+
+   // do the first step as a long, all others as ints.
+<span class="nc" id="L773">   int y = (int)x;</span>
+<span class="nc bnc" id="L774" title="All 2 branches missed.">   if (y==0) {n+=32; y = (int)(x&gt;&gt;&gt;32); }</span>
+<span class="nc bnc" id="L775" title="All 2 branches missed.">   if ((y &amp; 0x0000FFFF) == 0) { n+=16; y&gt;&gt;&gt;=16; }</span>
+<span class="nc bnc" id="L776" title="All 2 branches missed.">   if ((y &amp; 0x000000FF) == 0) { n+=8; y&gt;&gt;&gt;=8; }</span>
+<span class="nc bnc" id="L777" title="All 2 branches missed.">   if ((y &amp; 0x0000000F) == 0) { n+=4; y&gt;&gt;&gt;=4; }</span>
+<span class="nc bnc" id="L778" title="All 2 branches missed.">   if ((y &amp; 0x00000003) == 0) { n+=2; y&gt;&gt;&gt;=2; }</span>
+<span class="nc" id="L779">   return n - (y &amp; 1);</span>
+  }
+
+  /** table of number of leading zeros in a byte */
+<span class="nc" id="L783">  public static final byte[] nlzTable = {8,7,6,6,5,5,5,5,4,4,4,4,4,4,4,4,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};</span>
+
+  /** Returns the number of leading zero bits.
+   */
+  public static int nlz(long x) {
+<span class="nc" id="L788">   int n = 0;</span>
+   // do the first step as a long
+<span class="nc" id="L790">   int y = (int)(x&gt;&gt;&gt;32);</span>
+<span class="nc bnc" id="L791" title="All 2 branches missed.">   if (y==0) {n+=32; y = (int)(x); }</span>
+<span class="nc bnc" id="L792" title="All 2 branches missed.">   if ((y &amp; 0xFFFF0000) == 0) { n+=16; y&lt;&lt;=16; }</span>
+<span class="nc bnc" id="L793" title="All 2 branches missed.">   if ((y &amp; 0xFF000000) == 0) { n+=8; y&lt;&lt;=8; }</span>
+<span class="nc" id="L794">   return n + nlzTable[y &gt;&gt;&gt; 24];</span>
+ /* implementation without table:
+   if ((y &amp; 0xF0000000) == 0) { n+=4; y&lt;&lt;=4; }
+   if ((y &amp; 0xC0000000) == 0) { n+=2; y&lt;&lt;=2; }
+   if ((y &amp; 0x80000000) == 0) { n+=1; y&lt;&lt;=1; }
+   if ((y &amp; 0x80000000) == 0) { n+=1;}
+   return n;
+  */
+  }
+
+
+  /** returns true if v is a power of two or zero*/
+  public static boolean isPowerOfTwo(int v) {
+<span class="nc bnc" id="L807" title="All 2 branches missed.">    return ((v &amp; (v-1)) == 0);</span>
+  }
+
+  /** returns true if v is a power of two or zero*/
+  public static boolean isPowerOfTwo(long v) {
+<span class="nc bnc" id="L812" title="All 2 branches missed.">    return ((v &amp; (v-1)) == 0);</span>
+  }
+
+  /** returns the next highest power of two, or the current value if it's already a power of two or zero*/
+  public static int nextHighestPowerOfTwo(int v) {
+<span class="nc" id="L817">    v--;</span>
+<span class="nc" id="L818">    v |= v &gt;&gt; 1;</span>
+<span class="nc" id="L819">    v |= v &gt;&gt; 2;</span>
+<span class="nc" id="L820">    v |= v &gt;&gt; 4;</span>
+<span class="nc" id="L821">    v |= v &gt;&gt; 8;</span>
+<span class="nc" id="L822">    v |= v &gt;&gt; 16;</span>
+<span class="nc" id="L823">    v++;</span>
+<span class="nc" id="L824">    return v;</span>
+  }
+
+  /** returns the next highest power of two, or the current value if it's already a power of two or zero*/
+   public static long nextHighestPowerOfTwo(long v) {
+<span class="nc" id="L829">    v--;</span>
+<span class="nc" id="L830">    v |= v &gt;&gt; 1;</span>
+<span class="nc" id="L831">    v |= v &gt;&gt; 2;</span>
+<span class="nc" id="L832">    v |= v &gt;&gt; 4;</span>
+<span class="nc" id="L833">    v |= v &gt;&gt; 8;</span>
+<span class="nc" id="L834">    v |= v &gt;&gt; 16;</span>
+<span class="nc" id="L835">    v |= v &gt;&gt; 32;</span>
+<span class="nc" id="L836">    v++;</span>
+<span class="nc" id="L837">    return v;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

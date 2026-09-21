@@ -82,6 +82,14 @@ public class GlobalDashboardGenerator {
         }
     }
 
+    public record FastHashMapBlackBoxSummary(
+            String id,
+            String name,
+            String aiModel,
+            String storageStrategy,
+            QualityStats quality
+    ) {}
+
     public record LruClockMapSummary(
             String id,
             String name,
@@ -188,6 +196,7 @@ public class GlobalDashboardGenerator {
 
         // 2. Gather FastHashMap, LRUClockMap & XLT Util data per module
         List<FastHashMapSummary> fastMapSummaries = new ArrayList<>();
+        List<FastHashMapBlackBoxSummary> fastBlackBoxSummaries = new ArrayList<>();
         List<LruClockMapSummary> lruMapSummaries = new ArrayList<>();
         List<ReportUtilSummary> reportUtilSummaries = new ArrayList<>();
 
@@ -198,16 +207,31 @@ public class GlobalDashboardGenerator {
 
             File modDir = new File(rootProjectDir, modId);
             File surefireDir = new File(modDir, "target/surefire-reports");
-            File jacocoXml = new File(modDir, "target/site/jacoco/jacoco.xml");
+            File jacocoXml = new File(outputDir, "jacoco/" + modId + "/jacoco.xml");
             if (!jacocoXml.exists()) {
-                jacocoXml = new File(outputDir, "jacoco/" + modId + "/jacoco.xml");
+                jacocoXml = new File(modDir, "target/site/jacoco/jacoco.xml");
             }
-            File pitCsv = new File(modDir, "target/pit-reports/mutations.csv");
+            File pitCsv = new File(outputDir, "pit-reports/" + modId + "/mutations.csv");
             if (!pitCsv.exists()) {
-                pitCsv = new File(outputDir, "pit-reports/" + modId + "/mutations.csv");
+                pitCsv = new File(modDir, "target/pit-reports/mutations.csv");
             }
 
             QualityStats fastQuality = buildQualityStats(surefireDir, jacocoXml, pitCsv, "FastHashMapTest", "FastHashMap.java");
+
+            File bbSurefireDir = new File(outputDir, "surefire-reports-blackbox/" + modId);
+            if (!bbSurefireDir.exists()) {
+                bbSurefireDir = surefireDir;
+            }
+            File bbJacocoXml = new File(outputDir, "jacoco-blackbox/" + modId + "/jacoco.xml");
+            if (!bbJacocoXml.exists()) {
+                bbJacocoXml = new File(modDir, "target/site/jacoco-blackbox/jacoco.xml");
+            }
+            File bbPitCsv = new File(outputDir, "pit-reports-blackbox/" + modId + "/mutations.csv");
+            if (!bbPitCsv.exists()) {
+                bbPitCsv = new File(modDir, "target/pit-reports-blackbox/mutations.csv");
+            }
+            QualityStats fastBlackBoxQuality = buildQualityStats(bbSurefireDir, bbJacocoXml, bbPitCsv, "FastHashMapBlackBox", "FastHashMap.java");
+
             QualityStats lruQuality = buildQualityStats(surefireDir, jacocoXml, pitCsv, "LRUClockMapTest", "LRUClockMap.java");
             QualityStats xltQuality = buildXltQualityStats(surefireDir, jacocoXml, pitCsv);
             List<XltClassCoverage> xltClasses = buildXltClassCoverages(jacocoXml);
@@ -271,6 +295,14 @@ public class GlobalDashboardGenerator {
                     hitL1Miss
             ));
 
+            fastBlackBoxSummaries.add(new FastHashMapBlackBoxSummary(
+                    modId,
+                    meta.name(),
+                    meta.model(),
+                    storageStrategy,
+                    fastBlackBoxQuality
+            ));
+
             if (lruQuality != null) {
                 lruMapSummaries.add(new LruClockMapSummary(
                         modId,
@@ -311,7 +343,7 @@ public class GlobalDashboardGenerator {
         for (String modDirName : modDirs) {
             File modJacoco = new File(rootProjectDir, modDirName + "/target/site/jacoco");
             File destModJacoco = new File(outputDir, "jacoco/" + modDirName);
-            if (modJacoco.exists() && modJacoco.isDirectory()) {
+            if (!destModJacoco.exists() && modJacoco.exists() && modJacoco.isDirectory()) {
                 copyDirectory(modJacoco, destModJacoco);
             }
             final String currentMod = modDirName;
@@ -329,23 +361,37 @@ public class GlobalDashboardGenerator {
         for (String modDirName : modDirs) {
             File modPit = new File(rootProjectDir, modDirName + "/target/pit-reports");
             File destModPit = new File(outputDir, "pit-reports/" + modDirName);
-            if (modPit.exists() && modPit.isDirectory()) {
+            if (!destModPit.exists() && modPit.exists() && modPit.isDirectory()) {
                 copyDirectory(modPit, destModPit);
             }
         }
 
+        // Copy BlackBox reports per module if available in target
+        for (String modDirName : modDirs) {
+            File modJacocoBb = new File(rootProjectDir, modDirName + "/target/site/jacoco-blackbox");
+            File destJacocoBb = new File(outputDir, "jacoco-blackbox/" + modDirName);
+            if (modJacocoBb.exists() && modJacocoBb.isDirectory()) {
+                copyDirectory(modJacocoBb, destJacocoBb);
+            }
+            File modPitBb = new File(rootProjectDir, modDirName + "/target/pit-reports-blackbox");
+            File destPitBb = new File(outputDir, "pit-reports-blackbox/" + modDirName);
+            if (modPitBb.exists() && modPitBb.isDirectory()) {
+                copyDirectory(modPitBb, destPitBb);
+            }
+        }
+
         // Write Markdown Dashboard
-        writeMarkdownDashboard(new File(outputDir, "README.md"), fastMapSummaries, lruMapSummaries, reportUtilSummaries);
-        writeMarkdownDashboard(new File(outputDir, "global-dashboard.md"), fastMapSummaries, lruMapSummaries, reportUtilSummaries);
+        writeMarkdownDashboard(new File(outputDir, "README.md"), fastMapSummaries, fastBlackBoxSummaries, lruMapSummaries, reportUtilSummaries);
+        writeMarkdownDashboard(new File(outputDir, "global-dashboard.md"), fastMapSummaries, fastBlackBoxSummaries, lruMapSummaries, reportUtilSummaries);
 
         // Write Master HTML Dashboard
-        writeHtmlDashboard(new File(outputDir, "index.html"), fastMapSummaries, lruMapSummaries, reportUtilSummaries, null);
-        writeHtmlDashboard(new File(outputDir, "global-dashboard.html"), fastMapSummaries, lruMapSummaries, reportUtilSummaries, null);
+        writeHtmlDashboard(new File(outputDir, "index.html"), fastMapSummaries, fastBlackBoxSummaries, lruMapSummaries, reportUtilSummaries, null);
+        writeHtmlDashboard(new File(outputDir, "global-dashboard.html"), fastMapSummaries, fastBlackBoxSummaries, lruMapSummaries, reportUtilSummaries, null);
 
         // Write Standalone Sub-Section HTML Pages
-        writeHtmlDashboard(new File(outputDir, "fasthashmap.html"), fastMapSummaries, lruMapSummaries, reportUtilSummaries, "fasthashmap");
-        writeHtmlDashboard(new File(outputDir, "lruclockmap.html"), fastMapSummaries, lruMapSummaries, reportUtilSummaries, "lruclockmap");
-        writeHtmlDashboard(new File(outputDir, "xlt-util.html"), fastMapSummaries, lruMapSummaries, reportUtilSummaries, "xlt-util");
+        writeHtmlDashboard(new File(outputDir, "fasthashmap.html"), fastMapSummaries, fastBlackBoxSummaries, lruMapSummaries, reportUtilSummaries, "fasthashmap");
+        writeHtmlDashboard(new File(outputDir, "lruclockmap.html"), fastMapSummaries, fastBlackBoxSummaries, lruMapSummaries, reportUtilSummaries, "lruclockmap");
+        writeHtmlDashboard(new File(outputDir, "xlt-util.html"), fastMapSummaries, fastBlackBoxSummaries, lruMapSummaries, reportUtilSummaries, "xlt-util");
     }
 
     private record TestExecutionInfo(int tests, double executionTimeSeconds, int failures, int errors) {}
@@ -861,6 +907,7 @@ public class GlobalDashboardGenerator {
     private static void writeMarkdownDashboard(
             File targetFile,
             List<FastHashMapSummary> fastMaps,
+            List<FastHashMapBlackBoxSummary> fastBlackBoxes,
             List<LruClockMapSummary> lruMaps,
             List<ReportUtilSummary> reportUtils
     ) throws IOException {
@@ -873,10 +920,43 @@ public class GlobalDashboardGenerator {
             out.println();
             out.println("## ⚡ Part 1: FastHashMap — Quality, Coverage & Mutation Verification");
             out.println();
+            out.println("### 🤖 FastHashMap AI-Generated Test Suites");
+            out.println();
             out.println("| Module | AI Model / Implementation | Unit Tests | Instruction Coverage | Line Coverage | Branch Coverage | PIT Mutation Score | Status |");
             out.println("| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |");
 
             for (FastHashMapSummary s : fastMaps) {
+                String pitStr = s.quality().pitTotal() > 0 ?
+                        String.format("%.1f%% (%d/%d killed)", s.quality().pitScorePct(), s.quality().pitKilled(), s.quality().pitTotal()) : "N/A";
+
+                String timeStr = s.quality().executionTimeSeconds() > 0 ? String.format(" (%.2fs)", s.quality().executionTimeSeconds()) : "";
+
+                out.printf("| **%s** | %s | %d ✅%s | %.1f%% (%d/%d) | %.1f%% (%d/%d) | %.1f%% (%d/%d) | %s | %s |%n",
+                        s.id(),
+                        s.aiModel(),
+                        s.quality().tests(),
+                        timeStr,
+                        s.quality().instructionCoveragePct(),
+                        s.quality().totalInstructions() - s.quality().missedInstructions(),
+                        s.quality().totalInstructions(),
+                        s.quality().lineCoveragePct(),
+                        s.quality().totalLines() - s.quality().missedLines(),
+                        s.quality().totalLines(),
+                        s.quality().branchCoveragePct(),
+                        s.quality().totalBranches() - s.quality().missedBranches(),
+                        s.quality().totalBranches(),
+                        pitStr,
+                        "100% Passing ✅"
+                );
+            }
+
+            out.println();
+            out.println("### 🧪 FastHashMap Manual BlackBox — Quality, Coverage & Mutation Verification");
+            out.println();
+            out.println("| Module | AI Model / Implementation | Unit Tests | Instruction Coverage | Line Coverage | Branch Coverage | PIT Mutation Score | Status |");
+            out.println("| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |");
+
+            for (FastHashMapBlackBoxSummary s : fastBlackBoxes) {
                 String pitStr = s.quality().pitTotal() > 0 ?
                         String.format("%.1f%% (%d/%d killed)", s.quality().pitScorePct(), s.quality().pitKilled(), s.quality().pitTotal()) : "N/A";
 
@@ -1083,6 +1163,7 @@ public class GlobalDashboardGenerator {
     private static void writeHtmlDashboard(
             File targetFile,
             List<FastHashMapSummary> fastMaps,
+            List<FastHashMapBlackBoxSummary> fastBlackBoxes,
             List<LruClockMapSummary> lruMaps,
             List<ReportUtilSummary> reportUtils,
             String activeSection
@@ -1090,6 +1171,9 @@ public class GlobalDashboardGenerator {
         try (PrintWriter out = new PrintWriter(new FileWriter(targetFile))) {
             int totalFastTests = fastMaps.stream().mapToInt(s -> s.quality().tests()).sum();
             double totalFastTime = fastMaps.stream().mapToDouble(s -> s.quality().executionTimeSeconds()).sum();
+
+            int totalBlackBoxTests = fastBlackBoxes.stream().mapToInt(s -> s.quality().tests()).sum();
+            double totalBlackBoxTime = fastBlackBoxes.stream().mapToDouble(s -> s.quality().executionTimeSeconds()).sum();
 
             int totalLruTests = lruMaps.stream().mapToInt(s -> s.quality().tests()).sum();
             double totalLruTime = lruMaps.stream().mapToDouble(s -> s.quality().executionTimeSeconds()).sum();
@@ -1239,9 +1323,14 @@ public class GlobalDashboardGenerator {
             out.println("            <div class=\"stat-sub\">demo0–demo9, demo11, demo12</div>");
             out.println("        </div>");
             out.println("        <div class=\"stat-card\">");
-            out.println("            <div class=\"stat-label\">FastHashMap Tests</div>");
+            out.println("            <div class=\"stat-label\">FastHashMap AI Tests</div>");
             out.printf("            <div class=\"stat-value\" style=\"color: var(--success);\">%d</div>%n", totalFastTests);
             out.printf("            <div class=\"stat-sub\">Total duration: %.2fs</div>%n", totalFastTime);
+            out.println("        </div>");
+            out.println("        <div class=\"stat-card\">");
+            out.println("            <div class=\"stat-label\">Manual BlackBox Tests</div>");
+            out.printf("            <div class=\"stat-value\" style=\"color: #059669;\">%d</div>%n", totalBlackBoxTests);
+            out.printf("            <div class=\"stat-sub\">Total duration: %.2fs</div>%n", totalBlackBoxTime);
             out.println("        </div>");
             out.println("        <div class=\"stat-card\">");
             out.println("            <div class=\"stat-label\">LRUClockMap Tests</div>");
@@ -1288,6 +1377,10 @@ public class GlobalDashboardGenerator {
                 out.println("            </div>");
                 out.println("        </div>");
 
+                out.println("        <div style=\"font-size: 1.05rem; font-weight: 700; margin: 1.25rem 0 0.5rem 0; color: #1e293b; display: flex; align-items: center; justify-content: space-between;\">");
+                out.println("            <span>🤖 AI-Generated Test Suites (FastHashMapTest)</span>");
+                out.println("            <span style=\"font-size: 0.8rem; font-weight: 500; color: var(--text-muted);\">Self-generated test suite accompanying each model</span>");
+                out.println("        </div>");
                 out.println("        <table>");
                 out.println("            <thead>");
                 out.println("                <tr>");
@@ -1344,6 +1437,70 @@ public class GlobalDashboardGenerator {
 
                 out.println("            </tbody>");
                 out.println("        </table>");
+
+                // Manual BlackBox Table
+                out.println("        <div class=\"subtable-wrapper\">");
+                out.println("            <div class=\"subtable-title\">");
+                out.println("                <span>🧪 FastHashMap Manual BlackBox — Quality, Coverage & Mutation Verification</span>");
+                out.println("                <span style=\"font-size: 0.8rem; font-weight: 500; color: var(--text-muted);\">Standardized human-written black-box test suite evaluated across all implementations</span>");
+                out.println("            </div>");
+                out.println("            <table>");
+                out.println("                <thead>");
+                out.println("                    <tr>");
+                out.println("                        <th>Module</th>");
+                out.println("                        <th>AI Model / Implementation</th>");
+                out.println("                        <th>Unit Tests</th>");
+                out.println("                        <th>Instruction Coverage</th>");
+                out.println("                        <th>Line Coverage</th>");
+                out.println("                        <th>Branch Coverage</th>");
+                out.println("                        <th>PIT Mutation Score</th>");
+                out.println("                        <th>Status</th>");
+                out.println("                    </tr>");
+                out.println("                </thead>");
+                out.println("                <tbody>");
+
+                for (FastHashMapBlackBoxSummary s : fastBlackBoxes) {
+                    String pkgName = s.id();
+                    String pitBadge = s.quality().pitTotal() > 0 ?
+                            String.format("<a href=\"pit-reports-blackbox/%s/org.jugsaxony.%s/FastHashMap.java.html\" class=\"badge badge-warning\" style=\"text-decoration: none;\">%.1f%% (%d/%d)</a>",
+                                    s.id(), pkgName, s.quality().pitScorePct(), s.quality().pitKilled(), s.quality().pitTotal())
+                            : "<span class=\"badge badge-info\">N/A</span>";
+
+                    String covLink = String.format("jacoco-blackbox/%s/org.jugsaxony.%s/FastHashMap.java.html", s.id(), pkgName);
+                    String timeBadge = s.quality().executionTimeSeconds() > 0 ?
+                            String.format("<span class=\"badge badge-time\">⏱️ %.2fs</span>", s.quality().executionTimeSeconds()) : "";
+
+                    int total = s.quality().tests();
+                    int fails = s.quality().failures() + s.quality().errors();
+                    int passed = Math.max(0, total - fails);
+                    String testBadge;
+                    String statusBadge;
+                    if (total == 0) {
+                        testBadge = "<span class=\"badge badge-info\">0 Tests</span>";
+                        statusBadge = "<span class=\"badge badge-info\">No Tests</span>";
+                    } else if (fails == 0) {
+                        testBadge = String.format("<a href=\"surefire.html\" class=\"badge badge-success\" style=\"text-decoration: none;\">%d Passed</a> %s", total, timeBadge);
+                        statusBadge = "<span class=\"badge badge-success\">100% Passing ✅</span>";
+                    } else {
+                        testBadge = String.format("<a href=\"surefire.html\" class=\"badge badge-warning\" style=\"text-decoration: none;\">%d/%d Passed</a> %s", passed, total, timeBadge);
+                        statusBadge = String.format("<span class=\"badge badge-warning\">⚠ %d Failed</span>", fails);
+                    }
+
+                    out.println("                <tr>");
+                    out.printf("                    <td><strong>%s</strong></td>%n", s.id());
+                    out.printf("                    <td><span class=\"badge badge-info\">%s</span></td>%n", s.aiModel());
+                    out.printf("                    <td>%s</td>%n", testBadge);
+                    out.printf("                    <td><a href=\"%s\" style=\"color: var(--primary); text-decoration: underline;\"><strong>%.1f%%</strong></a> (%d/%d)</td>%n", covLink, s.quality().instructionCoveragePct(), s.quality().totalInstructions() - s.quality().missedInstructions(), s.quality().totalInstructions());
+                    out.printf("                    <td><a href=\"%s\" style=\"color: inherit; text-decoration: underline;\">%.1f%%</a> (%d/%d)</td>%n", covLink, s.quality().lineCoveragePct(), s.quality().totalLines() - s.quality().missedLines(), s.quality().totalLines());
+                    out.printf("                    <td><a href=\"%s\" style=\"color: inherit; text-decoration: underline;\">%.1f%%</a> (%d/%d)</td>%n", covLink, s.quality().branchCoveragePct(), s.quality().totalBranches() - s.quality().missedBranches(), s.quality().totalBranches());
+                    out.printf("                    <td>%s</td>%n", pitBadge);
+                    out.printf("                    <td>%s</td>%n", statusBadge);
+                    out.println("                </tr>");
+                }
+
+                out.println("                </tbody>");
+                out.println("            </table>");
+                out.println("        </div>");
 
                 // JOL Memory Layout for FastHashMap
                 out.println("        <div class=\"subtable-wrapper\">");

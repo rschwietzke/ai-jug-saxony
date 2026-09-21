@@ -1,0 +1,645 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LRUClockMap.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">demo5</a> &gt; <a href="index.source.html" class="el_package">org.jugsaxony.demo5</a> &gt; <span class="el_source">LRUClockMap.java</span></div><h1>LRUClockMap.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2005-2026 Xceptance Software Technologies GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jugsaxony.demo5;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.StringJoiner;
+
+/**
+ * This is a simple LRU map implementation based on the clock algorithm.
+ * Not thread-safe! Null key and value support was removed. 
+ * The LRU part is not really predictable, but it is fast and simple. 
+ * We don't keep a linked list, rather a marker that give every entry a second chance. 
+ * If the second chance is false, we can evict this entry. This can happen
+ * rather early. In general, it is still a good enough LRU implementation.
+ * 
+ * This makes it memory and CPU cache efficient.
+ * 
+ * https://www.geeksforgeeks.org/operating-systems/second-chance-or-clock-page-replacement-policy/
+ *
+ * @since 9.1.0
+ * @author René Schwietzke (Xceptance Software Technologies GmbH)
+ */
+public class LRUClockMap&lt;K, V&gt;
+{
+    /**
+     * Keys and values       
+     */
+    private Wrapper&lt;K, V&gt;[] data;
+
+    /** 
+     * Current cache size 
+     */
+    private int size;
+    
+    /** 
+     * Max cache size
+     */
+    private final int maxSize;
+
+    /** 
+     * Mask to calculate the original position 
+     * */
+    private int mask;
+
+    /** 
+     * Our clock hand, the next position in the array to check for eviction
+     */
+<span class="nc" id="L64">    private int clockHand = 0;</span>
+    
+    /**
+     * Wrapper class for key, value, and secondChance bit.
+     * When secondChance is true we skip it when the clock 
+     * is checked. If it is false, we dispose the entry.
+     */
+    private static class Wrapper&lt;K, V&gt; 
+    {
+        final K key;
+        V value;
+        boolean secondChance;
+
+        /**
+          * Create a new wrapper entry
+          * @param key the key
+          * @param value the value
+          */
+        Wrapper(final K key, final V value) 
+<span class="nc" id="L83">        {</span>
+<span class="nc" id="L84">            this.key = key;</span>
+<span class="nc" id="L85">            this.value = value;</span>
+            // don't give up on a new entry so easily
+<span class="nc" id="L87">            this.secondChance = true;</span>
+<span class="nc" id="L88">        }</span>
+
+        /**
+          * For debugging purposes
+          */
+        @Override
+        public String toString() 
+        {
+<span class="nc" id="L96">            return &quot;[&quot; + key.toString() + &quot;, &quot; + value.toString() + &quot;, &quot; + secondChance + &quot;]&quot;;</span>
+        }
+    }
+
+    /**
+     * Creates a new LRU map with the given maximum size.
+     * 
+     * @param maxSize the maximum number of entries to hold
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public LRUClockMap(final int maxSize)
+<span class="nc" id="L107">    {</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (maxSize &lt; 4)</span>
+        {
+<span class="nc" id="L110">            throw new IllegalArgumentException( &quot;MaxSize must be at least 4&quot; );</span>
+        }
+<span class="nc" id="L112">        this.maxSize = maxSize;</span>
+
+<span class="nc" id="L114">        final int capacity = arraySize(maxSize, 0.50f);</span>
+<span class="nc" id="L115">        this.mask = capacity - 1;</span>
+
+<span class="nc" id="L117">        this.data = (Wrapper&lt;K, V&gt;[]) new Wrapper[capacity];</span>
+<span class="nc" id="L118">    }</span>
+
+    /**
+     * Mix the hash to have a better distribution. 
+     * Inspired by OpenJDK HashMap.
+     * 
+     * @param h the original hash
+     * @return the mixed hash
+     */
+    private int mixHash(final int h) 
+    {
+<span class="nc" id="L129">        return h ^ (h &gt;&gt;&gt; 16);</span>
+    }
+    
+    /**
+     * Read data without touching the clock flag. This is mostly for testing purposes
+     * or in case you really don't want to affect the LRU state.
+     *
+     * @param key what key to look for
+     * @return the value for the key or null if not founds
+     */
+    public V getRaw(final K key)
+    {
+<span class="nc" id="L141">        Objects.requireNonNull(key, &quot;Key must not be null&quot;);</span>
+<span class="nc" id="L142">        int ptr = mixHash(key.hashCode()) &amp; this.mask;</span>
+        
+        while (true)
+        {
+<span class="nc" id="L146">            final Wrapper&lt;K, V&gt; w = this.data[ptr];</span>
+
+<span class="nc bnc" id="L148" title="All 2 branches missed.">            if (w == null)</span>
+            {
+<span class="nc" id="L150">                return null;</span>
+            }
+<span class="nc bnc" id="L152" title="All 2 branches missed.">            else if (w.key.equals(key))</span>
+            {
+<span class="nc" id="L154">                return w.value;</span>
+            }
+            
+<span class="nc" id="L157">            ptr = (ptr + 1) &amp; this.mask;</span>
+<span class="nc" id="L158">        }         </span>
+    }
+    
+    /**
+     * Get a value from the map. This will set the second chance flag
+     * if the entry is found.
+     * 
+     * @param key what key to look for
+     * @return the value for the key or null if not found
+     */
+    public V get(final K key)
+    {
+<span class="nc" id="L170">        Objects.requireNonNull(key, &quot;Key must not be null&quot;);</span>
+<span class="nc" id="L171">        int ptr = mixHash(key.hashCode()) &amp; this.mask;</span>
+<span class="nc" id="L172">        final Wrapper&lt;K, V&gt; w = this.data[ptr];</span>
+
+<span class="nc bnc" id="L174" title="All 2 branches missed.">        if (w == null)</span>
+        {
+<span class="nc" id="L176">            return null;</span>
+        }
+
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        if (w.key.equals(key))</span>
+        {
+<span class="nc bnc" id="L181" title="All 2 branches missed.">            if (!w.secondChance)</span>
+            {
+                // we have to give it a second chance
+                // but only if it is not already set
+                // saves a write operation
+<span class="nc" id="L186">                w.secondChance = true;</span>
+            }
+<span class="nc" id="L188">            return w.value;</span>
+        }
+        else
+        {
+            // we have to do linear probing now
+            // this is the slow path and hence its own method
+            // to keep the main get method as lean as possible
+            // for better inlining
+<span class="nc" id="L196">            return expensiveGet(key, ptr);</span>
+        }
+    }
+
+    /**
+     * We have this code here to make the normal get as lean as possible
+     * for better inlining. This is the slow path.
+     * 
+     * @param key what key to look for
+     * @param ptr the current position in the array
+     * @return the value for the key or null if not found
+     */
+    private V expensiveGet(final K key, int ptr)
+    {
+        // we start with the next position because we already checked ptr
+        // and missed there
+        while (true)
+        {
+<span class="nc" id="L214">            ptr = (ptr + 1) &amp; this.mask;</span>
+<span class="nc" id="L215">            final Wrapper&lt;K, V&gt; w = this.data[ptr];</span>
+
+<span class="nc bnc" id="L217" title="All 2 branches missed.">            if (w == null)</span>
+            {
+<span class="nc" id="L219">                return null;</span>
+            }
+            
+<span class="nc bnc" id="L222" title="All 2 branches missed.">            if (w.key.equals(key))</span>
+            {
+<span class="nc bnc" id="L224" title="All 2 branches missed.">                if (!w.secondChance)</span>
+                {
+                    // we have to give it a second chance
+                    // but only if it is not already set
+                    // saves a write operation
+<span class="nc" id="L229">                    w.secondChance = true;</span>
+                }
+<span class="nc" id="L231">                return w.value;</span>
+            }
+            
+            // not found, continue searching
+<span class="nc" id="L235">        }    </span>
+    }
+
+    /**
+     * Associates the specified value with the specified key in this map.
+     * If the map previously contained a mapping for the key, the old
+     * value is replaced. Starts eviction if the max size is reached.
+     *
+     * @param key key with which the specified value is to be associated
+     * @param value value to be associated with the specified key
+     * @return the previous value associated with key, or null if there was no mapping for key.
+     */
+    public V put(final K key, final V value)
+    {
+<span class="nc" id="L249">        Objects.requireNonNull(key, &quot;Key must not be null&quot;);</span>
+<span class="nc" id="L250">        Objects.requireNonNull(value, &quot;Value must not be null&quot;);</span>
+<span class="nc" id="L251">        final int ptr = mixHash(key.hashCode()) &amp; this.mask;</span>
+        
+        // evict before inserting a new entry helps to avoid 
+        // pushing it out again immediately
+<span class="nc bnc" id="L255" title="All 2 branches missed.">        if (this.size == maxSize)</span>
+        {
+            // if this is going to be an insert, we have to evict
+            // otherwise just update
+<span class="nc" id="L259">            final V oldValue = update(key, value, ptr);</span>
+<span class="nc bnc" id="L260" title="All 2 branches missed.">            if (oldValue != null)</span>
+            {
+                // we just updated an existing entry, no eviction needed
+<span class="nc" id="L263">                return oldValue;</span>
+            }
+            // ok, we have not updated, so we have to kick one out
+<span class="nc" id="L266">            evict();</span>
+        }
+        
+        // put the entry, might replace an existing one or be added, we have enough space 
+        // at this point for sure
+<span class="nc" id="L271">        return putInternal(key, value, ptr);</span>
+    }
+
+    /**
+     * Internal put method that does not evict
+     * 
+     * @param key the key to put
+     * @param value the value to put
+     * @param ptr the position to start searching
+     *
+     * @return the old value or null if there was none
+     */
+    private V putInternal(final K key, final V value, int ptr)
+    {
+        while (true)
+        {
+<span class="nc" id="L287">            final Wrapper&lt;K, V&gt; current = this.data[ptr];</span>
+
+<span class="nc bnc" id="L289" title="All 2 branches missed.">            if (current == null)</span>
+            {
+                // found a free slot
+<span class="nc" id="L292">                this.data[ptr] = new Wrapper&lt;&gt;(key, value);</span>
+                // we added one entry, so size is increased
+<span class="nc" id="L294">                this.size++; </span>
+                
+<span class="nc" id="L296">                return null;</span>
+            }
+<span class="nc bnc" id="L298" title="All 2 branches missed.">            else if (current.key.equals(key))</span>
+            {
+                // key already exists, replace value
+<span class="nc" id="L301">                final V oldValue = current.value;</span>
+<span class="nc" id="L302">                current.value = value;</span>
+<span class="nc" id="L303">                current.secondChance = true;</span>
+
+<span class="nc" id="L305">                return oldValue;</span>
+            }
+            
+<span class="nc" id="L308">            ptr = (ptr + 1) &amp; this.mask; // move to next position</span>
+<span class="nc" id="L309">        }</span>
+    }
+    
+    /**
+     * Internal method to combine get and put functionality but 
+     * without insertion because we might have to evict first.
+     * 
+     * @param key the key to put
+     * @param value the value to put
+     * @param ptr the position to start searching
+     * 
+     * @return the old value or null if there was none
+     */
+    private V update(final K key, final V value, int ptr)
+    {
+        while (true)
+        {
+<span class="nc" id="L326">            final Wrapper&lt;K, V&gt; current = this.data[ptr];</span>
+
+<span class="nc bnc" id="L328" title="All 2 branches missed.">            if (current == null)</span>
+            {
+                // no entry found, we don't do anything here
+                // just tell
+<span class="nc" id="L332">                return null;</span>
+            }
+<span class="nc bnc" id="L334" title="All 2 branches missed.">            else if (current.key.equals(key))</span>
+            {
+                // key already exists, replace value
+<span class="nc" id="L337">                final V oldValue = current.value;</span>
+<span class="nc" id="L338">                current.value = value;</span>
+<span class="nc" id="L339">                current.secondChance = true;</span>
+
+<span class="nc" id="L341">                return oldValue;</span>
+            }
+            
+<span class="nc" id="L344">            ptr = (ptr + 1) &amp; this.mask; // move to next position</span>
+<span class="nc" id="L345">        }</span>
+    }
+    
+    /**
+     * Removes the mapping for a key from this map if it is present.
+     *
+     * @param key key whose mapping is to be removed from the map
+     * @return the previous value associated with key, or null if there was no mapping for key.
+     */
+    public V remove(final K key)
+    {
+<span class="nc" id="L356">        Objects.requireNonNull(key, &quot;Key must not be null&quot;);</span>
+<span class="nc" id="L357">        int ptr = mixHash(key.hashCode()) &amp; this.mask;</span>
+
+        while (true)
+        {
+<span class="nc" id="L361">            final Wrapper&lt;K, V&gt; w = this.data[ptr];</span>
+
+<span class="nc bnc" id="L363" title="All 2 branches missed.">            if (w == null)</span>
+            {
+                // Key not found
+<span class="nc" id="L366">                return null;</span>
+            }
+
+<span class="nc bnc" id="L369" title="All 2 branches missed.">            if (w.key.equals(key))</span>
+            {
+<span class="nc" id="L371">                final V oldValue = w.value;</span>
+                // free this entry and fix array up
+<span class="nc" id="L373">                freePositionAndAdjustArray(ptr);</span>
+                
+<span class="nc" id="L375">                return oldValue;</span>
+            }
+
+<span class="nc" id="L378">            ptr = (ptr + 1) &amp; this.mask;</span>
+<span class="nc" id="L379">        }</span>
+    }
+    
+    /**
+     * Looks for an entry that has not been touched recently and can be evicted.
+     * This is not truly LRU but according to common knowledge, close enough and
+     * very cheap.
+     */
+    private void evict()
+    {
+        while (true)
+        {
+<span class="nc" id="L391">            final Wrapper&lt;K, V&gt; w = this.data[clockHand];</span>
+            
+<span class="nc bnc" id="L393" title="All 2 branches missed.">            if (w != null)</span>
+            {
+<span class="nc bnc" id="L395" title="All 2 branches missed.">                if (w.secondChance == false)</span>
+                {
+                    // free this entry and fix array up
+<span class="nc" id="L398">                    freePositionAndAdjustArray(clockHand);</span>
+<span class="nc" id="L399">                    return;</span>
+                }
+                else
+                {
+                    // gave it a second chance, now this is gone
+<span class="nc" id="L404">                    w.secondChance = false;</span>
+                }
+            }
+            
+<span class="nc" id="L408">            clockHand = (clockHand + 1) &amp; this.mask; // move to next position</span>
+<span class="nc" id="L409">        }</span>
+    }
+
+    /**
+     * We remove this position from the map. Because we are a linear map, we have 
+     * to shift all entries after this position one step to the left until we
+     * hit a free position to ensure we don't break the linear chaining.
+     * 
+     * @param ptr the position to remove
+     */
+    private void freePositionAndAdjustArray(final int ptr)
+    {
+<span class="nc" id="L421">        this.data[ptr] = null;</span>
+<span class="nc" id="L422">        this.size--; // we removed one entry, so size is reduced</span>
+       
+        // Shift all entries after this position if needed
+<span class="nc" id="L425">        int currentPtr = ptr;</span>
+        while (true)
+        {
+<span class="nc" id="L428">            currentPtr = (currentPtr + 1) &amp; this.mask;</span>
+
+<span class="nc" id="L430">            final Wrapper&lt;K, V&gt; w = this.data[currentPtr];</span>
+<span class="nc bnc" id="L431" title="All 2 branches missed.">            if (w == null)</span>
+            {
+<span class="nc" id="L433">                break; // no more entries to shift</span>
+            }
+            
+<span class="nc" id="L436">            this.data[currentPtr] = null; // free this entry</span>
+<span class="nc" id="L437">            realign(w); // put it back to the map, it will find a new position eventually</span>
+<span class="nc" id="L438">        }</span>
+<span class="nc" id="L439">    }</span>
+    
+    /**
+     * Internal reput to account for removed entries. We do not have
+     * double keys in the map, so we can safely ignore that fact.
+     * 
+     * @param entry the wrapper to put
+     */
+    private void realign(final Wrapper&lt;K, V&gt; entry)
+    {
+<span class="nc" id="L449">        int ptr = mixHash(entry.key.hashCode()) &amp; this.mask;</span>
+
+        while (true)
+        {
+<span class="nc" id="L453">            final Wrapper&lt;K, V&gt; current = this.data[ptr];</span>
+
+<span class="nc bnc" id="L455" title="All 2 branches missed.">            if (current == null)</span>
+            {
+                // found a free slot
+<span class="nc" id="L458">                this.data[ptr] = entry;</span>
+<span class="nc" id="L459">                return;</span>
+            }
+<span class="nc" id="L461">            ptr = (ptr + 1) &amp; this.mask; // move to next position</span>
+<span class="nc" id="L462">        }</span>
+    }
+    
+    /**
+     * Returns the number of key-value mappings in this map.
+     *
+     * @return the number of entries in the map
+     */
+    public int size()
+    {
+<span class="nc" id="L472">        return this.size;</span>
+    }
+
+    /**
+     * Just tell us how big we are, not how many slots we have occupied.
+     * @return the size of the holding array
+     */
+    public int occupiedSpace()
+    {
+<span class="nc" id="L481">        return this.data.length;</span>
+    }
+    
+    /**
+     * Returns how many slots are really occupied, should always match
+     * size but for testing, we expose that.
+     * 
+     * @return the occupied slot count
+     */
+    public int trueSize()
+    {
+<span class="nc" id="L492">        int count = 0;</span>
+<span class="nc bnc" id="L493" title="All 2 branches missed.">        for (var w : this.data)</span>
+        {
+<span class="nc bnc" id="L495" title="All 2 branches missed.">            if (w != null)</span>
+            {
+<span class="nc" id="L497">                count++;</span>
+            }
+        }
+<span class="nc" id="L500">        return count;</span>
+    }
+    
+    /**
+     * Returns a list of all keys. This is mainly for testing purposes.
+     * This does not cause LRU effects. This is in order of the internal array,
+     * but without the free slots.
+     *
+     * @return a list of keys
+     */
+    public List&lt;K&gt; keys()
+    {
+<span class="nc" id="L512">        final List&lt;K&gt; result = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L514">        final int length = this.data.length;</span>
+<span class="nc bnc" id="L515" title="All 2 branches missed.">        for (int i = 0; i &lt; length; i++)</span>
+        {
+<span class="nc" id="L517">            final Wrapper&lt;K, V&gt; w = this.data[i];</span>
+<span class="nc bnc" id="L518" title="All 2 branches missed.">            if (w != null)</span>
+            {
+<span class="nc" id="L520">                result.add(w.key);</span>
+            }
+        }
+
+<span class="nc" id="L524">        return result;</span>
+    }
+
+    /**
+     * Clears the map, reuses the data structure by clearing it out.
+     */
+    public void clear()
+    {
+<span class="nc" id="L532">        Arrays.fill(data, null);</span>
+<span class="nc" id="L533">        this.size = 0;</span>
+<span class="nc" id="L534">    }</span>
+
+    /** 
+     * Return the least power of two greater than or equal to the specified value.
+     *
+     * &lt;p&gt;Note that this function will return 1 when the argument is 0.
+     *
+     * @param x a long integer smaller than or equal to 2&lt;sup&gt;62&lt;/sup&gt;.
+     * @return the least power of two greater than or equal to the specified value.
+     */
+    private static long nextPowerOfTwo(long x) 
+    {
+<span class="nc bnc" id="L546" title="All 2 branches missed.">        if ( x == 0 ) </span>
+        {
+<span class="nc" id="L548">            return 1;</span>
+        }
+<span class="nc" id="L550">        x--;</span>
+<span class="nc" id="L551">        x |= x &gt;&gt; 1;</span>
+<span class="nc" id="L552">        x |= x &gt;&gt; 2;</span>
+<span class="nc" id="L553">        x |= x &gt;&gt; 4;</span>
+<span class="nc" id="L554">        x |= x &gt;&gt; 8;</span>
+<span class="nc" id="L555">        x |= x &gt;&gt; 16;</span>
+        
+<span class="nc" id="L557">        return (x | x &gt;&gt; 32) + 1;</span>
+    }
+
+    /** Returns the least power of two smaller than or equal to 2&lt;sup&gt;30&lt;/sup&gt; and larger than or equal to &lt;code&gt;Math.ceil( expected / f )&lt;/code&gt;.
+     *
+     * @param expected the expected number of elements in a hash table.
+     * @param f the load factor.
+     * @return the minimum possible size for a backing array.
+     * @throws IllegalArgumentException if the necessary size is larger than 2&lt;sup&gt;30&lt;/sup&gt;.
+     */
+    private static int arraySize( final int expected, final float f ) 
+    {
+<span class="nc" id="L569">        final long s = Math.max(2, nextPowerOfTwo((long)Math.ceil(expected / f)));</span>
+<span class="nc bnc" id="L570" title="All 2 branches missed.">        if (s &gt; (1 &lt;&lt; 30)) </span>
+        {
+<span class="nc" id="L572">            throw new IllegalArgumentException(&quot;Too large (&quot; + expected + &quot; expected elements with load factor &quot; + f + &quot;)&quot;);</span>
+        }
+<span class="nc" id="L574">        return (int)s;</span>
+    }
+    
+    @Override
+    public String toString()
+    {
+<span class="nc" id="L580">        var sj = new StringJoiner(&quot;,\n&quot;, &quot;LRUClockMap{\n&quot;, &quot;\n}&quot;);</span>
+
+<span class="nc" id="L582">        final int length = Math.min(this.data.length, 1024);</span>
+<span class="nc bnc" id="L583" title="All 2 branches missed.">        for (int i = 0; i &lt; length; i++)</span>
+        {
+<span class="nc" id="L585">            final Wrapper&lt;K, V&gt; w = this.data[i];</span>
+<span class="nc bnc" id="L586" title="All 2 branches missed.">            if (w == null)</span>
+            {
+<span class="nc" id="L588">                sj.add(i + &quot; FREE&quot;);</span>
+            }
+            else
+            {
+<span class="nc" id="L592">                sj.add(i + &quot; &quot; + new DebugWrapper&lt;K, V&gt;(w, i).toString());</span>
+            }
+        }
+<span class="nc" id="L595">        sj.add(&quot;clockHand: &quot; + clockHand);</span>
+<span class="nc" id="L596">        sj.add(&quot;size: &quot; + size);</span>
+<span class="nc" id="L597">        sj.add(&quot;maxSize: &quot; + maxSize);</span>
+        
+<span class="nc" id="L599">        return sj.toString();</span>
+    }
+    
+    class DebugWrapper&lt;DK, DV&gt; 
+    {
+        public final DK key;
+        public final DV value;
+        public final boolean secondChance;
+        public final int currentPosition;
+        public final int truePosition;
+
+        DebugWrapper(Wrapper&lt;DK, DV&gt; wrapper, int currentPosition) 
+<span class="nc" id="L611">        {</span>
+<span class="nc" id="L612">            this.key = wrapper.key;</span>
+<span class="nc" id="L613">            this.value = wrapper.value;</span>
+<span class="nc" id="L614">            this.secondChance = wrapper.secondChance;</span>
+<span class="nc" id="L615">            this.currentPosition = currentPosition; // will be set later</span>
+<span class="nc" id="L616">            this.truePosition = mixHash(wrapper.key.hashCode()) &amp; mask; // calculate the true position</span>
+<span class="nc" id="L617">        }</span>
+        
+        @Override
+        public String toString() 
+        {
+<span class="nc" id="L622">            return &quot;[&quot; + key.toString() + &quot;, &quot; + value.toString() + &quot;, &quot; + mixHash(key.hashCode()) + &quot;, &quot; + secondChance + &quot;, &quot; + truePosition + &quot;]&quot;;</span>
+        }
+    }
+    
+    List&lt;DebugWrapper&lt;K, V&gt;&gt; getDebugData()
+    {
+<span class="nc" id="L628">        final var result = new ArrayList&lt;DebugWrapper&lt;K, V&gt;&gt;(this.data.length);</span>
+<span class="nc bnc" id="L629" title="All 2 branches missed.">        for (int i = 0; i &lt; this.data.length; i++)</span>
+        {
+<span class="nc" id="L631">            final Wrapper&lt;K, V&gt; w = this.data[i];</span>
+<span class="nc bnc" id="L632" title="All 2 branches missed.">            if (w == null)</span>
+            {
+<span class="nc" id="L634">                result.add(null);</span>
+            }
+            else
+            {
+<span class="nc" id="L638">                result.add(new DebugWrapper&lt;&gt;(w, i));</span>
+            }
+        }
+        
+<span class="nc" id="L642">        return result;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,594 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FastHashMap.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">demo6</a> &gt; <a href="index.source.html" class="el_package">org.jugsaxony.demo6</a> &gt; <span class="el_source">FastHashMap.java</span></div><h1>FastHashMap.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2005-2026 Xceptance Software Technologies GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jugsaxony.demo6;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.StringJoiner;
+
+/**
+ * A fast, unbounded hash map. Not thread-safe!
+ *
+ * &lt;p&gt;This is open addressing with linear probing on top of two parallel arrays, one for the keys and
+ * one for the values. There is no entry object, so inserting or updating does not allocate anything,
+ * only growing does. Probing only touches the key array, which keeps the hot loop small and CPU cache
+ * friendly. The capacity is always a power of two, so wrapping a probe around the end of the table
+ * is a mask operation instead of a modulo. The home position of a key comes from Fibonacci hashing,
+ * see {@link #homeSlot(Object)} for why that matters so much for a probing map.
+ *
+ * &lt;p&gt;Removal uses backward shifting instead of tombstones. Tombstones would slowly poison a long
+ * living map because heavy add/remove churn fills the table with markers that only a resize can clean
+ * up. Backward shifting keeps the occupancy identical to the size at all times, so churn stays flat
+ * forever. That is the same approach {@link LRUClockMap} uses.
+ *
+ * &lt;p&gt;&lt;b&gt;Null handling:&lt;/b&gt; keys must not be null, values may be null. A null key slot is therefore an
+ * unambiguous &quot;this slot is free&quot; marker and null values need no sentinel. The price is that a null
+ * return value is ambiguous, because the API has no containsKey:
+ *
+ * &lt;table border=&quot;1&quot;&gt;
+ * &lt;caption&gt;What a null return value can mean&lt;/caption&gt;
+ * &lt;tr&gt;&lt;th&gt;Call&lt;/th&gt;&lt;th&gt;null means either ...&lt;/th&gt;&lt;th&gt;... or&lt;/th&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;{@link #get(Object)}&lt;/td&gt;&lt;td&gt;there is no mapping for the key&lt;/td&gt;&lt;td&gt;the key maps to null&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;{@link #put(Object, Object)}&lt;/td&gt;&lt;td&gt;there was no previous mapping&lt;/td&gt;&lt;td&gt;the previous value was null&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;{@link #remove(Object)}&lt;/td&gt;&lt;td&gt;nothing was removed&lt;/td&gt;&lt;td&gt;a null value was removed&lt;/td&gt;&lt;/tr&gt;
+ * &lt;/table&gt;
+ *
+ * &lt;p&gt;Watching {@link #size()} around the call is the only way to tell these cases apart.
+ *
+ * &lt;p&gt;The iteration order of {@link #keys()} and {@link #values()} is the internal slot order. It is
+ * deterministic for a given map state but unspecified to the caller, so never rely on insertion order.
+ *
+ * &lt;p&gt;As with any hash map, the hash code and the equality of a key must not change while the key is
+ * in the map. A mutated key makes its entry unreachable. This is not enforced.
+ *
+ * @param &lt;K&gt; the type of the keys, null is not permitted
+ * @param &lt;V&gt; the type of the values, null is permitted
+ *
+ * @author René Schwietzke (Xceptance Software Technologies GmbH)
+ */
+public class FastHashMap&lt;K, V&gt;
+{
+    /**
+     * The capacity we start with. Small enough to stay cheap for tiny maps, large enough
+     * to save the first two growth rounds.
+     */
+    private static final int DEFAULT_CAPACITY = 16;
+
+    /**
+     * How full we let the table get before we grow. Linear probing degrades sharply beyond
+     * 0.7, 0.5 keeps the average probe length at about 1.5. We deliberately pay memory for speed.
+     */
+    private static final float LOAD_FACTOR = 0.5f;
+
+    /**
+     * The largest power of two array we can allocate.
+     */
+    private static final int MAXIMUM_CAPACITY = 1 &lt;&lt; 30;
+
+    /**
+     * The golden ratio as a 64 bit fixed point number, the multiplier for Fibonacci hashing.
+     */
+    private static final long FIBONACCI = 0x9E3779B97F4A7C15L;
+
+    /**
+     * The keys. A null entry means the slot is free. Because null keys are not permitted,
+     * this is never ambiguous.
+     */
+    private Object[] keys;
+
+    /**
+     * The values, same length and same index as {@link #keys}. May hold null for an
+     * occupied slot, because null values are permitted.
+     */
+    private Object[] values;
+
+    /**
+     * The number of entries in this map.
+     */
+    private int size;
+
+    /**
+     * Mask to wrap a probe position around the end of the table, always capacity - 1.
+     */
+    private int mask;
+
+    /**
+     * How many bits of the hash we use, capacity is always 1 &amp;lt;&amp;lt; shift.
+     */
+    private int shift;
+
+    /**
+     * When the size reaches this, we grow. Precalculated to keep put free of float math.
+     */
+    private int threshold;
+
+    /**
+     * Creates a new empty map with the default capacity. The map grows as needed.
+     */
+    public FastHashMap()
+<span class="fc" id="L124">    {</span>
+<span class="fc" id="L125">        this.keys = new Object[DEFAULT_CAPACITY];</span>
+<span class="fc" id="L126">        this.values = new Object[DEFAULT_CAPACITY];</span>
+<span class="fc" id="L127">        this.mask = DEFAULT_CAPACITY - 1;</span>
+<span class="fc" id="L128">        this.shift = Integer.numberOfTrailingZeros(DEFAULT_CAPACITY);</span>
+<span class="fc" id="L129">        this.threshold = (int) (DEFAULT_CAPACITY * LOAD_FACTOR);</span>
+<span class="fc" id="L130">    }</span>
+
+    /**
+     * Calculates the home position of a key, which is where its probe chain starts.
+     *
+     * &lt;p&gt;This is Fibonacci hashing: multiply by the golden ratio and keep the top bits of the
+     * product, which is one multiplication and one shift. Taking the top bits matters, the low bits
+     * of a product are barely mixed at all.
+     *
+     * &lt;p&gt;A cheap fold like {@code h ^ (h &gt;&gt;&gt; 16)} plus a mask is not good enough here. It maps
+     * consecutive keys to consecutive slots, which is perfect for a chaining map but poison for
+     * linear probing: a dense key range then forms one single cluster covering the whole occupied
+     * area, and removing from it degenerates to O(n) because the chain repair has to walk that
+     * cluster. Fibonacci hashing spreads consecutive keys evenly over the table, so clusters stay
+     * short no matter how regular the keys are.
+     *
+     * @param key the key to place, must not be null
+     * @return the home position of that key in the current table
+     */
+    int homeSlot(final Object key)
+    {
+<span class="fc" id="L151">        return (int) ((key.hashCode() * FIBONACCI) &gt;&gt;&gt; (64 - this.shift));</span>
+    }
+
+    /**
+     * Returns the value the given key is mapped to.
+     *
+     * @param key the key to look for, must not be null
+     * @return the value for the key, null if there is no mapping or the mapping is to null
+     * @throws NullPointerException if the key is null
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public V get(final K key)
+    {
+<span class="fc" id="L164">        Objects.requireNonNull(key, &quot;Key must not be null&quot;);</span>
+
+<span class="fc" id="L166">        final int mask = this.mask;</span>
+<span class="fc" id="L167">        int ptr = homeSlot(key);</span>
+
+        while (true)
+        {
+<span class="fc" id="L171">            final Object k = this.keys[ptr];</span>
+
+<span class="fc bfc" id="L173" title="All 2 branches covered.">            if (k == null)</span>
+            {
+                // a free slot ends every probe chain, so the key cannot be behind it
+<span class="fc" id="L176">                return null;</span>
+            }
+
+            // identity first, that is the cheap path for interned strings, enums and cached boxes
+<span class="fc bfc" id="L180" title="All 4 branches covered.">            if (k == key || k.equals(key))</span>
+            {
+<span class="fc" id="L182">                return (V) this.values[ptr];</span>
+            }
+
+<span class="fc" id="L185">            ptr = (ptr + 1) &amp; mask;</span>
+<span class="fc" id="L186">        }</span>
+    }
+
+    /**
+     * Associates the given value with the given key. An existing mapping is replaced.
+     *
+     * @param key the key, must not be null
+     * @param value the value, may be null
+     * @return the previous value, null if there was no mapping or the previous value was null
+     * @throws NullPointerException if the key is null
+     * @throws IllegalStateException if the map has to grow beyond the maximum capacity
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public V put(final K key, final V value)
+    {
+<span class="fc" id="L201">        Objects.requireNonNull(key, &quot;Key must not be null&quot;);</span>
+
+        // grow first, so we never insert into a table that is about to be thrown away and
+        // never have to redo the search afterwards. This may grow one update too early, which
+        // is a rare and cheap mistake compared to keeping the position valid across a resize.
+<span class="fc bfc" id="L206" title="All 2 branches covered.">        if (this.size + 1 &gt; this.threshold)</span>
+        {
+<span class="fc" id="L208">            grow();</span>
+        }
+
+<span class="fc" id="L211">        final int mask = this.mask;</span>
+<span class="fc" id="L212">        int ptr = homeSlot(key);</span>
+
+        while (true)
+        {
+<span class="fc" id="L216">            final Object k = this.keys[ptr];</span>
+
+<span class="fc bfc" id="L218" title="All 2 branches covered.">            if (k == null)</span>
+            {
+                // free slot, this is an insert
+<span class="fc" id="L221">                this.keys[ptr] = key;</span>
+<span class="fc" id="L222">                this.values[ptr] = value;</span>
+<span class="fc" id="L223">                this.size++;</span>
+
+<span class="fc" id="L225">                return null;</span>
+            }
+
+<span class="fc bfc" id="L228" title="All 4 branches covered.">            if (k == key || k.equals(key))</span>
+            {
+                // key is already here, this is an update, the size does not change
+<span class="fc" id="L231">                final V oldValue = (V) this.values[ptr];</span>
+<span class="fc" id="L232">                this.values[ptr] = value;</span>
+
+<span class="fc" id="L234">                return oldValue;</span>
+            }
+
+<span class="fc" id="L237">            ptr = (ptr + 1) &amp; mask;</span>
+<span class="fc" id="L238">        }</span>
+    }
+
+    /**
+     * Removes the mapping for the given key if it is present.
+     *
+     * @param key the key to remove, must not be null
+     * @return the previous value, null if there was no mapping or the removed value was null
+     * @throws NullPointerException if the key is null
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public V remove(final K key)
+    {
+<span class="fc" id="L251">        Objects.requireNonNull(key, &quot;Key must not be null&quot;);</span>
+
+<span class="fc" id="L253">        final int mask = this.mask;</span>
+<span class="fc" id="L254">        int ptr = homeSlot(key);</span>
+
+        while (true)
+        {
+<span class="fc" id="L258">            final Object k = this.keys[ptr];</span>
+
+<span class="fc bfc" id="L260" title="All 2 branches covered.">            if (k == null)</span>
+            {
+                // not here
+<span class="fc" id="L263">                return null;</span>
+            }
+
+<span class="fc bfc" id="L266" title="All 4 branches covered.">            if (k == key || k.equals(key))</span>
+            {
+<span class="fc" id="L268">                final V oldValue = (V) this.values[ptr];</span>
+
+                // free this entry and repair the probe chain
+<span class="fc" id="L271">                freePositionAndAdjustArray(ptr);</span>
+
+<span class="fc" id="L273">                return oldValue;</span>
+            }
+
+<span class="fc" id="L276">            ptr = (ptr + 1) &amp; mask;</span>
+<span class="fc" id="L277">        }</span>
+    }
+
+    /**
+     * Frees a position and repairs the probe chains behind it. Because we probe linearly, a hole
+     * in the middle of a cluster would cut off everything behind it. So we lift every entry of the
+     * run that follows the hole out and let it fall back into the earliest free slot from its home
+     * position. An entry either keeps its place or moves into the hole, and the hole moves along
+     * with us until the cluster ends. No tombstones needed.
+     *
+     * @param ptr the position to free
+     */
+    private void freePositionAndAdjustArray(final int ptr)
+    {
+<span class="fc" id="L291">        this.keys[ptr] = null;</span>
+<span class="fc" id="L292">        this.values[ptr] = null;</span>
+<span class="fc" id="L293">        this.size--;</span>
+
+<span class="fc" id="L295">        int currentPtr = ptr;</span>
+        while (true)
+        {
+<span class="fc" id="L298">            currentPtr = (currentPtr + 1) &amp; this.mask;</span>
+
+<span class="fc" id="L300">            final Object k = this.keys[currentPtr];</span>
+<span class="fc bfc" id="L301" title="All 2 branches covered.">            if (k == null)</span>
+            {
+                // end of the cluster, all chains are intact again
+<span class="fc" id="L304">                break;</span>
+            }
+
+<span class="fc" id="L307">            final Object v = this.values[currentPtr];</span>
+
+            // lift it out, so the reinsert can also use this very slot again
+<span class="fc" id="L310">            this.keys[currentPtr] = null;</span>
+<span class="fc" id="L311">            this.values[currentPtr] = null;</span>
+
+<span class="fc" id="L313">            reinsert(k, v);</span>
+<span class="fc" id="L314">        }</span>
+<span class="fc" id="L315">    }</span>
+
+    /**
+     * Puts an entry into the first free slot starting at its home position. We do not compare keys
+     * here because the caller guarantees that this key is currently not in the map, either because
+     * it was just lifted out of it or because we are refilling a fresh table.
+     *
+     * @param key the key to place
+     * @param value the value to place
+     */
+    private void reinsert(final Object key, final Object value)
+    {
+<span class="fc" id="L327">        int ptr = homeSlot(key);</span>
+
+<span class="fc bfc" id="L329" title="All 2 branches covered.">        while (this.keys[ptr] != null)</span>
+        {
+<span class="fc" id="L331">            ptr = (ptr + 1) &amp; this.mask;</span>
+        }
+
+<span class="fc" id="L334">        this.keys[ptr] = key;</span>
+<span class="fc" id="L335">        this.values[ptr] = value;</span>
+<span class="fc" id="L336">    }</span>
+
+    /**
+     * Doubles the capacity. We only ever grow, never shrink, because a map that shrinks on removal
+     * would thrash under add and remove churn.
+     *
+     * @throws IllegalStateException if we would have to grow beyond the maximum capacity
+     */
+    private void grow()
+    {
+<span class="fc" id="L346">        final int newCapacity = this.keys.length &lt;&lt; 1;</span>
+
+<span class="pc bpc" id="L348" title="2 of 4 branches missed.">        if (newCapacity &gt; MAXIMUM_CAPACITY || newCapacity &lt;= 0)</span>
+        {
+<span class="nc" id="L350">            throw new IllegalStateException(&quot;Map is too large, cannot grow beyond &quot; + MAXIMUM_CAPACITY + &quot; slots&quot;);</span>
+        }
+
+<span class="fc" id="L353">        resize(newCapacity);</span>
+<span class="fc" id="L354">    }</span>
+
+    /**
+     * Moves all entries into a new table of the given capacity.
+     *
+     * @param newCapacity the new capacity, must be a power of two
+     */
+    private void resize(final int newCapacity)
+    {
+<span class="fc" id="L363">        final Object[] oldKeys = this.keys;</span>
+<span class="fc" id="L364">        final Object[] oldValues = this.values;</span>
+
+<span class="fc" id="L366">        this.keys = new Object[newCapacity];</span>
+<span class="fc" id="L367">        this.values = new Object[newCapacity];</span>
+<span class="fc" id="L368">        this.mask = newCapacity - 1;</span>
+<span class="fc" id="L369">        this.shift = Integer.numberOfTrailingZeros(newCapacity);</span>
+<span class="fc" id="L370">        this.threshold = (int) (newCapacity * LOAD_FACTOR);</span>
+
+<span class="fc" id="L372">        final int length = oldKeys.length;</span>
+<span class="fc bfc" id="L373" title="All 2 branches covered.">        for (int i = 0; i &lt; length; i++)</span>
+        {
+<span class="fc" id="L375">            final Object k = oldKeys[i];</span>
+<span class="fc bfc" id="L376" title="All 2 branches covered.">            if (k != null)</span>
+            {
+<span class="fc" id="L378">                reinsert(k, oldValues[i]);</span>
+            }
+        }
+<span class="fc" id="L381">    }</span>
+
+    /**
+     * Returns the number of key-value mappings in this map. Entries with a null value count too.
+     *
+     * @return the number of entries in the map
+     */
+    public int size()
+    {
+<span class="fc" id="L390">        return this.size;</span>
+    }
+
+    /**
+     * Returns all keys as a new list. The list is a snapshot, changing it does not change the map
+     * and later changes to the map do not change the list. The order is the internal slot order and
+     * hence unspecified. The list never contains null and never contains duplicates.
+     *
+     * @return a new list with all keys
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public List&lt;K&gt; keys()
+    {
+<span class="fc" id="L403">        final List&lt;K&gt; result = new ArrayList&lt;&gt;(this.size);</span>
+
+<span class="fc" id="L405">        final int length = this.keys.length;</span>
+<span class="fc bfc" id="L406" title="All 2 branches covered.">        for (int i = 0; i &lt; length; i++)</span>
+        {
+<span class="fc" id="L408">            final Object k = this.keys[i];</span>
+<span class="fc bfc" id="L409" title="All 2 branches covered.">            if (k != null)</span>
+            {
+<span class="fc" id="L411">                result.add((K) k);</span>
+            }
+        }
+
+<span class="fc" id="L415">        return result;</span>
+    }
+
+    /**
+     * Returns all values as a new list. The list is a snapshot, see {@link #keys()}. It may contain
+     * null and it may contain duplicates. As long as the map is not modified in between, the value
+     * at index i belongs to the key at index i of {@link #keys()}, because both walk the table in
+     * the same slot order.
+     *
+     * @return a new list with all values
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public List&lt;V&gt; values()
+    {
+<span class="fc" id="L429">        final List&lt;V&gt; result = new ArrayList&lt;&gt;(this.size);</span>
+
+<span class="fc" id="L431">        final int length = this.keys.length;</span>
+<span class="fc bfc" id="L432" title="All 2 branches covered.">        for (int i = 0; i &lt; length; i++)</span>
+        {
+            // the key decides whether a slot is occupied, the value may legally be null
+<span class="fc bfc" id="L435" title="All 2 branches covered.">            if (this.keys[i] != null)</span>
+            {
+<span class="fc" id="L437">                result.add((V) this.values[i]);</span>
+            }
+        }
+
+<span class="fc" id="L441">        return result;</span>
+    }
+
+    /**
+     * Removes all entries. The current capacity is kept, because a cleared map is usually refilled
+     * and we would only have to grow again. Both arrays are cleared, so no key or value is kept
+     * alive by this map.
+     */
+    public void clear()
+    {
+<span class="fc" id="L451">        Arrays.fill(this.keys, null);</span>
+<span class="fc" id="L452">        Arrays.fill(this.values, null);</span>
+<span class="fc" id="L453">        this.size = 0;</span>
+<span class="fc" id="L454">    }</span>
+
+    /**
+     * The size of the backing arrays. For testing purposes.
+     *
+     * @return the current capacity
+     */
+    int capacity()
+    {
+<span class="nc" id="L463">        return this.keys.length;</span>
+    }
+
+    /**
+     * Counts the occupied slots. Must always match {@link #size()}, otherwise we leaked a slot
+     * somewhere. For testing purposes.
+     *
+     * @return the number of occupied slots
+     */
+    int trueSize()
+    {
+<span class="nc" id="L474">        int count = 0;</span>
+
+<span class="nc bnc" id="L476" title="All 2 branches missed.">        for (final Object k : this.keys)</span>
+        {
+<span class="nc bnc" id="L478" title="All 2 branches missed.">            if (k != null)</span>
+            {
+<span class="nc" id="L480">                count++;</span>
+            }
+        }
+
+<span class="nc" id="L484">        return count;</span>
+    }
+
+    /**
+     * The length of the longest run of occupied slots. This is the number the cost of a removal
+     * depends on, because repairing the chains has to walk the run behind the freed slot. A healthy
+     * table has short runs, a table with a bad hash function has one huge one. For testing purposes.
+     *
+     * @return the length of the longest cluster, capacity if the table were completely full
+     */
+    int longestCluster()
+    {
+<span class="nc" id="L496">        final int length = this.keys.length;</span>
+
+        // start at a free slot, otherwise we would cut a wrapping cluster in two
+<span class="nc" id="L499">        int start = 0;</span>
+<span class="nc bnc" id="L500" title="All 4 branches missed.">        while (start &lt; length &amp;&amp; this.keys[start] != null)</span>
+        {
+<span class="nc" id="L502">            start++;</span>
+        }
+<span class="nc bnc" id="L504" title="All 2 branches missed.">        if (start == length)</span>
+        {
+<span class="nc" id="L506">            return length;</span>
+        }
+
+<span class="nc" id="L509">        int longest = 0;</span>
+<span class="nc" id="L510">        int current = 0;</span>
+<span class="nc bnc" id="L511" title="All 2 branches missed.">        for (int i = 1; i &lt;= length; i++)</span>
+        {
+<span class="nc bnc" id="L513" title="All 2 branches missed.">            if (this.keys[(start + i) &amp; this.mask] != null)</span>
+            {
+<span class="nc" id="L515">                current++;</span>
+<span class="nc" id="L516">                longest = Math.max(longest, current);</span>
+            }
+            else
+            {
+<span class="nc" id="L520">                current = 0;</span>
+            }
+        }
+
+<span class="nc" id="L524">        return longest;</span>
+    }
+
+    /**
+     * Verifies that no probe chain has a gap, which is the invariant that makes lookups correct.
+     * For every occupied slot, all slots from its home position up to it must be occupied as well.
+     * Also verifies that a free slot does not keep a value reference alive. For testing purposes.
+     *
+     * @return true if all chains are intact
+     */
+    boolean checkChainInvariant()
+    {
+<span class="nc" id="L536">        final int length = this.keys.length;</span>
+
+<span class="nc bnc" id="L538" title="All 2 branches missed.">        for (int i = 0; i &lt; length; i++)</span>
+        {
+<span class="nc" id="L540">            final Object k = this.keys[i];</span>
+
+<span class="nc bnc" id="L542" title="All 2 branches missed.">            if (k == null)</span>
+            {
+                // a free slot must not hold on to a value
+<span class="nc bnc" id="L545" title="All 2 branches missed.">                if (this.values[i] != null)</span>
+                {
+<span class="nc" id="L547">                    return false;</span>
+                }
+                continue;
+            }
+
+<span class="nc" id="L552">            int ptr = homeSlot(k);</span>
+<span class="nc bnc" id="L553" title="All 2 branches missed.">            while (ptr != i)</span>
+            {
+<span class="nc bnc" id="L555" title="All 2 branches missed.">                if (this.keys[ptr] == null)</span>
+                {
+                    // a gap between home position and the real position, this entry is unreachable
+<span class="nc" id="L558">                    return false;</span>
+                }
+<span class="nc" id="L560">                ptr = (ptr + 1) &amp; this.mask;</span>
+            }
+        }
+
+<span class="nc" id="L564">        return true;</span>
+    }
+
+    /**
+     * For debugging purposes. Caps the output for large maps.
+     */
+    @Override
+    public String toString()
+    {
+<span class="nc" id="L573">        final var sj = new StringJoiner(&quot;,\n&quot;, &quot;FastHashMap{\n&quot;, &quot;\n}&quot;);</span>
+
+<span class="nc" id="L575">        final int length = Math.min(this.keys.length, 1024);</span>
+<span class="nc bnc" id="L576" title="All 2 branches missed.">        for (int i = 0; i &lt; length; i++)</span>
+        {
+<span class="nc" id="L578">            final Object k = this.keys[i];</span>
+<span class="nc bnc" id="L579" title="All 2 branches missed.">            if (k == null)</span>
+            {
+<span class="nc" id="L581">                sj.add(i + &quot; FREE&quot;);</span>
+            }
+            else
+            {
+<span class="nc" id="L585">                sj.add(i + &quot; [&quot; + k + &quot;, &quot; + this.values[i] + &quot;, home &quot; + homeSlot(k) + &quot;]&quot;);</span>
+            }
+        }
+<span class="nc" id="L588">        sj.add(&quot;size: &quot; + this.size);</span>
+<span class="nc" id="L589">        sj.add(&quot;capacity: &quot; + this.keys.length);</span>
+
+<span class="nc" id="L591">        return sj.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
