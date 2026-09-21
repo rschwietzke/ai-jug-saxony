@@ -37,6 +37,7 @@
         <pitest-junit5.version>1.2.2</pitest-junit5.version>
         <jmh.version>1.37</jmh.version>
         <jol.version>0.17</jol.version>
+        <commons-text.version>1.14.0</commons-text.version>
     </properties>
 
     <dependencyManagement>
@@ -148,8 +149,42 @@
                 <version>${junit.jupiter.version}</version>
                 <scope>test</scope>
             </dependency>
+
+            <!-- JUnit 4 -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- Apache Commons Text -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>${commons-text.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <!-- Global dependencies available across all submodules -->
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+        </dependency>
+        <!-- JUnit 4 and Vintage Engine for JUnit 4 test compatibility -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <pluginManagement>
