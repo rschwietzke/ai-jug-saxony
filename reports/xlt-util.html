@@ -75,37 +75,11 @@
     <div class="header">
         <div>
             <h1>AI JUG Saxony - com.xceptance.xlt.report.util Evaluation</h1>
-            <p>Comprehensive Evaluation: Performance, Memory, Quality & Verification across AI Models vs Demo 0 Baseline</p>
+            <p>High-Throughput Reporting Utilities (RuntimeHistogram, IntTimeSeries, BitUtil, BitCompression)</p>
         </div>
         <div>
             <a href="index.html" class="action-btn">← Back to Master Dashboard</a>
         </div>
-    </div>
-    <div class="section-nav-banner">
-        <a href="#fasthashmap" class="section-nav-card">
-            <div>
-                <div class="card-tag">⚡ High-Performance Core Map</div>
-                <div class="card-title">FastHashMap</div>
-                <p class="card-desc">Verification matrix, JOL object layouts, and JMH read/write throughput speedup analysis.</p>
-            </div>
-            <div class="card-footer"><span>310 Tests Passed (12.75s)</span><span>Jump to Section ↓</span></div>
-        </a>
-        <a href="#lruclockmap" class="section-nav-card">
-            <div>
-                <div class="card-tag">⏰ Bounded Second-Chance Eviction Cache</div>
-                <div class="card-title">LRUClockMap</div>
-                <p class="card-desc">Comprehensive unit test suites, line/branch coverage, and mutation score verification.</p>
-            </div>
-            <div class="card-footer"><span>376 Tests Passed (6.18s)</span><span>Jump to Section ↓</span></div>
-        </a>
-        <a href="#xlt-report-util" class="section-nav-card active">
-            <div>
-                <div class="card-tag">🧰 High-Throughput Report Utilities</div>
-                <div class="card-title">com.xceptance.xlt.report.util</div>
-                <p class="card-desc">Time series, histograms, bit compression, and bit manipulation test verification.</p>
-            </div>
-            <div class="card-footer"><span>1086 Tests Passed (13.42s)</span><span>Jump to Section ↓</span></div>
-        </a>
     </div>
     <div class="stats-grid">
         <div class="stat-card">
@@ -114,40 +88,26 @@
             <div class="stat-sub">demo0–demo9, demo11, demo12</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">FastHashMap AI Tests</div>
-            <div class="stat-value" style="color: var(--success);">310</div>
-            <div class="stat-sub">Total duration: 12.75s</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">Manual BlackBox Tests</div>
-            <div class="stat-value" style="color: #059669;">289</div>
-            <div class="stat-sub">Total duration: 3.62s</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">LRUClockMap Tests</div>
-            <div class="stat-value" style="color: #0284c7;">376</div>
-            <div class="stat-sub">Total duration: 6.18s</div>
-        </div>
-        <div class="stat-card">
             <div class="stat-label">Report Utility Tests</div>
             <div class="stat-value" style="color: var(--accent);">1086</div>
-            <div class="stat-sub">Total duration: 13.42s</div>
+            <div class="stat-sub">Total duration: 19.98s</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">Peak Put Speedup</div>
-            <div class="stat-value" style="color: #d97706;">1.46x</div>
-            <div class="stat-sub">vs demo0 baseline</div>
+            <div class="stat-label">Core Classes Covered</div>
+            <div class="stat-value" style="color: #0891b2;">5</div>
+            <div class="stat-sub">Histogram, TimeSeries, Bit tools</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Test Pass Rate</div>
+            <div class="stat-value" style="color: var(--success);">100%</div>
+            <div class="stat-sub">All utility tests passing ✅</div>
         </div>
     </div>
     <div class="quick-actions">
         <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Direct Links:</span>
-        <a href="#fasthashmap" class="action-btn">⚡ FastHashMap</a>
-        <a href="#lruclockmap" class="action-btn">⏰ LRUClockMap</a>
-        <a href="#xlt-report-util" class="action-btn">🧰 com.xceptance.xlt.report.util</a>
-        <a href="surefire.html" class="action-btn">🧪 Unit Test Suites</a>
+        <a href="#xlt-report-util" class="action-btn">🧰 Utility Tests</a>
+        <a href="surefire.html#xlt-util" class="action-btn">🧪 Test Reports</a>
         <a href="coverage-aggregate/index.html" class="action-btn">🎯 JaCoCo Coverage</a>
-        <a href="jol-report.html" class="action-btn">💾 JOL Memory</a>
-        <a href="jmh-report.html" class="action-btn">⚡ JMH Benchmarks</a>
     </div>
     <!-- SUB-SECTION 3: com.xceptance.xlt.report.util -->
     <div id="xlt-report-util" class="card">
@@ -155,9 +115,6 @@
             <div>
                 <h2>🧰 com.xceptance.xlt.report.util — Quality, Coverage & Mutation Verification</h2>
                 <div class="section-desc">Verification matrix for high-throughput reporting utilities (RuntimeHistogram, IntTimeSeries, BitUtil, BitCompression) across all modules.</div>
-            </div>
-            <div>
-                <a href="xlt-util.html" class="subpage-link">Open Dedicated Page ↗</a>
             </div>
         </div>
         <table>
@@ -176,108 +133,108 @@
             <tbody>
                 <tr>
                     <td><strong>demo0</strong></td>
-                    <td><span class="badge badge-info">Baseline / Reference (FastRandom)</span></td>
-                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">92 Passed</a> <span class="badge badge-time">⏱️ 1.00s</span></td>
+                    <td><span class="badge badge-info">Human Baseline</span></td>
+                    <td><a href="surefire.html#xlt-util" class="badge badge-success" style="text-decoration: none;">92 Passed</a> <span class="badge badge-time">⏱️ 1.48s</span></td>
                     <td><a href="jacoco/demo0/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>58.3%</strong></a> (3635/6230)</td>
                     <td><a href="jacoco/demo0/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">45.3%</a> (316/698)</td>
                     <td><a href="jacoco/demo0/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">59.2%</a> (129/218)</td>
-                    <td><span class="badge badge-info">N/A</span></td>
+                    <td><a href="pit-reports/demo0/index.html" class="badge badge-warning" style="text-decoration: none;">29.4% (346/1177)</a></td>
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
                     <td><strong>demo1</strong></td>
                     <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity)</span></td>
-                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">103 Passed</a> <span class="badge badge-time">⏱️ 1.60s</span></td>
+                    <td><a href="surefire.html#xlt-util" class="badge badge-success" style="text-decoration: none;">103 Passed</a> <span class="badge badge-time">⏱️ 0.60s</span></td>
                     <td><a href="jacoco/demo1/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>99.7%</strong></a> (6212/6230)</td>
                     <td><a href="jacoco/demo1/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">99.1%</a> (692/698)</td>
                     <td><a href="jacoco/demo1/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">96.8%</a> (211/218)</td>
-                    <td><span class="badge badge-info">N/A</span></td>
+                    <td><a href="pit-reports/demo1/index.html" class="badge badge-warning" style="text-decoration: none;">93.5% (1101/1177)</a></td>
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
                     <td><strong>demo2</strong></td>
                     <td><span class="badge badge-info">Kimi K3 (Kilo Code)</span></td>
-                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">95 Passed</a> <span class="badge badge-time">⏱️ 0.42s</span></td>
+                    <td><a href="surefire.html#xlt-util" class="badge badge-success" style="text-decoration: none;">95 Passed</a> <span class="badge badge-time">⏱️ 0.55s</span></td>
                     <td><a href="jacoco/demo2/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>57.7%</strong></a> (3592/6230)</td>
                     <td><a href="jacoco/demo2/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">43.6%</a> (304/698)</td>
                     <td><a href="jacoco/demo2/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">54.1%</a> (118/218)</td>
-                    <td><span class="badge badge-info">N/A</span></td>
+                    <td><a href="pit-reports/demo2/index.html" class="badge badge-warning" style="text-decoration: none;">25.5% (300/1177)</a></td>
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
                     <td><strong>demo3</strong></td>
                     <td><span class="badge badge-info">OpenAI 5.6 Sol Max (Kilo Code)</span></td>
-                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">40 Passed</a> <span class="badge badge-time">⏱️ 0.31s</span></td>
+                    <td><a href="surefire.html#xlt-util" class="badge badge-success" style="text-decoration: none;">40 Passed</a> <span class="badge badge-time">⏱️ 0.47s</span></td>
                     <td><a href="jacoco/demo3/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>99.6%</strong></a> (6208/6230)</td>
                     <td><a href="jacoco/demo3/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">98.9%</a> (690/698)</td>
                     <td><a href="jacoco/demo3/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">95.9%</a> (209/218)</td>
-                    <td><span class="badge badge-info">N/A</span></td>
+                    <td><a href="pit-reports/demo3/index.html" class="badge badge-warning" style="text-decoration: none;">96.5% (1136/1177)</a></td>
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
                     <td><strong>demo4</strong></td>
                     <td><span class="badge badge-info">Gemma 4 31B Thinking (Kilo Code)</span></td>
-                    <td><a href="surefire.html" class="badge badge-warning" style="text-decoration: none;">12/15 Passed</a> <span class="badge badge-time">⏱️ 0.22s</span></td>
+                    <td><a href="surefire.html#xlt-util" class="badge badge-warning" style="text-decoration: none;">12/15 Passed</a> <span class="badge badge-time">⏱️ 0.22s</span></td>
                     <td><a href="jacoco/demo4/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>52.2%</strong></a> (3252/6230)</td>
                     <td><a href="jacoco/demo4/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">33.4%</a> (233/698)</td>
                     <td><a href="jacoco/demo4/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">36.2%</a> (79/218)</td>
-                    <td><span class="badge badge-info">N/A</span></td>
+                    <td><a href="pit-reports/demo4/index.html" class="badge badge-warning" style="text-decoration: none;">13.2% (155/1177)</a></td>
                     <td><span class="badge badge-warning">⚠ 3 Failed</span></td>
                 </tr>
                 <tr>
                     <td><strong>demo5</strong></td>
                     <td><span class="badge badge-info">Deepseek V4 Flash Max (Kilo Code)</span></td>
-                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">71 Passed</a> <span class="badge badge-time">⏱️ 0.85s</span></td>
+                    <td><a href="surefire.html#xlt-util" class="badge badge-success" style="text-decoration: none;">71 Passed</a> <span class="badge badge-time">⏱️ 1.39s</span></td>
                     <td><a href="jacoco/demo5/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>97.9%</strong></a> (6097/6230)</td>
                     <td><a href="jacoco/demo5/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">97.3%</a> (679/698)</td>
                     <td><a href="jacoco/demo5/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">87.6%</a> (191/218)</td>
-                    <td><span class="badge badge-info">N/A</span></td>
+                    <td><a href="pit-reports/demo5/index.html" class="badge badge-warning" style="text-decoration: none;">91.2% (1073/1177)</a></td>
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
                     <td><strong>demo6</strong></td>
                     <td><span class="badge badge-info">Claude Opus 5 Ultra (Claude)</span></td>
-                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">203 Passed</a> <span class="badge badge-time">⏱️ 2.14s</span></td>
+                    <td><a href="surefire.html#xlt-util" class="badge badge-success" style="text-decoration: none;">203 Passed</a> <span class="badge badge-time">⏱️ 3.34s</span></td>
                     <td><a href="jacoco/demo6/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>100.0%</strong></a> (6230/6230)</td>
                     <td><a href="jacoco/demo6/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">100.0%</a> (698/698)</td>
                     <td><a href="jacoco/demo6/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">100.0%</a> (218/218)</td>
-                    <td><span class="badge badge-info">N/A</span></td>
+                    <td><a href="pit-reports/demo6/index.html" class="badge badge-warning" style="text-decoration: none;">98.6% (1160/1177)</a></td>
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
                     <td><strong>demo7</strong></td>
                     <td><span class="badge badge-info">Qwen 38 max XHigh (Kilo Code)</span></td>
-                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">106 Passed</a> <span class="badge badge-time">⏱️ 0.77s</span></td>
+                    <td><a href="surefire.html#xlt-util" class="badge badge-success" style="text-decoration: none;">106 Passed</a> <span class="badge badge-time">⏱️ 0.91s</span></td>
                     <td><a href="jacoco/demo7/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>100.0%</strong></a> (6228/6230)</td>
                     <td><a href="jacoco/demo7/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">99.9%</a> (697/698)</td>
                     <td><a href="jacoco/demo7/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">99.5%</a> (217/218)</td>
-                    <td><span class="badge badge-info">N/A</span></td>
+                    <td><a href="pit-reports/demo7/index.html" class="badge badge-warning" style="text-decoration: none;">96.5% (1136/1177)</a></td>
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
                     <td><strong>demo8</strong></td>
                     <td><span class="badge badge-info">Gemini 3.7 Flash High (Kilo Code)</span></td>
-                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">45 Passed</a> <span class="badge badge-time">⏱️ 0.35s</span></td>
+                    <td><a href="surefire.html#xlt-util" class="badge badge-success" style="text-decoration: none;">45 Passed</a> <span class="badge badge-time">⏱️ 0.36s</span></td>
                     <td><a href="jacoco/demo8/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>99.8%</strong></a> (6220/6230)</td>
                     <td><a href="jacoco/demo8/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">99.3%</a> (693/698)</td>
                     <td><a href="jacoco/demo8/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">97.2%</a> (212/218)</td>
-                    <td><span class="badge badge-info">N/A</span></td>
+                    <td><a href="pit-reports/demo8/index.html" class="badge badge-warning" style="text-decoration: none;">92.3% (1086/1177)</a></td>
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
                     <td><strong>demo9</strong></td>
                     <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity)</span></td>
-                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">86 Passed</a> <span class="badge badge-time">⏱️ 1.89s</span></td>
+                    <td><a href="surefire.html#xlt-util" class="badge badge-success" style="text-decoration: none;">86 Passed</a> <span class="badge badge-time">⏱️ 1.61s</span></td>
                     <td><a href="jacoco/demo9/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>99.7%</strong></a> (6214/6230)</td>
                     <td><a href="jacoco/demo9/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">98.9%</a> (690/698)</td>
                     <td><a href="jacoco/demo9/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">95.9%</a> (209/218)</td>
-                    <td><span class="badge badge-info">N/A</span></td>
+                    <td><a href="pit-reports/demo9/index.html" class="badge badge-warning" style="text-decoration: none;">94.1% (1108/1177)</a></td>
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
                     <td><strong>demo11</strong></td>
                     <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
-                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">113 Passed</a> <span class="badge badge-time">⏱️ 1.96s</span></td>
+                    <td><a href="surefire.html#xlt-util" class="badge badge-success" style="text-decoration: none;">113 Passed</a> <span class="badge badge-time">⏱️ 6.98s</span></td>
                     <td><a href="jacoco/demo11/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>100.0%</strong></a> (6230/6230)</td>
                     <td><a href="jacoco/demo11/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">100.0%</a> (698/698)</td>
                     <td><a href="jacoco/demo11/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">100.0%</a> (218/218)</td>
@@ -287,7 +244,7 @@
                 <tr>
                     <td><strong>demo12</strong></td>
                     <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
-                    <td><a href="surefire.html" class="badge badge-success" style="text-decoration: none;">117 Passed</a> <span class="badge badge-time">⏱️ 1.91s</span></td>
+                    <td><a href="surefire.html#xlt-util" class="badge badge-success" style="text-decoration: none;">117 Passed</a> <span class="badge badge-time">⏱️ 2.07s</span></td>
                     <td><a href="jacoco/demo12/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>100.0%</strong></a> (6230/6230)</td>
                     <td><a href="jacoco/demo12/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">100.0%</a> (698/698)</td>
                     <td><a href="jacoco/demo12/xlt-util-coverage.html" style="color: inherit; text-decoration: underline;">100.0%</a> (218/218)</td>
@@ -317,7 +274,7 @@
                 <tbody>
                     <tr>
                         <td><strong>demo0</strong></td>
-                        <td><span class="badge badge-info">Baseline / Reference (FastRandom)</span></td>
+                        <td><span class="badge badge-info">Human Baseline</span></td>
                         <td class="numeric"><a href="jacoco/demo0/com.xceptance.xlt.report.util/RuntimeHistogram.java.html" style="color: #0284c7; text-decoration: underline;">98.3%</a> <span style="font-size: 0.72rem; color: var(--text-muted);">(352/358)</span></td>
                         <td class="numeric"><a href="jacoco/demo0/com.xceptance.xlt.report.util.lucene/BitUtil.java.html" style="color: #b45309; font-weight: 700; text-decoration: underline;">44.8%</a> <span style="font-size: 0.72rem; color: var(--text-muted);">(2089/4667)</span></td>
                         <td class="numeric"><a href="jacoco/demo0/com.xceptance.xlt.report.util.misc/BitCompression.java.html" class="badge badge-success" style="text-decoration:none;">100.0%</a></td>

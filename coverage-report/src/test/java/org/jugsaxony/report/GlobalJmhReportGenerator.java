@@ -54,7 +54,7 @@ public class GlobalJmhReportGenerator {
     }
 
     public static final Map<String, String> MODEL_NAMES = Map.ofEntries(
-            Map.entry("demo0", "Demo 0 (Baseline / FastRandom)"),
+            Map.entry("demo0", "Demo 0 (Human Baseline)"),
             Map.entry("demo1", "Demo 1 (Gemini 3.7 Flash High / Antigravity)"),
             Map.entry("demo2", "Demo 2 (Kimi K3)"),
             Map.entry("demo3", "Demo 3 (OpenAI 5.6 Sol Max)"),

@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IntTimeSeriesEntry.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">demo5</a> &gt; <a href="index.source.html" class="el_package">com.xceptance.xlt.report.util.rework</a> &gt; <span class="el_source">IntTimeSeriesEntry.java</span></div><h1>IntTimeSeriesEntry.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2005-2025 Xceptance Software Technologies GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.xceptance.xlt.report.util.rework;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import com.xceptance.xlt.report.util.misc.BitCompression;
+
+/**
+ * A {@link IntTimeSeriesEntry} stores the minimum/maximum/sum/count of all the sample values added, but can also reproduce a
+ * rough approximation of the distinct values added.
+ */
+public class IntTimeSeriesEntry
+{
+    // The sum for later average calculation
+<span class="nc" id="L31">    private long totalValue = 0;</span>
+
+    // how much data have we seen
+<span class="nc" id="L34">    private int count = 0;</span>
+
+    // how much concurrent measurements do we truly have
+<span class="nc" id="L37">    private int concurrentCount = 0;</span>
+    
+    // how many error have we seen
+<span class="nc" id="L40">    private int errorCount = 0;</span>
+    
+    // the min and max values seen
+<span class="nc" id="L43">    private int maximum = Integer.MIN_VALUE;</span>
+<span class="nc" id="L44">    private int minimum = Integer.MAX_VALUE;</span>
+
+    /**
+     * Holds an approximation of the distinct values added to this min-max value.
+     * This was LowPrecisionIntValueSet before. We moved it here for less memory consumption
+     * and better performance. We also limit it to 128 distinct values. We used 256 before
+     * but wee we started with XLT it was 128 for a long time.
+     */
+<span class="nc" id="L52">    private long distinctValuesLow = 0;</span>
+<span class="nc" id="L53">    private long distinctValuesHigh = 0;</span>
+
+    /**
+     * The value scaling factor. 2 pow scale.
+     */
+<span class="nc" id="L58">    private int distinctValuesScale = 0;</span>
+
+    /**
+     * Constructor.
+     */
+<span class="nc" id="L63">    public IntTimeSeriesEntry()</span>
+    {
+<span class="nc" id="L65">    }</span>
+
+    /**
+     * Constructor.
+     * 
+     * @param value
+     *            the first value to add
+     */
+<span class="nc" id="L73">    public IntTimeSeriesEntry(final int firstValue, final boolean failed)</span>
+    {
+<span class="nc" id="L75">        updateValue(firstValue, failed);</span>
+<span class="nc" id="L76">    }</span>
+
+    /**
+     * Adds the given sample value to this min-max value.
+     * 
+     * @param value
+     *            the sample to add
+     */
+    public void updateValue(final int value, final boolean failed)
+    {
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        var v = value &lt; 0 ? 0 : value;</span>
+
+<span class="nc" id="L88">        this.count++;</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        this.errorCount += failed ? 1 : 0;</span>
+<span class="nc" id="L90">        this.totalValue += v;</span>
+<span class="nc" id="L91">        this.concurrentCount++;</span>
+
+        // use explicit comparisons to avoid Math.max/Math.min calls
+        // and writing the values when not necessary
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (v &gt; this.maximum)</span>
+        {
+<span class="nc" id="L97">            this.maximum = v;</span>
+        }
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (value &lt; this.minimum)</span>
+        {
+<span class="nc" id="L101">            this.minimum = v;</span>
+        }
+        
+<span class="nc" id="L104">        v = scaleIfNeeded(v);</span>
+        
+        // set distinct values
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (v &lt; 64)</span>
+        {
+<span class="nc" id="L109">            distinctValuesLow |= (1L &lt;&lt; v);</span>
+<span class="nc" id="L110">        }</span>
+        else
+        {
+<span class="nc" id="L113">            distinctValuesHigh |= (1L &lt;&lt; (v - 64));</span>
+        }
+<span class="nc" id="L115">    }</span>
+
+    /**
+     * Increase the concurrency count by one for this slot.
+     */
+    public void updateConcurrency()
+    {
+<span class="nc" id="L122">        this.concurrentCount++;</span>
+<span class="nc" id="L123">    }</span>
+    
+    /**
+     * Adds a value to this set, we support only positive values.
+     * 
+     * @param value
+     *            the value
+     * @return the scaled value
+     */
+    private int scaleIfNeeded(final int value)
+    {
+        // adjust the value according to the current scale
+<span class="nc" id="L135">        var v  = value &gt;&gt; distinctValuesScale; // div</span>
+
+        // make the value fit into the bit set by scaling the bit set as necessary
+<span class="nc bnc" id="L138" title="All 2 branches missed.">        while (v &gt;= 128)</span>
+        {
+            // we join adjacent buckets by increasing joining the bits adjacent bits
+            // this means we lose precision, but we can still
+<span class="nc" id="L142">            var l = distinctValuesLow = BitCompression.combineAdjacentBits(distinctValuesLow);</span>
+<span class="nc" id="L143">            l = BitCompression.compressAndShiftOddBits(l);</span>
+
+<span class="nc" id="L145">            var h = BitCompression.combineAdjacentBits(distinctValuesHigh);</span>
+<span class="nc" id="L146">            h = BitCompression.compressAndShiftOddBits(h);</span>
+
+            // join them in low
+<span class="nc" id="L149">            distinctValuesLow = l | (h &lt;&lt; 32);</span>
+            // clear high part  
+<span class="nc" id="L151">            distinctValuesHigh = 0;</span>
+
+            // increase scale and try again
+<span class="nc" id="L154">            v = value &gt;&gt; (++distinctValuesScale); </span>
+        }
+
+<span class="nc" id="L157">        return v;</span>
+    }
+
+    /**
+     * Returns the sum of the values added to this min-max value.
+     * 
+     * @return the accumulated value
+     */
+    public long getTotalValue()
+    {
+<span class="nc" id="L167">        return this.totalValue;</span>
+    }
+
+    /**
+     * Returns the average of the values added to this min-max value.
+     * 
+     * @return the average value
+     */
+    public int getAverageValue()
+    {
+<span class="nc bnc" id="L177" title="All 2 branches missed.">        return this.count == 0 ? 0 : (int) (this.totalValue / this.count);</span>
+
+    }
+
+    /**
+     * Returns the maximum of the values added to this min-max value.
+     * 
+     * @return the maximum value
+     */
+    public int getMaximumValue()
+    {
+<span class="nc bnc" id="L188" title="All 2 branches missed.">        return maximum == Integer.MIN_VALUE ? 0 : maximum;</span>
+    }
+
+    /**
+     * Returns the minimum of the values added to this min-max value.
+     * 
+     * @return the minimum value
+     */
+    public int getMinimumValue()
+    {
+<span class="nc bnc" id="L198" title="All 2 branches missed.">        return minimum == Integer.MAX_VALUE ? 0 : minimum;</span>
+    }
+
+    /**
+     * Returns the number of errors added to this min-max value.
+     */
+    public int getErrorCount()
+    {
+<span class="nc" id="L206">        return this.errorCount;</span>
+    }
+    
+    /**
+     * Returns an approximation of the distinct values added to this min-max value.
+     * 
+     * @return the values
+     */
+    public double[] getValues()
+    {
+<span class="nc" id="L216">        final List&lt;Double&gt; values = new ArrayList&lt;&gt;(128);</span>
+
+<span class="nc bnc" id="L218" title="All 2 branches missed.">        for (int i = 0; i &lt; 128; i++) </span>
+        {
+<span class="nc bnc" id="L220" title="All 4 branches missed.">            final boolean set = (i &lt; 64) ? ((distinctValuesLow &amp; (1L &lt;&lt; i)) != 0) </span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">                                         : ((distinctValuesHigh &amp; (1L &lt;&lt; (i - 64))) != 0);</span>
+<span class="nc" id="L222">            final double v = (1L &lt;&lt; distinctValuesScale ) * i; </span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">            if (set)</span>
+            {
+<span class="nc" id="L225">                values.add(v);</span>
+            }
+        }
+
+<span class="nc" id="L229">        return values.stream().mapToDouble(Double::doubleValue).toArray();</span>
+    }
+
+    /**
+     * Returns the number of values added 
+     * 
+     * @return the count
+     */
+    public int getCount()
+    {
+<span class="nc" id="L239">        return this.count;</span>
+    }
+
+    /**
+     * Returns the number of concurrent measurements added
+     * 
+     * @return the count
+     */
+    public int getConcurrentCount()
+    {
+<span class="nc" id="L249">        return this.concurrentCount;</span>
+    }
+    
+    /**
+     * Merges the data. Attention: This might modify the given item
+     * because we have to scale it to our scale or vice versa.
+     * 
+     * @param item
+     *            the other value
+     */
+    public IntTimeSeriesEntry merge(final IntTimeSeriesEntry item)
+    {
+        // we can only merge the same scale
+<span class="nc bnc" id="L262" title="All 2 branches missed.">        if (item.distinctValuesScale &gt; this.distinctValuesScale)</span>
+        {
+            // we need to scale up our values
+<span class="nc bnc" id="L265" title="All 2 branches missed.">            while (item.distinctValuesScale &gt; this.distinctValuesScale)</span>
+            {
+<span class="nc" id="L267">                distinctValuesLow = BitCompression.combineAdjacentBits(distinctValuesLow);</span>
+<span class="nc" id="L268">                distinctValuesLow = BitCompression.compressAndShiftOddBits(distinctValuesLow);</span>
+
+<span class="nc" id="L270">                distinctValuesHigh = BitCompression.combineAdjacentBits(distinctValuesHigh);</span>
+<span class="nc" id="L271">                distinctValuesHigh = BitCompression.compressAndShiftOddBits(distinctValuesHigh);</span>
+
+                // increase scale
+<span class="nc" id="L274">                distinctValuesScale++;</span>
+            }
+<span class="nc" id="L276">        }</span>
+<span class="nc bnc" id="L277" title="All 2 branches missed.">        else if (item.distinctValuesScale &lt; this.distinctValuesScale)</span>
+        {
+            // we need to scale up the other values
+<span class="nc bnc" id="L280" title="All 2 branches missed.">            while (item.distinctValuesScale &lt; this.distinctValuesScale)</span>
+            {
+<span class="nc" id="L282">                item.distinctValuesLow = BitCompression.combineAdjacentBits(item.distinctValuesLow);</span>
+<span class="nc" id="L283">                item.distinctValuesLow = BitCompression.compressAndShiftOddBits(item.distinctValuesLow);</span>
+
+<span class="nc" id="L285">                item.distinctValuesHigh = BitCompression.combineAdjacentBits(item.distinctValuesHigh);</span>
+<span class="nc" id="L286">                item.distinctValuesHigh = BitCompression.compressAndShiftOddBits(item.distinctValuesHigh);</span>
+
+                // increase scale
+<span class="nc" id="L289">                item.distinctValuesScale++;</span>
+            }
+        }
+        
+<span class="nc" id="L293">        maximum = Math.max(maximum, item.maximum);</span>
+<span class="nc" id="L294">        minimum = Math.min(minimum, item.minimum);</span>
+
+<span class="nc" id="L296">        totalValue += item.totalValue;</span>
+<span class="nc" id="L297">        count += item.count;</span>
+        // because we count concurrency per entry, we have to take the maximum here
+        // and cannot sum them up
+<span class="nc" id="L300">        concurrentCount = Math.max(concurrentCount, item.concurrentCount);</span>
+<span class="nc" id="L301">        errorCount += item.errorCount;</span>
+
+<span class="nc" id="L303">        distinctValuesLow |= item.distinctValuesLow;</span>
+<span class="nc" id="L304">        distinctValuesHigh |= item.distinctValuesHigh;</span>
+
+<span class="nc" id="L306">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString()
+    {
+        // that is only for debugging
+<span class="nc" id="L316">        return </span>
+<span class="nc" id="L317">            getCount() + &quot; / &quot; +</span>
+<span class="nc" id="L318">            getConcurrentCount() + &quot; / &quot; +</span>
+<span class="nc" id="L319">            getErrorCount() + &quot; / &quot; +</span>
+<span class="nc" id="L320">            getTotalValue() + &quot; / &quot; +</span>
+<span class="nc" id="L321">            getAverageValue() + &quot; / &quot; +</span>
+<span class="nc" id="L322">            getMinimumValue() + &quot; / &quot; + </span>
+<span class="nc" id="L323">            getMaximumValue() + &quot; / &quot; + </span>
+<span class="nc" id="L324">            Arrays.toString(getValues()) + &quot;\n&quot;;</span>
+    }
+
+    @Override
+    public boolean equals(final Object obj)
+    {
+<span class="nc bnc" id="L330" title="All 2 branches missed.">        if (this == obj)</span>
+        {
+<span class="nc" id="L332">            return true;</span>
+        }
+<span class="nc bnc" id="L334" title="All 2 branches missed.">        if (obj == null)</span>
+        {
+<span class="nc" id="L336">            return false;</span>
+        }
+<span class="nc bnc" id="L338" title="All 2 branches missed.">        if (getClass() != obj.getClass())</span>
+        {
+<span class="nc" id="L340">            return false;</span>
+        }
+<span class="nc" id="L342">        final IntTimeSeriesEntry other = (IntTimeSeriesEntry) obj;</span>
+<span class="nc bnc" id="L343" title="All 2 branches missed.">        if (count != other.count)</span>
+        {
+<span class="nc" id="L345">            return false;</span>
+        }
+<span class="nc bnc" id="L347" title="All 2 branches missed.">        if (maximum != other.maximum)</span>
+        {
+<span class="nc" id="L349">            return false;</span>
+        }
+<span class="nc bnc" id="L351" title="All 2 branches missed.">        if (minimum != other.minimum)</span>
+        {
+<span class="nc" id="L353">            return false;</span>
+        }
+<span class="nc bnc" id="L355" title="All 2 branches missed.">        if (totalValue != other.totalValue)</span>
+        {
+<span class="nc" id="L357">            return false;</span>
+        }
+<span class="nc bnc" id="L359" title="All 2 branches missed.">        if (errorCount != other.errorCount)</span>
+        {
+<span class="nc" id="L361">            return false;</span>
+        }
+<span class="nc bnc" id="L363" title="All 2 branches missed.">        if (distinctValuesLow != other.distinctValuesLow)</span>
+        {
+<span class="nc" id="L365">            return false;</span>
+        }
+<span class="nc bnc" id="L367" title="All 2 branches missed.">        if (distinctValuesHigh != other.distinctValuesHigh)</span>
+        {
+<span class="nc" id="L369">            return false;</span>
+        }
+<span class="nc bnc" id="L371" title="All 2 branches missed.">        if (concurrentCount != other.concurrentCount)</span>
+        {
+<span class="nc" id="L373">            return false;</span>
+        }
+<span class="nc bnc" id="L375" title="All 2 branches missed.">        if (distinctValuesScale != other.distinctValuesScale)</span>
+        {
+<span class="nc" id="L377">            return false;</span>
+        }
+<span class="nc" id="L379">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

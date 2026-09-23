@@ -6,7 +6,7 @@ A comparative benchmark evaluating AI coding assistants and LLMs implementing hi
 
 | Module | AI Model / Source | Tooling / Environment | Storage Strategy |
 | :--- | :--- | :--- | :--- |
-| **`demo0`** | Human Baseline / Reference | Manual implementation & test suite | Flat parallel `Object[]` arrays |
+| **`demo0`** | Human Baseline | Manual implementation & test suite | Flat parallel `Object[]` arrays |
 | **`demo1`** | Gemini 3.7 Flash High | Antigravity (VS Code) | Flat parallel `Object[]` arrays |
 | **`demo2`** | Kimi K3 | Kilo Code Max (VS Code) | Flat parallel `Object[]` arrays |
 | **`demo3`** | OpenAI 5.6 Sol Max | Kilo Code (VS Code) | Flat parallel `Object[]` arrays |

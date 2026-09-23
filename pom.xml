@@ -228,10 +228,19 @@
                     <configuration>
                         <targetClasses>
                             <param>org.jugsaxony.*</param>
+                            <param>com.xceptance.xlt.report.util.*</param>
                         </targetClasses>
                         <targetTests>
                             <param>org.jugsaxony.*</param>
+                            <param>com.xceptance.xlt.report.util.*</param>
                         </targetTests>
+                        <excludedTestClasses>
+                            <param>*Benchmark*</param>
+                            <param>*EfficiencyTest*</param>
+                        </excludedTestClasses>
+                        <mutators>
+                            <mutator>STRONGER</mutator>
+                        </mutators>
                         <outputFormats>
                             <outputFormat>HTML</outputFormat>
                             <outputFormat>XML</outputFormat>
@@ -239,6 +248,7 @@
                         </outputFormats>
                         <threads>4</threads>
                         <timestampedReports>false</timestampedReports>
+                        <skipFailingTests>true</skipFailingTests>
                     </configuration>
                 </plugin>
                 <plugin>

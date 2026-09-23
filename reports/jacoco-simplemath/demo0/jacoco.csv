@@ -1,0 +1,16 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+demo0,com.xceptance.common.lang,OpenStringBuilder,3132,110,506,8,684,30,369,11,115,8
+demo0,org.jugsaxony.demo0,LRUClockMap.DebugWrapper,49,0,0,0,9,0,2,0,2,0
+demo0,org.jugsaxony.demo0,FastHashMap,651,0,72,0,131,0,50,0,14,0
+demo0,org.jugsaxony.demo0,LRUClockMap.Wrapper,22,0,0,0,6,0,2,0,2,0
+demo0,org.jugsaxony.demo0,SimpleMath,3,42,0,6,1,6,1,6,1,3
+demo0,org.jugsaxony.demo0,LRUClockMap,628,0,62,0,150,0,52,0,21,0
+demo0,org.jugsaxony.demo0,SimpleMathClean,3,42,0,6,1,6,1,6,1,3
+demo0,com.xceptance.xlt.report.util.misc,BitCompression,54,0,0,0,8,0,2,0,2,0
+demo0,com.xceptance.xlt.report.util.rework,IntTimeSeries,569,0,36,0,108,0,43,0,25,0
+demo0,com.xceptance.xlt.report.util.rework,IntTimeSeries.HistogramBucket,20,0,0,0,2,0,2,0,2,0
+demo0,com.xceptance.xlt.report.util.rework,IntTimeSeriesEntry,542,0,60,0,115,0,46,0,16,0
+demo0,com.xceptance.xlt.report.util.rework,IntTimeSeries.Statistics,18,0,0,0,6,0,1,0,1,0
+demo0,com.xceptance.xlt.report.util,RuntimeHistogram,358,0,36,0,80,0,31,0,13,0
+demo0,com.xceptance.xlt.report.util.lucene,BitUtil,3643,0,86,0,392,0,59,0,16,0
+demo0,com.xceptance.xlt.api.util,XltCharBuffer,4,884,3,77,2,146,3,75,0,38

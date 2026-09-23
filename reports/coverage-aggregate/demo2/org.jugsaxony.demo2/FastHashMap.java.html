@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FastHashMap.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">coverage-report</a> &gt; <a href="../index.html" class="el_bundle">demo2</a> &gt; <a href="index.source.html" class="el_package">org.jugsaxony.demo2</a> &gt; <span class="el_source">FastHashMap.java</span></div><h1>FastHashMap.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2005-2026 Xceptance Software Technologies GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jugsaxony.demo2;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * A general-purpose hash map based on open addressing with linear probing.
+ * &lt;p&gt;
+ * The backing storage consists of two parallel arrays (keys and values) whose
+ * length is always a power of two. The map grows automatically (doubling its
+ * capacity) when the load factor of 0.75 is exceeded, so it is unbounded.
+ * Deletion is performed with backward-shift cluster repair, so no tombstones
+ * are used and lookup performance does not degrade after removals.
+ * &lt;p&gt;
+ * Null keys are not permitted and cause a {@link NullPointerException}.
+ * Null values are permitted. A {@code null} return value from {@link #get(Object)}
+ * therefore means either &quot;no mapping&quot; or &quot;mapped to null&quot; (same semantics as
+ * {@link java.util.HashMap}).
+ * &lt;p&gt;
+ * This class is &lt;b&gt;not thread-safe&lt;/b&gt;.
+ *
+ * @param &lt;K&gt; the key type
+ * @param &lt;V&gt; the value type
+ *
+ * @author René Schwietzke (Xceptance Software Technologies GmbH)
+ */
+public class FastHashMap&lt;K, V&gt;
+{
+    /**
+     * Initial capacity of the backing arrays. Must be a power of two.
+     */
+    private static final int DEFAULT_CAPACITY = 16;
+
+    /**
+     * Load factor at which the map grows.
+     */
+    private static final float LOAD_FACTOR = 0.75f;
+
+    /**
+     * The keys. A {@code null} slot means &quot;empty&quot;.
+     */
+    private K[] keys;
+
+    /**
+     * The values. Only meaningful where {@link #keys} is non-null; may itself be null.
+     */
+    private V[] values;
+
+    /**
+     * Number of mappings in the map.
+     */
+    private int size;
+
+    /**
+     * Mask for index calculations, always {@code keys.length - 1}.
+     */
+    private int mask;
+
+    /**
+     * Creates an empty map with default initial capacity (16) and load factor (0.75).
+     */
+    public FastHashMap()
+<span class="fc" id="L79">    {</span>
+<span class="fc" id="L80">        this.keys = newArray(DEFAULT_CAPACITY);</span>
+<span class="fc" id="L81">        this.values = newArray(DEFAULT_CAPACITY);</span>
+<span class="fc" id="L82">        this.mask = DEFAULT_CAPACITY - 1;</span>
+<span class="fc" id="L83">        this.size = 0;</span>
+<span class="fc" id="L84">    }</span>
+
+    /**
+     * Returns the value mapped to {@code key}, or {@code null} if there is no mapping
+     * (or the mapping is {@code null}).
+     *
+     * @param key the key to look up, must not be null
+     * @return the associated value or {@code null}
+     * @throws NullPointerException if {@code key} is null
+     */
+    public V get(final K key)
+    {
+<span class="fc" id="L96">        Objects.requireNonNull(key, &quot;key must not be null&quot;);</span>
+
+<span class="fc" id="L98">        int pos = index(key);</span>
+<span class="fc" id="L99">        K k = keys[pos];</span>
+
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        while (k != null)</span>
+        {
+<span class="fc bfc" id="L103" title="All 2 branches covered.">            if (k.equals(key))</span>
+            {
+<span class="fc" id="L105">                return values[pos];</span>
+            }
+<span class="fc" id="L107">            pos = (pos + 1) &amp; mask;</span>
+<span class="fc" id="L108">            k = keys[pos];</span>
+        }
+
+<span class="fc" id="L111">        return null;</span>
+    }
+
+    /**
+     * Associates {@code value} with {@code key}. Replaces an existing mapping.
+     * Grows the map when the load factor is exceeded.
+     *
+     * @param key the key, must not be null
+     * @param value the value, may be null
+     * @return the previous value associated with {@code key}, or {@code null}
+     * @throws NullPointerException if {@code key} is null
+     */
+    public V put(final K key, final V value)
+    {
+<span class="fc" id="L125">        Objects.requireNonNull(key, &quot;key must not be null&quot;);</span>
+
+<span class="fc" id="L127">        int pos = index(key);</span>
+<span class="fc" id="L128">        K k = keys[pos];</span>
+
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        while (k != null)</span>
+        {
+<span class="fc bfc" id="L132" title="All 2 branches covered.">            if (k.equals(key))</span>
+            {
+<span class="fc" id="L134">                final V oldValue = values[pos];</span>
+<span class="fc" id="L135">                values[pos] = value;</span>
+<span class="fc" id="L136">                return oldValue;</span>
+            }
+<span class="fc" id="L138">            pos = (pos + 1) &amp; mask;</span>
+<span class="fc" id="L139">            k = keys[pos];</span>
+        }
+
+        // empty slot found -&gt; insert
+<span class="fc" id="L143">        keys[pos] = key;</span>
+<span class="fc" id="L144">        values[pos] = value;</span>
+<span class="fc" id="L145">        size++;</span>
+
+<span class="fc bfc" id="L147" title="All 2 branches covered.">        if (size &gt; (int)(keys.length * LOAD_FACTOR))</span>
+        {
+<span class="fc" id="L149">            resize(keys.length &lt;&lt; 1);</span>
+        }
+
+<span class="fc" id="L152">        return null;</span>
+    }
+
+    /**
+     * Removes the mapping for {@code key} if present. Uses backward-shift
+     * cluster repair so no tombstones remain and probe chains stay intact.
+     *
+     * @param key the key to remove, must not be null
+     * @return the previous value associated with {@code key}, or {@code null}
+     * @throws NullPointerException if {@code key} is null
+     */
+    public V remove(final K key)
+    {
+<span class="fc" id="L165">        Objects.requireNonNull(key, &quot;key must not be null&quot;);</span>
+
+<span class="fc" id="L167">        int pos = index(key);</span>
+<span class="fc" id="L168">        K k = keys[pos];</span>
+
+<span class="fc bfc" id="L170" title="All 2 branches covered.">        while (k != null)</span>
+        {
+<span class="fc bfc" id="L172" title="All 2 branches covered.">            if (k.equals(key))</span>
+            {
+<span class="fc" id="L174">                final V oldValue = values[pos];</span>
+<span class="fc" id="L175">                backwardShift(pos);</span>
+<span class="fc" id="L176">                size--;</span>
+<span class="fc" id="L177">                return oldValue;</span>
+            }
+<span class="fc" id="L179">            pos = (pos + 1) &amp; mask;</span>
+<span class="fc" id="L180">            k = keys[pos];</span>
+        }
+
+<span class="fc" id="L183">        return null;</span>
+    }
+
+    /**
+     * Returns the number of mappings in this map.
+     *
+     * @return the number of mappings
+     */
+    public int size()
+    {
+<span class="fc" id="L193">        return size;</span>
+    }
+
+    /**
+     * Returns a new list of all keys in internal slot order. The order is
+     * unspecified and may change after any mutation. Mutating the returned
+     * list does not affect the map.
+     *
+     * @return a new list containing all keys
+     */
+    public List&lt;K&gt; keys()
+    {
+<span class="fc" id="L205">        final List&lt;K&gt; result = new ArrayList&lt;&gt;(size);</span>
+
+<span class="fc bfc" id="L207" title="All 2 branches covered.">        for (int i = 0; i &lt; keys.length; i++)</span>
+        {
+<span class="fc bfc" id="L209" title="All 2 branches covered.">            if (keys[i] != null)</span>
+            {
+<span class="fc" id="L211">                result.add(keys[i]);</span>
+            }
+        }
+
+<span class="fc" id="L215">        return result;</span>
+    }
+
+    /**
+     * Returns a new list of all values in the same internal order as {@link #keys()}.
+     * The list may contain {@code null} elements. Mutating the returned list does
+     * not affect the map.
+     *
+     * @return a new list containing all values
+     */
+    public List&lt;V&gt; values()
+    {
+<span class="fc" id="L227">        final List&lt;V&gt; result = new ArrayList&lt;&gt;(size);</span>
+
+<span class="fc bfc" id="L229" title="All 2 branches covered.">        for (int i = 0; i &lt; keys.length; i++)</span>
+        {
+<span class="fc bfc" id="L231" title="All 2 branches covered.">            if (keys[i] != null)</span>
+            {
+<span class="fc" id="L233">                result.add(values[i]);</span>
+            }
+        }
+
+<span class="fc" id="L237">        return result;</span>
+    }
+
+    /**
+     * Removes all mappings and resets the capacity to the default. The map
+     * remains fully usable afterwards.
+     */
+    public void clear()
+    {
+<span class="fc" id="L246">        this.keys = newArray(DEFAULT_CAPACITY);</span>
+<span class="fc" id="L247">        this.values = newArray(DEFAULT_CAPACITY);</span>
+<span class="fc" id="L248">        this.mask = DEFAULT_CAPACITY - 1;</span>
+<span class="fc" id="L249">        this.size = 0;</span>
+<span class="fc" id="L250">    }</span>
+
+    /**
+     * Spreads the hash (same approach as {@link java.util.HashMap}) and maps it
+     * to a slot index.
+     *
+     * @param key the (non-null) key
+     * @return the starting slot index
+     */
+    private int index(final K key)
+    {
+<span class="fc" id="L261">        final int h = key.hashCode();</span>
+<span class="fc" id="L262">        return (h ^ (h &gt;&gt;&gt; 16)) &amp; mask;</span>
+    }
+
+    /**
+     * Doubles the capacity and rehashes all entries.
+     *
+     * @param newCapacity the new capacity, must be a power of two
+     */
+    private void resize(final int newCapacity)
+    {
+<span class="fc" id="L272">        final K[] oldKeys = this.keys;</span>
+<span class="fc" id="L273">        final V[] oldValues = this.values;</span>
+
+<span class="fc" id="L275">        this.keys = newArray(newCapacity);</span>
+<span class="fc" id="L276">        this.values = newArray(newCapacity);</span>
+<span class="fc" id="L277">        this.mask = newCapacity - 1;</span>
+        // size stays the same; entries are reinserted without duplication checks
+
+<span class="fc bfc" id="L280" title="All 2 branches covered.">        for (int i = 0; i &lt; oldKeys.length; i++)</span>
+        {
+<span class="fc" id="L282">            final K k = oldKeys[i];</span>
+<span class="fc bfc" id="L283" title="All 2 branches covered.">            if (k != null)</span>
+            {
+<span class="fc" id="L285">                int pos = index(k);</span>
+<span class="fc bfc" id="L286" title="All 2 branches covered.">                while (keys[pos] != null)</span>
+                {
+<span class="fc" id="L288">                    pos = (pos + 1) &amp; mask;</span>
+                }
+<span class="fc" id="L290">                keys[pos] = k;</span>
+<span class="fc" id="L291">                values[pos] = oldValues[i];</span>
+            }
+        }
+<span class="fc" id="L294">    }</span>
+
+    /**
+     * Deletes the entry at {@code gap} and repairs the probe cluster by moving
+     * subsequent entries backward when their home position requires it.
+     *
+     * @param gap the slot that is being freed
+     */
+    private void backwardShift(int gap)
+    {
+<span class="fc" id="L304">        int pos = gap;</span>
+
+        while (true)
+        {
+<span class="fc" id="L308">            pos = (pos + 1) &amp; mask;</span>
+
+<span class="fc" id="L310">            final K k = keys[pos];</span>
+<span class="fc bfc" id="L311" title="All 2 branches covered.">            if (k == null)</span>
+            {
+                // end of the cluster, close the gap
+<span class="fc" id="L314">                keys[gap] = null;</span>
+<span class="fc" id="L315">                values[gap] = null;</span>
+<span class="fc" id="L316">                return;</span>
+            }
+
+<span class="fc" id="L319">            final int home = index(k);</span>
+            // If the home slot is not within (gap, pos] (cyclic), the entry at pos
+            // would no longer be found if gap stayed empty -&gt; move it into the gap.
+<span class="fc bfc" id="L322" title="All 2 branches covered.">            if (!isWithinCyclicRange(gap, pos, home))</span>
+            {
+<span class="fc" id="L324">                keys[gap] = k;</span>
+<span class="fc" id="L325">                values[gap] = values[pos];</span>
+<span class="fc" id="L326">                gap = pos;</span>
+            }
+<span class="fc" id="L328">        }</span>
+    }
+
+    /**
+     * Returns true if {@code home} lies in the cyclic range ({@code gap}, {@code pos}],
+     * i.e. strictly after {@code gap} and up to and including {@code pos} when walking
+     * forward with wrap-around. In that case the entry at {@code pos} probes past
+     * {@code gap} anyway and must not be moved.
+     */
+    private boolean isWithinCyclicRange(final int gap, final int pos, final int home)
+    {
+<span class="fc bfc" id="L339" title="All 2 branches covered.">        if (gap &lt; pos)</span>
+        {
+<span class="fc bfc" id="L341" title="All 4 branches covered.">            return home &gt; gap &amp;&amp; home &lt;= pos;</span>
+        }
+        // gap wrapped around the end
+<span class="pc bpc" id="L344" title="1 of 4 branches missed.">        return home &gt; gap || home &lt;= pos;</span>
+    }
+
+    /**
+     * Creates a generic array of the given length.
+     *
+     * @param length the array length
+     * @return the new array
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private static &lt;T&gt; T[] newArray(final int length)
+    {
+<span class="fc" id="L356">        return (T[]) new Object[length];</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

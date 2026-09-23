@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FastHashMap.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">demo5</a> &gt; <a href="index.source.html" class="el_package">org.jugsaxony.demo5</a> &gt; <span class="el_source">FastHashMap.java</span></div><h1>FastHashMap.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2005-2026 Xceptance Software Technologies GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jugsaxony.demo5;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * A fast hash map based on open addressing with linear probing.
+ * Not thread-safe! Null keys are rejected, null values are allowed.
+ * The map is unbounded and grows automatically via rehashing once the
+ * load factor threshold is exceeded.
+ *
+ * The backing array always has a power-of-two capacity so that the bucket
+ * index can be computed with a bit mask instead of a modulo operation.
+ * Removals repair the probe chain by shifting subsequent entries back into
+ * the hole, keeping lookups simple and tombstone-free.
+ *
+ * @since 1.0
+ * @author René Schwietzke (Xceptance Software Technologies GmbH)
+ */
+public class FastHashMap&lt;K, V&gt;
+{
+    /** Default initial capacity, a power of two. */
+    private static final int DEFAULT_CAPACITY = 16;
+
+    /** Load factor that triggers growth/rehash. */
+    private static final float LOAD_FACTOR = 0.75f;
+
+    /** Maximum capacity, 2^30. */
+    private static final int MAX_CAPACITY = 1 &lt;&lt; 30;
+
+    /**
+     * The backing array holding the entries. A null slot is an empty slot.
+     */
+    private Entry&lt;K, V&gt;[] data;
+
+    /**
+     * Current number of mappings.
+     */
+    private int size;
+
+    /**
+     * Current capacity, always a power of two.
+     */
+    private int capacity;
+
+    /**
+     * Mask to compute the bucket index: mask == capacity - 1.
+     */
+    private int mask;
+
+    /**
+     * Number of entries that triggers a resize.
+     */
+    private int threshold;
+
+    /**
+     * Creates a new empty map.
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+<span class="nc" id="L77">    public FastHashMap()</span>
+    {
+<span class="nc" id="L79">        this.capacity = DEFAULT_CAPACITY;</span>
+<span class="nc" id="L80">        this.mask = this.capacity - 1;</span>
+<span class="nc" id="L81">        this.threshold = (int) (this.capacity * LOAD_FACTOR);</span>
+<span class="nc" id="L82">        this.data = (Entry&lt;K, V&gt;[]) new Entry[this.capacity];</span>
+<span class="nc" id="L83">    }</span>
+
+    /**
+     * Mixes the hash to improve the distribution of the low bits.
+     * Inspired by OpenJDK HashMap.
+     *
+     * @param h the original hash
+     * @return the mixed hash
+     */
+    private static int mix(final int h)
+    {
+<span class="nc" id="L94">        return h ^ (h &gt;&gt;&gt; 16);</span>
+    }
+
+    /**
+     * Computes the bucket index for the given mixed hash.
+     *
+     * @param hash the mixed hash
+     * @return the bucket index
+     */
+    private int index(final int hash)
+    {
+<span class="nc" id="L105">        return hash &amp; this.mask;</span>
+    }
+
+    /**
+     * Returns the value for the given key, or null if the key is not present.
+     * Because null values are allowed, a null result does not imply absence.
+     *
+     * @param key the key to look up, must not be null
+     * @return the value for the key or null
+     */
+    public V get(final K key)
+    {
+<span class="nc" id="L117">        Objects.requireNonNull(key, &quot;Key must not be null&quot;);</span>
+
+<span class="nc" id="L119">        final int hash = mix(key.hashCode());</span>
+<span class="nc" id="L120">        int idx = index(hash);</span>
+<span class="nc" id="L121">        final Entry&lt;K, V&gt;[] localData = this.data;</span>
+
+<span class="nc" id="L123">        while (true)</span>
+        {
+<span class="nc" id="L125">            final Entry&lt;K, V&gt; entry = localData[idx];</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">            if (entry == null)</span>
+            {
+<span class="nc" id="L128">                return null;</span>
+            }
+<span class="nc bnc" id="L130" title="All 4 branches missed.">            if (entry.hash == hash &amp;&amp; entry.key.equals(key))</span>
+            {
+<span class="nc" id="L132">                return entry.value;</span>
+            }
+
+<span class="nc" id="L135">            idx = (idx + 1) &amp; this.mask;</span>
+        }
+    }
+
+    /**
+     * Associates the given value with the given key. If the map already
+     * contains a mapping for the key, the old value is replaced.
+     *
+     * @param key the key, must not be null
+     * @param value the value, may be null
+     * @return the previous value for the key, or null if there was no mapping
+     */
+    public V put(final K key, final V value)
+    {
+<span class="nc" id="L149">        Objects.requireNonNull(key, &quot;Key must not be null&quot;);</span>
+
+<span class="nc" id="L151">        final int hash = mix(key.hashCode());</span>
+<span class="nc" id="L152">        int idx = index(hash);</span>
+
+<span class="nc" id="L154">        while (true)</span>
+        {
+<span class="nc" id="L156">            final Entry&lt;K, V&gt; entry = this.data[idx];</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">            if (entry == null)</span>
+            {
+                // we found a free slot, this is going to be an insert
+<span class="nc bnc" id="L160" title="All 2 branches missed.">                if (this.size + 1 &gt; this.threshold)</span>
+                {
+<span class="nc" id="L162">                    resize();</span>
+<span class="nc" id="L163">                    idx = index(hash);</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">                    while (this.data[idx] != null)</span>
+                    {
+<span class="nc" id="L166">                        idx = (idx + 1) &amp; this.mask;</span>
+                    }
+                }
+
+<span class="nc" id="L170">                this.data[idx] = new Entry&lt;&gt;(key, value, hash);</span>
+<span class="nc" id="L171">                this.size++;</span>
+<span class="nc" id="L172">                return null;</span>
+            }
+<span class="nc bnc" id="L174" title="All 4 branches missed.">            else if (entry.hash == hash &amp;&amp; entry.key.equals(key))</span>
+            {
+                // key already present, replace the value
+<span class="nc" id="L177">                final V oldValue = entry.value;</span>
+<span class="nc" id="L178">                entry.value = value;</span>
+<span class="nc" id="L179">                return oldValue;</span>
+            }
+
+<span class="nc" id="L182">            idx = (idx + 1) &amp; this.mask;</span>
+        }
+    }
+
+    /**
+     * Removes the mapping for the given key, if present.
+     * The probe chain is repaired by shifting subsequent entries back.
+     *
+     * @param key the key, must not be null
+     * @return the previous value for the key, or null if there was no mapping
+     */
+    public V remove(final K key)
+    {
+<span class="nc" id="L195">        Objects.requireNonNull(key, &quot;Key must not be null&quot;);</span>
+
+<span class="nc" id="L197">        final int hash = mix(key.hashCode());</span>
+<span class="nc" id="L198">        int idx = index(hash);</span>
+
+<span class="nc" id="L200">        while (true)</span>
+        {
+<span class="nc" id="L202">            final Entry&lt;K, V&gt; entry = this.data[idx];</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">            if (entry == null)</span>
+            {
+<span class="nc" id="L205">                return null;</span>
+            }
+<span class="nc bnc" id="L207" title="All 4 branches missed.">            if (entry.hash == hash &amp;&amp; entry.key.equals(key))</span>
+            {
+<span class="nc" id="L209">                final V oldValue = entry.value;</span>
+<span class="nc" id="L210">                this.data[idx] = null;</span>
+<span class="nc" id="L211">                this.size--;</span>
+<span class="nc" id="L212">                shiftBack(idx);</span>
+<span class="nc" id="L213">                return oldValue;</span>
+            }
+
+<span class="nc" id="L216">            idx = (idx + 1) &amp; this.mask;</span>
+        }
+    }
+
+    /**
+     * Returns the number of key-value mappings in this map.
+     *
+     * @return the number of mappings
+     */
+    public int size()
+    {
+<span class="nc" id="L227">        return this.size;</span>
+    }
+
+    /**
+     * Returns a snapshot of all keys in this map. The order is not specified.
+     *
+     * @return a list of all keys
+     */
+    public List&lt;K&gt; keys()
+    {
+<span class="nc" id="L237">        final List&lt;K&gt; result = new ArrayList&lt;&gt;(this.size);</span>
+<span class="nc bnc" id="L238" title="All 2 branches missed.">        for (final Entry&lt;K, V&gt; entry : this.data)</span>
+        {
+<span class="nc bnc" id="L240" title="All 2 branches missed.">            if (entry != null)</span>
+            {
+<span class="nc" id="L242">                result.add(entry.key);</span>
+            }
+        }
+<span class="nc" id="L245">        return result;</span>
+    }
+
+    /**
+     * Returns a snapshot of all values in this map. The order is not specified
+     * and null values are included.
+     *
+     * @return a list of all values
+     */
+    public List&lt;V&gt; values()
+    {
+<span class="nc" id="L256">        final List&lt;V&gt; result = new ArrayList&lt;&gt;(this.size);</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">        for (final Entry&lt;K, V&gt; entry : this.data)</span>
+        {
+<span class="nc bnc" id="L259" title="All 2 branches missed.">            if (entry != null)</span>
+            {
+<span class="nc" id="L261">                result.add(entry.value);</span>
+            }
+        }
+<span class="nc" id="L264">        return result;</span>
+    }
+
+    /**
+     * Removes all mappings from this map. The backing storage is reused.
+     */
+    public void clear()
+    {
+<span class="nc" id="L272">        Arrays.fill(this.data, null);</span>
+<span class="nc" id="L273">        this.size = 0;</span>
+<span class="nc" id="L274">    }</span>
+
+    /**
+     * Doubles the capacity and rehashes all entries into the new array.
+     */
+    private void resize()
+    {
+<span class="nc bnc" id="L281" title="All 2 branches missed.">        if (this.capacity &gt;= MAX_CAPACITY)</span>
+        {
+<span class="nc" id="L283">            throw new IllegalStateException(&quot;Map is too large to grow further&quot;);</span>
+        }
+
+<span class="nc" id="L286">        final int newCapacity = this.capacity &lt;&lt; 1;</span>
+        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="nc" id="L288">        final Entry&lt;K, V&gt;[] newData = (Entry&lt;K, V&gt;[]) new Entry[newCapacity];</span>
+<span class="nc" id="L289">        final int newMask = newCapacity - 1;</span>
+
+<span class="nc bnc" id="L291" title="All 2 branches missed.">        for (final Entry&lt;K, V&gt; entry : this.data)</span>
+        {
+<span class="nc bnc" id="L293" title="All 2 branches missed.">            if (entry != null)</span>
+            {
+<span class="nc" id="L295">                int idx = entry.hash &amp; newMask;</span>
+<span class="nc bnc" id="L296" title="All 2 branches missed.">                while (newData[idx] != null)</span>
+                {
+<span class="nc" id="L298">                    idx = (idx + 1) &amp; newMask;</span>
+                }
+<span class="nc" id="L300">                newData[idx] = entry;</span>
+            }
+        }
+
+<span class="nc" id="L304">        this.data = newData;</span>
+<span class="nc" id="L305">        this.capacity = newCapacity;</span>
+<span class="nc" id="L306">        this.mask = newMask;</span>
+<span class="nc" id="L307">        this.threshold = (int) (newCapacity * LOAD_FACTOR);</span>
+<span class="nc" id="L308">    }</span>
+
+    /**
+     * Repairs the probe chain after a removal at the given position.
+     * Subsequent entries that can move back into the hole are shifted,
+     * so that lookups never have to skip over deleted slots.
+     *
+     * @param pos the position that was just removed
+     */
+    private void shiftBack(final int pos)
+    {
+<span class="nc" id="L319">        int last = pos;</span>
+<span class="nc" id="L320">        int current = pos;</span>
+
+<span class="nc" id="L322">        while (true)</span>
+        {
+<span class="nc" id="L324">            current = (current + 1) &amp; this.mask;</span>
+<span class="nc" id="L325">            final Entry&lt;K, V&gt; entry = this.data[current];</span>
+<span class="nc bnc" id="L326" title="All 2 branches missed.">            if (entry == null)</span>
+            {
+<span class="nc" id="L328">                this.data[last] = null;</span>
+<span class="nc" id="L329">                return;</span>
+            }
+
+<span class="nc" id="L332">            final int slot = entry.hash &amp; this.mask;</span>
+            final boolean inInterval;
+<span class="nc bnc" id="L334" title="All 2 branches missed.">            if (last &lt;= current)</span>
+            {
+<span class="nc bnc" id="L336" title="All 4 branches missed.">                inInterval = slot &gt; last &amp;&amp; slot &lt;= current;</span>
+<span class="nc" id="L337">            }</span>
+            else
+            {
+<span class="nc bnc" id="L340" title="All 4 branches missed.">                inInterval = slot &gt; last || slot &lt;= current;</span>
+            }
+
+<span class="nc bnc" id="L343" title="All 2 branches missed.">            if (!inInterval)</span>
+            {
+<span class="nc" id="L345">                this.data[last] = entry;</span>
+<span class="nc" id="L346">                last = current;</span>
+            }
+        }
+    }
+
+    /**
+     * A single key-value mapping. The mixed hash is stored to avoid
+     * recomputing it on every lookup.
+     */
+    private static final class Entry&lt;K, V&gt;
+    {
+        final K key;
+        final int hash;
+        V value;
+
+<span class="nc" id="L361">        Entry(final K key, final V value, final int hash)</span>
+        {
+<span class="nc" id="L363">            this.key = key;</span>
+<span class="nc" id="L364">            this.value = value;</span>
+<span class="nc" id="L365">            this.hash = hash;</span>
+<span class="nc" id="L366">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

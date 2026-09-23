@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+<body>
+
+
+<h1>SimpleMath.java</h1>
+
+<table class="src">
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_1'/>
+1
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_1'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>package org.jugsaxony.demo2;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_2'/>
+2
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_2'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_3'/>
+3
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_3'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>public class SimpleMath </span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_4'/>
+4
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_4'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>{</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_5'/>
+5
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_5'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    public static int max(int a, int b)</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_6'/>
+6
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_6'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_7'/>
+7
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_7'>4</a>
+<span>
+1. max : changed conditional boundary &rarr; SURVIVED<br/>
+2. max : replaced int return with 0 for org/jugsaxony/demo2/SimpleMath::max &rarr; KILLED<br/>
+3. max : removed conditional - replaced comparison check with true &rarr; KILLED<br/>
+4. max : removed conditional - replaced comparison check with false &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>        return (a &#62; b) ? a : b;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_8'/>
+8
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_8'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_9'/>
+9
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_9'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_10'/>
+10
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_10'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    public static int max(Integer a, Integer b)</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_11'/>
+11
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_11'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_12'/>
+12
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_12'>4</a>
+<span>
+1. max : changed conditional boundary &rarr; SURVIVED<br/>
+2. max : replaced int return with 0 for org/jugsaxony/demo2/SimpleMath::max &rarr; KILLED<br/>
+3. max : removed conditional - replaced comparison check with false &rarr; KILLED<br/>
+4. max : removed conditional - replaced comparison check with true &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>        return (a &#62; b) ? a : b;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_13'/>
+13
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_13'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_14'/>
+14
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_14'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_15'/>
+15
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_15'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    public static long sum(int[] n)</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_16'/>
+16
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_16'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_17'/>
+17
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_17'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        int s = 0;</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_18'/>
+18
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_18'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        for (int i : n)</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_19'/>
+19
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_19'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_20'/>
+20
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_20'>1</a>
+<span>
+1. sum : Replaced integer addition with subtraction &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>            s += i;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_21'/>
+21
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_21'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        }</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_22'/>
+22
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_22'>1</a>
+<span>
+1. sum : replaced long return with 0 for org/jugsaxony/demo2/SimpleMath::sum &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        return s;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_23'/>
+23
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_23'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_24'/>
+24
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_24'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>}</span></pre></td></tr>
+
+
+
+<tr><td></td><td></td><td><h2>Mutations</h2></td></tr>
+
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_7'>7</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_7'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>max<br/><b>Killed by : </b>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#5]</span></span> replaced int return with 0 for org/jugsaxony/demo2/SimpleMath::max &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>max<br/><b>Killed by : </b>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#5]</span></span> removed conditional - replaced comparison check with true &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>3.<span><b>3</b><br/><b>Location : </b>max<br/><b>Killed by : </b>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#4]</span></span> removed conditional - replaced comparison check with false &rarr; KILLED</span>
+</div> <p class='SURVIVED'><span class='pop'>4.<span><b>4</b><br/><b>Location : </b>max<br/><b>Killed by : </b>none</span></span> changed conditional boundary &rarr; SURVIVED</span>
+<a title="Click to view covering tests" class="view-covered-by-tests" onClick="document.getElementById('MutationIdentifier-[location=Location-[clazz=org.jugsaxony.demo2.SimpleMath,-method=max,-methodDesc=(II)I],-indexes=[5],-mutator=org.pitest.mutationtest.engine.gregor.mutators.ConditionalsBoundaryMutator]').style.display=(document.getElementById('MutationIdentifier-[location=Location-[clazz=org.jugsaxony.demo2.SimpleMath,-method=max,-methodDesc=(II)I],-indexes=[5],-mutator=org.pitest.mutationtest.engine.gregor.mutators.ConditionalsBoundaryMutator]').style.display == 'block')?'none':'block';">Covering tests</a>
+<div class="covered-tests" id="MutationIdentifier-[location=Location-[clazz=org.jugsaxony.demo2.SimpleMath,-method=max,-methodDesc=(II)I],-indexes=[5],-mutator=org.pitest.mutationtest.engine.gregor.mutators.ConditionalsBoundaryMutator]" style="display:none;">Covered by tests:
+<ul>
+<li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#5]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#4]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#7]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#6]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[method:testFirstArgumentGreaterPositive()]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#9]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#8]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[method:testBothZero()]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#10]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[method:testSecondArgumentGreaterPositive()]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#11]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[method:testArgumentsEqualPositive()]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#3]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#2]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[method:testCommutativity()]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[method:testAdjacentValuesAroundZero()]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#1]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[method:testMixedSigns()]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[method:testNegativeNumbers()]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[method:testZeroWithPositiveAndNegative()]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[method:testBoundaryValues()]</li> 
+</ul>
+</div></div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_12'>12</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_12'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>max<br/><b>Killed by : </b>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[test-template:testParameterizedBoxedMax(int, int, int)]/[test-template-invocation:#2]</span></span> replaced int return with 0 for org/jugsaxony/demo2/SimpleMath::max &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>max<br/><b>Killed by : </b>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[test-template:testParameterizedBoxedMax(int, int, int)]/[test-template-invocation:#2]</span></span> removed conditional - replaced comparison check with false &rarr; KILLED</span>
+</div> <p class='SURVIVED'><span class='pop'>3.<span><b>3</b><br/><b>Location : </b>max<br/><b>Killed by : </b>none</span></span> changed conditional boundary &rarr; SURVIVED</span>
+<a title="Click to view covering tests" class="view-covered-by-tests" onClick="document.getElementById('MutationIdentifier-[location=Location-[clazz=org.jugsaxony.demo2.SimpleMath,-method=max,-methodDesc=(Ljava/lang/Integer;Ljava/lang/Integer;)I],-indexes=[7],-mutator=org.pitest.mutationtest.engine.gregor.mutators.ConditionalsBoundaryMutator]').style.display=(document.getElementById('MutationIdentifier-[location=Location-[clazz=org.jugsaxony.demo2.SimpleMath,-method=max,-methodDesc=(Ljava/lang/Integer;Ljava/lang/Integer;)I],-indexes=[7],-mutator=org.pitest.mutationtest.engine.gregor.mutators.ConditionalsBoundaryMutator]').style.display == 'block')?'none':'block';">Covering tests</a>
+<div class="covered-tests" id="MutationIdentifier-[location=Location-[clazz=org.jugsaxony.demo2.SimpleMath,-method=max,-methodDesc=(Ljava/lang/Integer;Ljava/lang/Integer;)I],-indexes=[7],-mutator=org.pitest.mutationtest.engine.gregor.mutators.ConditionalsBoundaryMutator]" style="display:none;">Covered by tests:
+<ul>
+<li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[test-template:testParameterizedBoxedMax(int, int, int)]/[test-template-invocation:#2]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[test-template:testParameterizedBoxedMax(int, int, int)]/[test-template-invocation:#3]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[method:testEqualValuesOutsideCache()]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[test-template:testParameterizedBoxedMax(int, int, int)]/[test-template-invocation:#6]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[test-template:testParameterizedBoxedMax(int, int, int)]/[test-template-invocation:#7]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[test-template:testParameterizedBoxedMax(int, int, int)]/[test-template-invocation:#4]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[test-template:testParameterizedBoxedMax(int, int, int)]/[test-template-invocation:#5]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[test-template:testParameterizedBoxedMax(int, int, int)]/[test-template-invocation:#8]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[method:testDistinctInstancesEqualValueOutsideCache()]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[method:testFirstArgumentGreater()]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[method:testSecondArgumentGreater()]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[method:testNegativeIntegers()]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[method:testEqualValues()]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[method:testBoundaryValues()]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[method:testMixedSigns()]</li> <li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[test-template:testParameterizedBoxedMax(int, int, int)]/[test-template-invocation:#1]</li> 
+</ul>
+</div></div> <p class='KILLED'><span class='pop'>4.<span><b>4</b><br/><b>Location : </b>max<br/><b>Killed by : </b>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[test-template:testParameterizedBoxedMax(int, int, int)]/[test-template-invocation:#6]</span></span> removed conditional - replaced comparison check with true &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_20'>20</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_20'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>sum<br/><b>Killed by : </b>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[method:testDuplicateElements()]</span></span> Replaced integer addition with subtraction &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@7f6f8d07_22'>22</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@7f6f8d07_22'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>sum<br/><b>Killed by : </b>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[method:testDuplicateElements()]</span></span> replaced long return with 0 for org/jugsaxony/demo2/SimpleMath::sum &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+
+</table>
+
+
+<h2>Active mutators</h2>
+<ul>
+<li class='mutator'>CONDITIONALS_BOUNDARY</li>
+<li class='mutator'>EMPTY_RETURNS</li>
+<li class='mutator'>EXPERIMENTAL_SWITCH</li>
+<li class='mutator'>FALSE_RETURNS</li>
+<li class='mutator'>INCREMENTS</li>
+<li class='mutator'>INVERT_NEGS</li>
+<li class='mutator'>MATH</li>
+<li class='mutator'>NULL_RETURNS</li>
+<li class='mutator'>PRIMITIVE_RETURNS</li>
+<li class='mutator'>REMOVE_CONDITIONALS_EQUAL_ELSE</li>
+<li class='mutator'>REMOVE_CONDITIONALS_EQUAL_IF</li>
+<li class='mutator'>REMOVE_CONDITIONALS_ORDER_ELSE</li>
+<li class='mutator'>REMOVE_CONDITIONALS_ORDER_IF</li>
+<li class='mutator'>TRUE_RETURNS</li>
+<li class='mutator'>VOID_METHOD_CALLS</li>
+
+</ul>
+
+<h2>Tests examined</h2>
+<ul>
+<li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#5] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#4] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#7] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#6] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[method:testFirstArgumentGreaterPositive()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#9] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#8] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[method:testBothZero()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#10] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[method:testSecondArgumentGreaterPositive()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#11] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[method:testArgumentsEqualPositive()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#3] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#2] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[method:testCommutativity()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[method:testAdjacentValuesAroundZero()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[test-template:testParameterizedMax(int, int, int)]/[test-template-invocation:#1] (1 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[method:testMixedSigns()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[method:testNegativeNumbers()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[method:testZeroWithPositiveAndNegative()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxPrimitiveIntTests]/[method:testBoundaryValues()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[test-template:testParameterizedBoxedMax(int, int, int)]/[test-template-invocation:#2] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[test-template:testParameterizedBoxedMax(int, int, int)]/[test-template-invocation:#3] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[method:testEqualValuesOutsideCache()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[test-template:testParameterizedBoxedMax(int, int, int)]/[test-template-invocation:#6] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[test-template:testParameterizedBoxedMax(int, int, int)]/[test-template-invocation:#7] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[test-template:testParameterizedBoxedMax(int, int, int)]/[test-template-invocation:#4] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[test-template:testParameterizedBoxedMax(int, int, int)]/[test-template-invocation:#5] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[test-template:testParameterizedBoxedMax(int, int, int)]/[test-template-invocation:#8] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[method:testDistinctInstancesEqualValueOutsideCache()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[method:testFirstArgumentGreater()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[method:testSecondArgumentGreater()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[method:testNegativeIntegers()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[method:testEqualValues()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[method:testBoundaryValues()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[method:testMixedSigns()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:MaxBoxedIntegerTests]/[test-template:testParameterizedBoxedMax(int, int, int)]/[test-template-invocation:#1] (5 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[method:testArrayNotModified()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[method:testDuplicateElements()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[method:testMixedNumbers()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[method:testMultipleNegativeNumbers()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[method:testSumOrderIndependence()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[method:testMultiplePositiveNumbers()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[test-template:testParameterizedSum(%5BI, long)]/[test-template-invocation:#10] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[method:testBoundaryValuesOppositesCanceling()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[test-template:testParameterizedSum(%5BI, long)]/[test-template-invocation:#2] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[method:testBoundaryValuesCanceling()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[method:testAllZeroes()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[test-template:testParameterizedSum(%5BI, long)]/[test-template-invocation:#5] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[test-template:testParameterizedSum(%5BI, long)]/[test-template-invocation:#6] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[method:testEmptyArray()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[test-template:testParameterizedSum(%5BI, long)]/[test-template-invocation:#3] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[test-template:testParameterizedSum(%5BI, long)]/[test-template-invocation:#4] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[test-template:testParameterizedSum(%5BI, long)]/[test-template-invocation:#9] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[test-template:testParameterizedSum(%5BI, long)]/[test-template-invocation:#7] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[test-template:testParameterizedSum(%5BI, long)]/[test-template-invocation:#8] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[method:testLargeArrayOfOnes()] (1 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[method:testSingleElement()] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[method:testLargeArrayOfNegativeOnes()] (2 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[test-template:testParameterizedSum(%5BI, long)]/[test-template-invocation:#1] (0 ms)</li><li>org.jugsaxony.demo2.SimpleMathTest.[engine:junit-jupiter]/[class:org.jugsaxony.demo2.SimpleMathTest]/[nested-class:SumArrayTests]/[method:testLargeArrayAlternating()] (7 ms)</li>
+</ul>
+
+<br/>
+
+Report generated by <a href='https://pitest.org'>PIT</a> 1.17.4
+
+</body>
+</html>

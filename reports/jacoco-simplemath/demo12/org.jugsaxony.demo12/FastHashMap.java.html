@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FastHashMap.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">demo12</a> &gt; <a href="index.source.html" class="el_package">org.jugsaxony.demo12</a> &gt; <span class="el_source">FastHashMap.java</span></div><h1>FastHashMap.java</h1><pre class="source lang-java linenums">package org.jugsaxony.demo12;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * Fast open-addressing (open hashing) hash map implementation with linear probing.
+ *
+ * &lt;p&gt;Key characteristics:
+ * &lt;ul&gt;
+ *   &lt;li&gt;Flat parallel arrays ({@code keys} and {@code values}) for optimal CPU cache locality.&lt;/li&gt;
+ *   &lt;li&gt;MurmurHash3 32-bit finalizer hash mixing for uniform bucket distribution.&lt;/li&gt;
+ *   &lt;li&gt;Power-of-two table sizing for fast bitwise masking.&lt;/li&gt;
+ *   &lt;li&gt;Tombstone-free backward-shift deletion (Knuth's Algorithm R) preserving compact clusters.&lt;/li&gt;
+ *   &lt;li&gt;Rejects {@code null} keys (throws {@link NullPointerException}), supports {@code null} values.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @param &lt;K&gt; the type of keys maintained by this map
+ * @param &lt;V&gt; the type of mapped values
+ */
+public class FastHashMap&lt;K, V&gt; {
+
+    private static final int DEFAULT_INITIAL_CAPACITY = 16;
+    private static final float DEFAULT_LOAD_FACTOR = 0.65f;
+    private static final int MAXIMUM_CAPACITY = 1 &lt;&lt; 30;
+
+    private K[] keys;
+    private V[] values;
+    private int size;
+    private int threshold;
+    private int mask;
+    private final float loadFactor;
+
+    /**
+     * Constructs an empty {@code FastHashMap} with default initial capacity (16)
+     * and default load factor (0.65).
+     */
+    public FastHashMap() {
+<span class="fc" id="L41">        this(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR);</span>
+<span class="fc" id="L42">    }</span>
+
+    /**
+     * Constructs an empty {@code FastHashMap} with the specified initial capacity
+     * and default load factor (0.65).
+     *
+     * @param initialCapacity the initial capacity
+     */
+    public FastHashMap(final int initialCapacity) {
+<span class="fc" id="L51">        this(initialCapacity, DEFAULT_LOAD_FACTOR);</span>
+<span class="fc" id="L52">    }</span>
+
+    /**
+     * Constructs an empty {@code FastHashMap} with the specified initial capacity
+     * and load factor.
+     *
+     * @param initialCapacity the initial capacity
+     * @param loadFactor      the load factor
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L62">    public FastHashMap(final int initialCapacity, final float loadFactor) {</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        if (initialCapacity &lt; 0) {</span>
+<span class="fc" id="L64">            throw new IllegalArgumentException(&quot;Illegal initial capacity: &quot; + initialCapacity);</span>
+        }
+<span class="fc bfc" id="L66" title="All 6 branches covered.">        if (loadFactor &lt;= 0 || Float.isNaN(loadFactor) || loadFactor &gt;= 1.0f) {</span>
+<span class="fc" id="L67">            throw new IllegalArgumentException(&quot;Illegal load factor: &quot; + loadFactor);</span>
+        }
+
+<span class="fc" id="L70">        final int capacity = tableSizeFor(initialCapacity);</span>
+<span class="fc" id="L71">        this.loadFactor = loadFactor;</span>
+<span class="fc" id="L72">        this.keys = (K[]) new Object[capacity];</span>
+<span class="fc" id="L73">        this.values = (V[]) new Object[capacity];</span>
+<span class="fc" id="L74">        this.mask = capacity - 1;</span>
+<span class="fc" id="L75">        this.threshold = (int) (capacity * loadFactor);</span>
+<span class="fc" id="L76">        this.size = 0;</span>
+<span class="fc" id="L77">    }</span>
+
+    /**
+     * Returns the value to which the specified key is mapped,
+     * or {@code null} if this map contains no mapping for the key.
+     *
+     * @param key the key whose associated value is to be returned
+     * @return the value to which the specified key is mapped, or {@code null} if absent or mapped to null
+     * @throws NullPointerException if {@code key} is null
+     */
+    public V get(final K key) {
+<span class="fc" id="L88">        Objects.requireNonNull(key, &quot;Key cannot be null&quot;);</span>
+
+<span class="fc" id="L90">        final int mask = this.mask;</span>
+<span class="fc" id="L91">        int idx = hash(key) &amp; mask;</span>
+        K curr;
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        while ((curr = keys[idx]) != null) {</span>
+<span class="fc bfc" id="L94" title="All 4 branches covered.">            if (curr == key || curr.equals(key)) {</span>
+<span class="fc" id="L95">                return values[idx];</span>
+            }
+<span class="fc" id="L97">            idx = (idx + 1) &amp; mask;</span>
+        }
+<span class="fc" id="L99">        return null;</span>
+    }
+
+    /**
+     * Associates the specified value with the specified key in this map.
+     * If the map previously contained a mapping for the key, the old value is replaced.
+     *
+     * @param key   key with which the specified value is to be associated
+     * @param value value to be associated with the specified key (can be {@code null})
+     * @return the previous value associated with {@code key}, or {@code null} if there was no mapping or old value was null
+     * @throws NullPointerException if {@code key} is null
+     */
+    public V put(final K key, final V value) {
+<span class="fc" id="L112">        Objects.requireNonNull(key, &quot;Key cannot be null&quot;);</span>
+
+<span class="fc" id="L114">        int mask = this.mask;</span>
+<span class="fc" id="L115">        int idx = hash(key) &amp; mask;</span>
+        K curr;
+
+        // Check if key already exists in table
+<span class="fc bfc" id="L119" title="All 2 branches covered.">        while ((curr = keys[idx]) != null) {</span>
+<span class="fc bfc" id="L120" title="All 4 branches covered.">            if (curr == key || curr.equals(key)) {</span>
+<span class="fc" id="L121">                final V oldVal = values[idx];</span>
+<span class="fc" id="L122">                values[idx] = value;</span>
+<span class="fc" id="L123">                return oldVal;</span>
+            }
+<span class="fc" id="L125">            idx = (idx + 1) &amp; mask;</span>
+        }
+
+        // New key insertion: check if table requires expansion
+<span class="fc bfc" id="L129" title="All 2 branches covered.">        if (size &gt;= threshold) {</span>
+<span class="fc" id="L130">            resize();</span>
+<span class="fc" id="L131">            mask = this.mask;</span>
+<span class="fc" id="L132">            idx = hash(key) &amp; mask;</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">            while (keys[idx] != null) {</span>
+<span class="fc" id="L134">                idx = (idx + 1) &amp; mask;</span>
+            }
+        }
+
+<span class="fc" id="L138">        keys[idx] = key;</span>
+<span class="fc" id="L139">        values[idx] = value;</span>
+<span class="fc" id="L140">        size++;</span>
+<span class="fc" id="L141">        return null;</span>
+    }
+
+    /**
+     * Removes the mapping for a key from this map if it is present.
+     *
+     * @param key key whose mapping is to be removed from the map
+     * @return the previous value associated with {@code key}, or {@code null} if there was no mapping
+     * @throws NullPointerException if {@code key} is null
+     */
+    public V remove(final K key) {
+<span class="fc" id="L152">        Objects.requireNonNull(key, &quot;Key cannot be null&quot;);</span>
+
+<span class="fc" id="L154">        final int mask = this.mask;</span>
+<span class="fc" id="L155">        int i = hash(key) &amp; mask;</span>
+        K curr;
+
+<span class="fc bfc" id="L158" title="All 2 branches covered.">        while ((curr = keys[i]) != null) {</span>
+<span class="fc bfc" id="L159" title="All 4 branches covered.">            if (curr == key || curr.equals(key)) {</span>
+<span class="fc" id="L160">                final V removedValue = values[i];</span>
+<span class="fc" id="L161">                size--;</span>
+
+                // Backward-shift deletion (Knuth's Algorithm R)
+<span class="fc" id="L164">                int j = i;</span>
+<span class="fc" id="L165">                while (true) {</span>
+<span class="fc" id="L166">                    keys[i] = null;</span>
+<span class="fc" id="L167">                    values[i] = null;</span>
+
+                    while (true) {
+<span class="fc" id="L170">                        j = (j + 1) &amp; mask;</span>
+<span class="fc" id="L171">                        final K k = keys[j];</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">                        if (k == null) {</span>
+<span class="fc" id="L173">                            return removedValue;</span>
+                        }
+<span class="fc" id="L175">                        final int r = hash(k) &amp; mask;</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">                        if (((i - r) &amp; mask) &lt; ((j - r) &amp; mask)) {</span>
+                            // Element k at j shifts backward into hole at i
+<span class="fc" id="L178">                            keys[i] = k;</span>
+<span class="fc" id="L179">                            values[i] = values[j];</span>
+<span class="fc" id="L180">                            i = j;</span>
+                            break;
+                        }
+                    }
+                }
+            }
+<span class="fc" id="L186">            i = (i + 1) &amp; mask;</span>
+        }
+
+<span class="fc" id="L189">        return null;</span>
+    }
+
+    /**
+     * Returns the number of key-value mappings in this map.
+     *
+     * @return the number of key-value mappings in this map
+     */
+    public int size() {
+<span class="fc" id="L198">        return size;</span>
+    }
+
+    /**
+     * Returns a {@link List} containing all keys currently present in this map.
+     *
+     * @return a snapshot list containing all keys in this map
+     */
+    public List&lt;K&gt; keys() {
+<span class="fc" id="L207">        final List&lt;K&gt; list = new ArrayList&lt;&gt;(size);</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">        for (int i = 0; i &lt; keys.length; i++) {</span>
+<span class="fc" id="L209">            final K key = keys[i];</span>
+<span class="fc bfc" id="L210" title="All 2 branches covered.">            if (key != null) {</span>
+<span class="fc" id="L211">                list.add(key);</span>
+            }
+        }
+<span class="fc" id="L214">        return list;</span>
+    }
+
+    /**
+     * Returns a {@link List} containing all values currently present in this map.
+     *
+     * @return a snapshot list containing all values in this map
+     */
+    public List&lt;V&gt; values() {
+<span class="fc" id="L223">        final List&lt;V&gt; list = new ArrayList&lt;&gt;(size);</span>
+<span class="fc bfc" id="L224" title="All 2 branches covered.">        for (int i = 0; i &lt; keys.length; i++) {</span>
+<span class="fc bfc" id="L225" title="All 2 branches covered.">            if (keys[i] != null) {</span>
+<span class="fc" id="L226">                list.add(values[i]);</span>
+            }
+        }
+<span class="fc" id="L229">        return list;</span>
+    }
+
+    /**
+     * Removes all of the mappings from this map.
+     * The map will be empty after this call returns.
+     */
+    public void clear() {
+<span class="fc bfc" id="L237" title="All 2 branches covered.">        if (size &gt; 0) {</span>
+<span class="fc" id="L238">            Arrays.fill(keys, null);</span>
+<span class="fc" id="L239">            Arrays.fill(values, null);</span>
+<span class="fc" id="L240">            size = 0;</span>
+        }
+<span class="fc" id="L242">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private void resize() {
+<span class="fc" id="L246">        final int oldCapacity = keys.length;</span>
+<span class="fc" id="L247">        final int newCapacity = oldCapacity &lt;&lt; 1;</span>
+<span class="pc bpc" id="L248" title="1 of 4 branches missed.">        if (newCapacity &lt; 0 || oldCapacity &gt;= MAXIMUM_CAPACITY) {</span>
+<span class="fc" id="L249">            return;</span>
+        }
+
+<span class="fc" id="L252">        final K[] oldKeys = this.keys;</span>
+<span class="fc" id="L253">        final V[] oldValues = this.values;</span>
+<span class="fc" id="L254">        final K[] newKeys = (K[]) new Object[newCapacity];</span>
+<span class="fc" id="L255">        final V[] newValues = (V[]) new Object[newCapacity];</span>
+<span class="fc" id="L256">        final int newMask = newCapacity - 1;</span>
+
+<span class="fc bfc" id="L258" title="All 2 branches covered.">        for (int i = 0; i &lt; oldCapacity; i++) {</span>
+<span class="fc" id="L259">            final K key = oldKeys[i];</span>
+<span class="fc bfc" id="L260" title="All 2 branches covered.">            if (key != null) {</span>
+<span class="fc" id="L261">                int idx = hash(key) &amp; newMask;</span>
+<span class="fc bfc" id="L262" title="All 2 branches covered.">                while (newKeys[idx] != null) {</span>
+<span class="fc" id="L263">                    idx = (idx + 1) &amp; newMask;</span>
+                }
+<span class="fc" id="L265">                newKeys[idx] = key;</span>
+<span class="fc" id="L266">                newValues[idx] = oldValues[i];</span>
+            }
+        }
+
+<span class="fc" id="L270">        this.keys = newKeys;</span>
+<span class="fc" id="L271">        this.values = newValues;</span>
+<span class="fc" id="L272">        this.mask = newMask;</span>
+<span class="fc" id="L273">        this.threshold = (int) (newCapacity * loadFactor);</span>
+<span class="fc" id="L274">    }</span>
+
+    private static int mixHash(int h) {
+<span class="fc" id="L277">        h ^= h &gt;&gt;&gt; 16;</span>
+<span class="fc" id="L278">        h *= 0x85ebca6b;</span>
+<span class="fc" id="L279">        h ^= h &gt;&gt;&gt; 13;</span>
+<span class="fc" id="L280">        h *= 0xc2b2ae35;</span>
+<span class="fc" id="L281">        h ^= h &gt;&gt;&gt; 16;</span>
+<span class="fc" id="L282">        return h;</span>
+    }
+
+    private int hash(final Object key) {
+<span class="fc" id="L286">        return mixHash(key.hashCode());</span>
+    }
+
+    private static int tableSizeFor(final int cap) {
+<span class="fc" id="L290">        int n = -1 &gt;&gt;&gt; Integer.numberOfLeadingZeros(Math.max(1, cap - 1));</span>
+<span class="pc bpc" id="L291" title="1 of 4 branches missed.">        return (n &lt; 0) ? 1 : (n &gt;= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

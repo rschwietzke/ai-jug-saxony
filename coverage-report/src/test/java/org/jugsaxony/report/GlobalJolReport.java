@@ -35,7 +35,7 @@ public class GlobalJolReport {
     ) {}
 
     public static final List<ImplementationMeta> IMPLEMENTATIONS = List.of(
-            new ImplementationMeta("demo0", "Demo 0", "Baseline / Reference (FastRandom)", org.jugsaxony.demo0.FastHashMap.class, new MapFactory() {
+            new ImplementationMeta("demo0", "Demo 0", "Human Baseline", org.jugsaxony.demo0.FastHashMap.class, new MapFactory() {
                 public Object create() { return new org.jugsaxony.demo0.FastHashMap<String, Integer>(); }
                 @SuppressWarnings("unchecked")
                 public void put(Object map, Object key, Object value) { ((org.jugsaxony.demo0.FastHashMap<String, Integer>) map).put((String) key, (Integer) value); }

@@ -6,7 +6,7 @@ Comprehensive memory layout and footprint analysis comparing all FastHashMap imp
 
 | Implementation | Model | Shallow Size | Empty (B) | N=100 (B) | N=100 (B/entry) | N=1,000 (B) | N=1,000 (B/entry) | N=10,000 (B) | N=10,000 (B/entry) |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Demo 0** | Baseline / Reference (FastRandom) | 40 B | 328 B | 8,520 B | 85.2 | 80,456 B | 80.5 | 902,216 B | 90.2 |
+| **Demo 0** | Human Baseline | 40 B | 328 B | 8,520 B | 85.2 | 80,456 B | 80.5 | 902,216 B | 90.2 |
 | **Demo 1** | Gemini 3.7 Flash High (Antigravity) | 40 B | 200 B | 8,520 B | 85.2 | 80,456 B | 80.5 | 771,144 B | 77.1 |
 | **Demo 2** | Kimi K3 (Kilo Code) | 32 B | 192 B | 8,512 B | 85.1 | 80,448 B | 80.4 | 771,136 B | 77.1 |
 | **Demo 3** | OpenAI 5.6 Sol Max (Kilo Code) | 32 B | 192 B | 8,512 B | 85.1 | 80,448 B | 80.4 | 771,136 B | 77.1 |
@@ -23,7 +23,7 @@ Comprehensive memory layout and footprint analysis comparing all FastHashMap imp
 
 | Implementation | Model | Empty Objects | Objects @ N=100 | Objects @ N=1,000 | Objects @ N=10,000 | Memory Strategy |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Demo 0** | Baseline / Reference (FastRandom) | 3 | 303 | 3,003 | 30,003 | Node/Entry Objects |
+| **Demo 0** | Human Baseline | 3 | 303 | 3,003 | 30,003 | Node/Entry Objects |
 | **Demo 1** | Gemini 3.7 Flash High (Antigravity) | 3 | 303 | 3,003 | 30,003 | Node/Entry Objects |
 | **Demo 2** | Kimi K3 (Kilo Code) | 3 | 303 | 3,003 | 30,003 | Node/Entry Objects |
 | **Demo 3** | OpenAI 5.6 Sol Max (Kilo Code) | 3 | 303 | 3,003 | 30,003 | Node/Entry Objects |
@@ -38,7 +38,7 @@ Comprehensive memory layout and footprint analysis comparing all FastHashMap imp
 
 ## 3. Class Layout Details
 
-### Demo 0 (Baseline / Reference (FastRandom))
+### Demo 0 (Human Baseline)
 ```
 org.jugsaxony.demo0.FastHashMap object internals:
 OFF  SZ                 TYPE DESCRIPTION                VALUE

@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surefire Aggregated Unit Test Report</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --primary: #0284c7;
+            --primary-glow: rgba(2, 132, 199, 0.12);
+            --accent: #7c3aed;
+            --accent-glow: rgba(124, 58, 237, 0.12);
+            --success: #16a34a;
+            --success-bg: #dcfce7;
+            --warning: #d97706;
+            --warning-bg: #fef3c7;
+            --danger: #dc2626;
+            --danger-bg: #fee2e2;
+            --time-bg: #f1f5f9;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 2rem 1.5rem; line-height: 1.5; }
+        .container { max-width: 1480px; margin: 0 auto; }
+        .header { border-bottom: 1px solid var(--card-border); padding-bottom: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem; }
+        .header h1 { margin: 0; font-size: 2.1rem; font-weight: 800; letter-spacing: -0.025em; background: linear-gradient(135deg, #0f172a 0%, #334155 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header p { margin: 0.5rem 0 0 0; color: var(--text-muted); font-size: 1.05rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1.25rem; margin-bottom: 2.25rem; }
+        .stat-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 1.25rem; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .stat-value { font-size: 1.9rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 0.25rem 0; }
+        .stat-sub { font-size: 0.8rem; color: var(--text-muted); }
+        .stat-label { color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
+        .quick-actions { display: flex; gap: 0.75rem; margin-bottom: 2rem; flex-wrap: wrap; align-items: center; }
+        .action-btn { background: var(--card-bg); border: 1px solid var(--card-border); color: #334155; padding: 0.55rem 1.1rem; border-radius: 8px; text-decoration: none; font-size: 0.875rem; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+        .action-btn:hover { background: #f8fafc; border-color: var(--primary); color: var(--primary); }
+        .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 1.75rem; margin-bottom: 2.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--card-border); padding-bottom: 1rem; }
+        .section-header h2 { margin: 0; font-size: 1.45rem; font-weight: 700; display: flex; align-items: center; gap: 0.6rem; color: #0f172a; }
+        .section-desc { color: var(--text-muted); font-size: 0.95rem; margin: 0.25rem 0 0 0; }
+        .subpage-link { font-size: 0.85rem; font-weight: 600; color: var(--primary); text-decoration: none; border: 1px solid #bae6fd; padding: 0.4rem 0.8rem; border-radius: 6px; background: #f0f9ff; transition: all 0.2s; }
+        .subpage-link:hover { background: #e0f2fe; border-color: var(--primary); }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem; }
+        th, td { padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid var(--card-border); }
+        th { background: #f8fafc; font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+        tr:hover td { background: #f8fafc; }
+        .badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.65rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; font-family: 'JetBrains Mono', monospace; }
+        .badge-success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .badge-info { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }
+        .badge-warning { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+        .badge-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+        .badge-time { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; font-size: 0.73rem; }
+        .numeric { text-align: right; font-variant-numeric: tabular-nums; font-family: 'JetBrains Mono', monospace; }
+        .subtable-wrapper { margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px dashed var(--card-border); }
+        .subtable-title { font-size: 1.05rem; font-weight: 700; margin: 0 0 0.75rem 0; color: #1e293b; display: flex; align-items: center; justify-content: space-between; }
+        .failure-details { margin: 0.25rem 0; }
+        .failure-details summary { cursor: pointer; outline: none; list-style: none; display: inline-flex; align-items: center; }
+        .failure-details summary::-webkit-details-marker { display: none; }
+        .failure-list { margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.45rem; background: #fff5f5; border: 1px solid #fecaca; border-radius: 8px; padding: 0.6rem 0.8rem; max-width: 580px; }
+        .failure-item { font-size: 0.8rem; border-bottom: 1px solid #fee2e2; padding-bottom: 0.35rem; }
+        .failure-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .failure-title { font-weight: 600; color: #991b1b; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+        .failure-type { font-size: 0.72rem; color: #b91c1c; font-family: 'JetBrains Mono', monospace; }
+        .failure-msg { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #475569; background: #ffffff; padding: 0.25rem 0.45rem; border-radius: 4px; border: 1px solid #fecaca; margin-top: 0.25rem; white-space: pre-wrap; word-break: break-word; }
+        .notice-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-size: 0.88rem; color: #1e3a8a; line-height: 1.55; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div>
+            <h1>🧪 Surefire Aggregated Unit Test Report</h1>
+            <p>Comprehensive Execution Results, Assertions, Durations, and Diagnostic Traces across all Test Suites</p>
+        </div>
+        <div>
+            <a href="index.html" class="action-btn">← Back to Master Dashboard</a>
+        </div>
+    </div>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Tests Run</div>
+            <div class="stat-value" style="color: var(--primary);">3388</div>
+            <div class="stat-sub">Across 68 evaluated suites</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Passed Tests</div>
+            <div class="stat-value" style="color: var(--success);">3261</div>
+            <div class="stat-sub">96.3% overall pass rate</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Failures & Errors</div>
+            <div class="stat-value" style="color: var(--warning);">127</div>
+            <div class="stat-sub">127 failures, 0 errors</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Execution Time</div>
+            <div class="stat-value" style="color: var(--accent);">61.66s</div>
+            <div class="stat-sub">Combined Surefire runtime</div>
+        </div>
+    </div>
+    <div class="quick-actions">
+        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Jump to Suite:</span>
+        <a href="#simplemath" class="action-btn">🧮 SimpleMath</a>
+        <a href="#fasthashmap" class="action-btn">⚡ FastHashMap (AI)</a>
+        <a href="#blackbox" class="action-btn">🛡️ FastHashMap (BlackBox)</a>
+        <a href="#lruclockmap" class="action-btn">⏰ LRUClockMap</a>
+        <a href="#xlt-util" class="action-btn">🧰 com.xceptance.xlt.report.util</a>
+        <a href="coverage-aggregate/index.html" class="action-btn">🎯 JaCoCo Coverage</a>
+    </div>
+    <div id="simplemath" class="card">
+        <div class="section-header">
+            <div>
+                <h2>🧮 SimpleMath & SimpleMathClean Test Suites</h2>
+                <div class="section-desc">Arithmetic operations, boundary assertions, and overflow behavior across baseline and AI implementations.</div>
+            </div>
+            <div>
+                <a href="simplemath.html" class="subpage-link">Open Dedicated Page ↗</a>
+            </div>
+        </div>
+        <div class="notice-box">
+            <strong>💡 Note on 64-bit Overflow Edge Cases:</strong> In demo1–demo9, <code>SimpleMathTest</code> and <code>SimpleMathCleanTest</code> include strict assertions verifying 64-bit integer overflow promotion when summing arrays (e.g. <code>Integer.MAX_VALUE + 1</code>, <code>10000000000L</code>). Because the AI models produced implementations using standard 32-bit integer arithmetic without widening promotion, these tests intentionally register 3 to 7 assertion failures. In <strong>demo0 (Human Baseline)</strong>, these edge cases were properly considered and 100% of tests pass.
+        </div>
+        <div style="font-size: 1.05rem; font-weight: 700; margin: 1.25rem 0 0.5rem 0; color: #1e293b; display: flex; align-items: center; justify-content: space-between;">
+            <span>🔢 SimpleMath Test Suites (SimpleMathTest)</span>
+            <span style="font-size: 0.8rem; font-weight: 500; color: var(--text-muted);">Baseline arithmetic operations and overflow edge cases</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Module</th>
+                    <th>AI Model / Implementation</th>
+                    <th>Tests</th>
+                    <th class="numeric">Duration</th>
+                    <th class="numeric">Failures</th>
+                    <th class="numeric">Errors</th>
+                    <th>Status</th>
+                    <th>Diagnostics / Test Results</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>demo0</strong></td>
+                    <td><span class="badge badge-info">Human Baseline</span></td>
+                    <td><span class="badge badge-success">32 Passed</span></td>
+                    <td class="numeric">0.30s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo1</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity)</span></td>
+                    <td><span class="badge badge-warning">61/68 Passed</span></td>
+                    <td class="numeric">1.15s</td>
+                    <td class="numeric"><span style="color: #dc2626; font-weight: 700;">7</span></td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-warning">⚠ 7 Failed</span></td>
+                    <td>
+                        <details class="failure-details">
+                            <summary><span class="badge badge-warning" style="cursor: pointer;">🔍 7 Failures (click to inspect)</span></summary>
+                            <div class="failure-list">
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumOverflowBeyondIntegerMaxValue</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 2147483648L  but was: -2147483648L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testLargeArrayExceedingIntMax</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 10000000000L  but was: 1410065408L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumTwoMaxValues</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 4294967294L  but was: -2L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumUnderflowBelowIntegerMinValue</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -2147483649L  but was: 2147483647L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumTwoMinValues</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -4294967296L  but was: 0L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumThreeLargeIntegers</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 3000000000L  but was: -1294967296L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumThreeLargeNegativeIntegers</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -3000000000L  but was: 1294967296L</div>
+                                </div>
+                            </div>
+                        </details>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>demo2</strong></td>
+                    <td><span class="badge badge-info">Kimi K3 (Kilo Code)</span></td>
+                    <td><span class="badge badge-warning">66/73 Passed</span></td>
+                    <td class="numeric">1.02s</td>
+                    <td class="numeric"><span style="color: #dc2626; font-weight: 700;">7</span></td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-warning">⚠ 7 Failed</span></td>
+                    <td>
+                        <details class="failure-details">
+                            <summary><span class="badge badge-warning" style="cursor: pointer;">🔍 7 Failures (click to inspect)</span></summary>
+                            <div class="failure-list">
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumOverflowBeyondIntegerMaxValue</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 2147483648L  but was: -2147483648L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testLargeArrayExceedingIntMax</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 10000000000L  but was: 1410065408L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumTwoMaxValues</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 4294967294L  but was: -2L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumUnderflowBelowIntegerMinValue</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -2147483649L  but was: 2147483647L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumTwoMinValues</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -4294967296L  but was: 0L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumThreeLargeIntegers</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 3000000000L  but was: -1294967296L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumThreeLargeNegativeIntegers</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -3000000000L  but was: 1294967296L</div>
+                                </div>
+                            </div>
+                        </details>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>demo3</strong></td>
+                    <td><span class="badge badge-info">OpenAI 5.6 Sol Max (Kilo Code)</span></td>
+                    <td><span class="badge badge-warning">63/71 Passed</span></td>
+                    <td class="numeric">0.40s</td>
+                    <td class="numeric"><span style="color: #dc2626; font-weight: 700;">8</span></td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-warning">⚠ 8 Failed</span></td>
+                    <td>
+                        <details class="failure-details">
+                            <summary><span class="badge badge-warning" style="cursor: pointer;">🔍 8 Failures (click to inspect)</span></summary>
+                            <div class="failure-list">
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumIsAdditiveWhenArraysAreConcatenated</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: &amp;lt;2147483653&amp;gt; but was: &amp;lt;-2147483643&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumReturnsTheMathematicalTotal(String, int[], long)[14]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">total one above Integer.MAX_VALUE ==&amp;gt; expected: &amp;lt;2147483648&amp;gt; but was: &amp;lt;-2147483648&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumReturnsTheMathematicalTotal(String, int[], long)[15]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">two maximum values require a long result ==&amp;gt; expected: &amp;lt;4294967294&amp;gt; but was: &amp;lt;-2&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumReturnsTheMathematicalTotal(String, int[], long)[16]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">total one below Integer.MIN_VALUE ==&amp;gt; expected: &amp;lt;-2147483649&amp;gt; but was: &amp;lt;2147483647&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumReturnsTheMathematicalTotal(String, int[], long)[17]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">two minimum values require a long result ==&amp;gt; expected: &amp;lt;-4294967296&amp;gt; but was: &amp;lt;0&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumReturnsTheMathematicalTotal(String, int[], long)[18]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">three large positive values ==&amp;gt; expected: &amp;lt;3000000000&amp;gt; but was: &amp;lt;-1294967296&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumReturnsTheMathematicalTotal(String, int[], long)[19]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">three large negative values ==&amp;gt; expected: &amp;lt;-3000000000&amp;gt; but was: &amp;lt;1294967296&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumReturnsTheMathematicalTotal(String, int[], long)[21]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">mixed extremes can still require a long result ==&amp;gt; expected: &amp;lt;2147483656&amp;gt; but was: &amp;lt;-2147483640&amp;gt;</div>
+                                </div>
+                            </div>
+                        </details>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>demo4</strong></td>
+                    <td><span class="badge badge-info">Gemma 4 31B Thinking (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">17 Passed</span></td>
+                    <td class="numeric">0.25s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo5</strong></td>
+                    <td><span class="badge badge-info">Deepseek V4 Flash Max (Kilo Code)</span></td>
+                    <td><span class="badge badge-warning">73/81 Passed</span></td>
+                    <td class="numeric">1.13s</td>
+                    <td class="numeric"><span style="color: #dc2626; font-weight: 700;">8</span></td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-warning">⚠ 8 Failed</span></td>
+                    <td>
+                        <details class="failure-details">
+                            <summary><span class="badge badge-warning" style="cursor: pointer;">🔍 8 Failures (click to inspect)</span></summary>
+                            <div class="failure-list">
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumOverflowBeyondIntegerMaxValue</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 2147483648L  but was: -2147483648L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testLargeArrayExceedingIntMax</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 10000000000L  but was: 1410065408L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumTwoMaxValues</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 4294967294L  but was: -2L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumUnderflowBelowIntegerMinValue</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -2147483649L  but was: 2147483647L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumMatchesLongReferenceImplementation</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -12697027925L  but was: 187873963L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumTwoMinValues</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -4294967296L  but was: 0L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumThreeLargeIntegers</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 3000000000L  but was: -1294967296L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumThreeLargeNegativeIntegers</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -3000000000L  but was: 1294967296L</div>
+                                </div>
+                            </div>
+                        </details>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>demo6</strong></td>
+                    <td><span class="badge badge-info">Claude Opus 5 Ultra (Claude)</span></td>
+                    <td><span class="badge badge-warning">134/153 Passed</span></td>
+                    <td class="numeric">1.47s</td>
+                    <td class="numeric"><span style="color: #dc2626; font-weight: 700;">19</span></td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-warning">⚠ 19 Failed</span></td>
+                    <td>
+                        <details class="failure-details">
+                            <summary><span class="badge badge-warning" style="cursor: pointer;">🔍 19 Failures (click to inspect)</span></summary>
+                            <div class="failure-list">
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>doesNotWrapBelowMinValue</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">a total of MIN_VALUE - 1 must be below MIN_VALUE, but was 2147483647 ==&amp;gt; expected: &amp;lt;true&amp;gt; but was: &amp;lt;false&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[1]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">one past MAX_VALUE ==&amp;gt; expected: &amp;lt;2147483648&amp;gt; but was: &amp;lt;-2147483648&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[2]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">one past MAX_VALUE, other order ==&amp;gt; expected: &amp;lt;2147483648&amp;gt; but was: &amp;lt;-2147483648&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[3]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">one below MIN_VALUE ==&amp;gt; expected: &amp;lt;-2147483649&amp;gt; but was: &amp;lt;2147483647&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[4]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">one below MIN_VALUE, other order ==&amp;gt; expected: &amp;lt;-2147483649&amp;gt; but was: &amp;lt;2147483647&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[5]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">MAX_VALUE twice ==&amp;gt; expected: &amp;lt;4294967294&amp;gt; but was: &amp;lt;-2&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[6]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">MAX_VALUE three times ==&amp;gt; expected: &amp;lt;6442450941&amp;gt; but was: &amp;lt;2147483645&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[7]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">MIN_VALUE twice ==&amp;gt; expected: &amp;lt;-4294967296&amp;gt; but was: &amp;lt;0&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[8]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">MIN_VALUE three times ==&amp;gt; expected: &amp;lt;-6442450944&amp;gt; but was: &amp;lt;-2147483648&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[9]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">two billion twice ==&amp;gt; expected: &amp;lt;4000000000&amp;gt; but was: &amp;lt;-294967296&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[10]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">minus two billion twice ==&amp;gt; expected: &amp;lt;-4000000000&amp;gt; but was: &amp;lt;294967296&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[11]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">a thousand times ten million ==&amp;gt; expected: &amp;lt;10000000000&amp;gt; but was: &amp;lt;1410065408&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[12]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">a million times five thousand ==&amp;gt; expected: &amp;lt;5000000000&amp;gt; but was: &amp;lt;705032704&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>doesNotWrapAboveMaxValue</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">a total of MAX_VALUE + 1 must be above MAX_VALUE, but was -2147483648 ==&amp;gt; expected: &amp;lt;true&amp;gt; but was: &amp;lt;false&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>keepsTheSignOfALargePositiveTotal</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: &amp;lt;100000000000&amp;gt; but was: &amp;lt;1215752192&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>matchesExactTotalForRandomInput</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">the exact total of a hundred large values ==&amp;gt; expected: &amp;lt;149149089558&amp;gt; but was: &amp;lt;-1174765802&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>keepsTheSignOfALargeNegativeTotal</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: &amp;lt;-100000000000&amp;gt; but was: &amp;lt;-1215752192&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>isNotInstantiable</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">SimpleMath should hide its constructor, an instance of it would be useless ==&amp;gt; expected: &amp;lt;true&amp;gt; but was: &amp;lt;false&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>isFinal</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">SimpleMath holds only static helpers and should be final ==&amp;gt; expected: &amp;lt;true&amp;gt; but was: &amp;lt;false&amp;gt;</div>
+                                </div>
+                            </div>
+                        </details>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>demo7</strong></td>
+                    <td><span class="badge badge-info">Qwen 38 max XHigh (Kilo Code)</span></td>
+                    <td><span class="badge badge-warning">33/37 Passed</span></td>
+                    <td class="numeric">0.25s</td>
+                    <td class="numeric"><span style="color: #dc2626; font-weight: 700;">4</span></td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-warning">⚠ 4 Failed</span></td>
+                    <td>
+                        <details class="failure-details">
+                            <summary><span class="badge badge-warning" style="cursor: pointer;">🔍 4 Failures (click to inspect)</span></summary>
+                            <div class="failure-list">
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumMatchesLongAccumulationOnRandomFullRangeArrays</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">run 0: [256957624, 1181413113, 942660266, 2065821249, 151476422, -267157795, -1634947265, 172111193, -292080853, 1752363137, 224611745, 1406072123, 736773014, 1911809390, -696415768, -1308542224] ==&amp;gt; expected: &amp;lt;6602925371&amp;gt; but was: &amp;lt;-1987009221&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumOfManyElementsExceedingIntRange</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: &amp;lt;3000000000&amp;gt; but was: &amp;lt;-1294967296&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumBelowIntRangeUsesFullLongRange</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: &amp;lt;-2147483649&amp;gt; but was: &amp;lt;2147483647&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumExceedingIntRangeUsesFullLongRange</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: &amp;lt;2147483648&amp;gt; but was: &amp;lt;-2147483648&amp;gt;</div>
+                                </div>
+                            </div>
+                        </details>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>demo8</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.7 Flash High (Kilo Code)</span></td>
+                    <td><span class="badge badge-warning">56/59 Passed</span></td>
+                    <td class="numeric">1.13s</td>
+                    <td class="numeric"><span style="color: #dc2626; font-weight: 700;">3</span></td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-warning">⚠ 3 Failed</span></td>
+                    <td>
+                        <details class="failure-details">
+                            <summary><span class="badge badge-warning" style="cursor: pointer;">🔍 3 Failures (click to inspect)</span></summary>
+                            <div class="failure-list">
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumUnderflowBelowIntegerMin</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: &amp;lt;-4294967296&amp;gt; but was: &amp;lt;0&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumOverflowBeyondIntegerMax</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: &amp;lt;4294967294&amp;gt; but was: &amp;lt;-2&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumLargeArray</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: &amp;lt;10000000000&amp;gt; but was: &amp;lt;1410065408&amp;gt;</div>
+                                </div>
+                            </div>
+                        </details>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>demo9</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity)</span></td>
+                    <td><span class="badge badge-warning">60/66 Passed</span></td>
+                    <td class="numeric">1.27s</td>
+                    <td class="numeric"><span style="color: #dc2626; font-weight: 700;">6</span></td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-warning">⚠ 6 Failed</span></td>
+                    <td>
+                        <details class="failure-details">
+                            <summary><span class="badge badge-warning" style="cursor: pointer;">🔍 6 Failures (click to inspect)</span></summary>
+                            <div class="failure-list">
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>cumulativeNegativeUnderflow</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -3000000000L  but was: 1294967296L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>twoMaxValuesShouldNotOverflow</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 4294967294L  but was: -2L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>cumulativePositiveOverflow</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 3000000000L  but was: -1294967296L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>minValueMinusOneShouldNotUnderflow</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -2147483649L  but was: 2147483647L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>maxValuePlusOneShouldNotOverflow</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 2147483648L  but was: -2147483648L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>twoMinValuesShouldNotUnderflow</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -4294967296L  but was: 0L</div>
+                                </div>
+                            </div>
+                        </details>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>demo11</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
+                    <td><span class="badge badge-info">0 Tests</span></td>
+                    <td class="numeric">-</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-info">No Tests</span></td>
+                    <td><span style="color: var(--text-muted); font-size: 0.8rem;">None</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo12</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
+                    <td><span class="badge badge-info">0 Tests</span></td>
+                    <td class="numeric">-</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-info">No Tests</span></td>
+                    <td><span style="color: var(--text-muted); font-size: 0.8rem;">None</span></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="subtable-wrapper">
+            <div class="subtable-title">
+                <span>🧼 SimpleMathClean Test Suites (SimpleMathCleanTest)</span>
+                <span style="font-size: 0.8rem; font-weight: 500; color: var(--text-muted);">Clean arithmetic operations and overflow handling</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Module</th>
+                        <th>AI Model / Implementation</th>
+                        <th>Tests</th>
+                        <th class="numeric">Duration</th>
+                        <th class="numeric">Failures</th>
+                        <th class="numeric">Errors</th>
+                        <th>Status</th>
+                        <th>Diagnostics / Test Results</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><strong>demo0</strong></td>
+                    <td><span class="badge badge-info">Human Baseline</span></td>
+                    <td><span class="badge badge-success">32 Passed</span></td>
+                    <td class="numeric">0.30s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo1</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity)</span></td>
+                    <td><span class="badge badge-warning">61/68 Passed</span></td>
+                    <td class="numeric">1.18s</td>
+                    <td class="numeric"><span style="color: #dc2626; font-weight: 700;">7</span></td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-warning">⚠ 7 Failed</span></td>
+                    <td>
+                        <details class="failure-details">
+                            <summary><span class="badge badge-warning" style="cursor: pointer;">🔍 7 Failures (click to inspect)</span></summary>
+                            <div class="failure-list">
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumOverflowBeyondIntegerMaxValue</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 2147483648L  but was: -2147483648L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testLargeArrayExceedingIntMax</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 10000000000L  but was: 1410065408L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumTwoMaxValues</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 4294967294L  but was: -2L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumUnderflowBelowIntegerMinValue</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -2147483649L  but was: 2147483647L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumTwoMinValues</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -4294967296L  but was: 0L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumThreeLargeIntegers</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 3000000000L  but was: -1294967296L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumThreeLargeNegativeIntegers</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -3000000000L  but was: 1294967296L</div>
+                                </div>
+                            </div>
+                        </details>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>demo2</strong></td>
+                    <td><span class="badge badge-info">Kimi K3 (Kilo Code)</span></td>
+                    <td><span class="badge badge-warning">66/73 Passed</span></td>
+                    <td class="numeric">1.35s</td>
+                    <td class="numeric"><span style="color: #dc2626; font-weight: 700;">7</span></td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-warning">⚠ 7 Failed</span></td>
+                    <td>
+                        <details class="failure-details">
+                            <summary><span class="badge badge-warning" style="cursor: pointer;">🔍 7 Failures (click to inspect)</span></summary>
+                            <div class="failure-list">
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumOverflowBeyondIntegerMaxValue</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 2147483648L  but was: -2147483648L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testLargeArrayExceedingIntMax</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 10000000000L  but was: 1410065408L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumTwoMaxValues</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 4294967294L  but was: -2L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumUnderflowBelowIntegerMinValue</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -2147483649L  but was: 2147483647L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumTwoMinValues</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -4294967296L  but was: 0L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumThreeLargeIntegers</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 3000000000L  but was: -1294967296L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumThreeLargeNegativeIntegers</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -3000000000L  but was: 1294967296L</div>
+                                </div>
+                            </div>
+                        </details>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>demo3</strong></td>
+                    <td><span class="badge badge-info">OpenAI 5.6 Sol Max (Kilo Code)</span></td>
+                    <td><span class="badge badge-warning">63/71 Passed</span></td>
+                    <td class="numeric">0.39s</td>
+                    <td class="numeric"><span style="color: #dc2626; font-weight: 700;">8</span></td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-warning">⚠ 8 Failed</span></td>
+                    <td>
+                        <details class="failure-details">
+                            <summary><span class="badge badge-warning" style="cursor: pointer;">🔍 8 Failures (click to inspect)</span></summary>
+                            <div class="failure-list">
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumIsAdditiveWhenArraysAreConcatenated</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: &amp;lt;2147483653&amp;gt; but was: &amp;lt;-2147483643&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumReturnsTheMathematicalTotal(String, int[], long)[14]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">total one above Integer.MAX_VALUE ==&amp;gt; expected: &amp;lt;2147483648&amp;gt; but was: &amp;lt;-2147483648&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumReturnsTheMathematicalTotal(String, int[], long)[15]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">two maximum values require a long result ==&amp;gt; expected: &amp;lt;4294967294&amp;gt; but was: &amp;lt;-2&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumReturnsTheMathematicalTotal(String, int[], long)[16]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">total one below Integer.MIN_VALUE ==&amp;gt; expected: &amp;lt;-2147483649&amp;gt; but was: &amp;lt;2147483647&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumReturnsTheMathematicalTotal(String, int[], long)[17]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">two minimum values require a long result ==&amp;gt; expected: &amp;lt;-4294967296&amp;gt; but was: &amp;lt;0&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumReturnsTheMathematicalTotal(String, int[], long)[18]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">three large positive values ==&amp;gt; expected: &amp;lt;3000000000&amp;gt; but was: &amp;lt;-1294967296&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumReturnsTheMathematicalTotal(String, int[], long)[19]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">three large negative values ==&amp;gt; expected: &amp;lt;-3000000000&amp;gt; but was: &amp;lt;1294967296&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumReturnsTheMathematicalTotal(String, int[], long)[21]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">mixed extremes can still require a long result ==&amp;gt; expected: &amp;lt;2147483656&amp;gt; but was: &amp;lt;-2147483640&amp;gt;</div>
+                                </div>
+                            </div>
+                        </details>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>demo4</strong></td>
+                    <td><span class="badge badge-info">Gemma 4 31B Thinking (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">17 Passed</span></td>
+                    <td class="numeric">0.35s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo5</strong></td>
+                    <td><span class="badge badge-info">Deepseek V4 Flash Max (Kilo Code)</span></td>
+                    <td><span class="badge badge-warning">73/81 Passed</span></td>
+                    <td class="numeric">1.40s</td>
+                    <td class="numeric"><span style="color: #dc2626; font-weight: 700;">8</span></td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-warning">⚠ 8 Failed</span></td>
+                    <td>
+                        <details class="failure-details">
+                            <summary><span class="badge badge-warning" style="cursor: pointer;">🔍 8 Failures (click to inspect)</span></summary>
+                            <div class="failure-list">
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumOverflowBeyondIntegerMaxValue</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 2147483648L  but was: -2147483648L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testLargeArrayExceedingIntMax</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 10000000000L  but was: 1410065408L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumTwoMaxValues</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 4294967294L  but was: -2L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumUnderflowBelowIntegerMinValue</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -2147483649L  but was: 2147483647L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumMatchesLongReferenceImplementation</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -12697027925L  but was: 187873963L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumTwoMinValues</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -4294967296L  but was: 0L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumThreeLargeIntegers</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 3000000000L  but was: -1294967296L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumThreeLargeNegativeIntegers</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -3000000000L  but was: 1294967296L</div>
+                                </div>
+                            </div>
+                        </details>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>demo6</strong></td>
+                    <td><span class="badge badge-info">Claude Opus 5 Ultra (Claude)</span></td>
+                    <td><span class="badge badge-warning">134/153 Passed</span></td>
+                    <td class="numeric">1.64s</td>
+                    <td class="numeric"><span style="color: #dc2626; font-weight: 700;">19</span></td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-warning">⚠ 19 Failed</span></td>
+                    <td>
+                        <details class="failure-details">
+                            <summary><span class="badge badge-warning" style="cursor: pointer;">🔍 19 Failures (click to inspect)</span></summary>
+                            <div class="failure-list">
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>doesNotWrapBelowMinValue</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">a total of MIN_VALUE - 1 must be below MIN_VALUE, but was 2147483647 ==&amp;gt; expected: &amp;lt;true&amp;gt; but was: &amp;lt;false&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[1]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">one past MAX_VALUE ==&amp;gt; expected: &amp;lt;2147483648&amp;gt; but was: &amp;lt;-2147483648&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[2]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">one past MAX_VALUE, other order ==&amp;gt; expected: &amp;lt;2147483648&amp;gt; but was: &amp;lt;-2147483648&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[3]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">one below MIN_VALUE ==&amp;gt; expected: &amp;lt;-2147483649&amp;gt; but was: &amp;lt;2147483647&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[4]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">one below MIN_VALUE, other order ==&amp;gt; expected: &amp;lt;-2147483649&amp;gt; but was: &amp;lt;2147483647&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[5]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">MAX_VALUE twice ==&amp;gt; expected: &amp;lt;4294967294&amp;gt; but was: &amp;lt;-2&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[6]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">MAX_VALUE three times ==&amp;gt; expected: &amp;lt;6442450941&amp;gt; but was: &amp;lt;2147483645&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[7]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">MIN_VALUE twice ==&amp;gt; expected: &amp;lt;-4294967296&amp;gt; but was: &amp;lt;0&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[8]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">MIN_VALUE three times ==&amp;gt; expected: &amp;lt;-6442450944&amp;gt; but was: &amp;lt;-2147483648&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[9]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">two billion twice ==&amp;gt; expected: &amp;lt;4000000000&amp;gt; but was: &amp;lt;-294967296&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[10]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">minus two billion twice ==&amp;gt; expected: &amp;lt;-4000000000&amp;gt; but was: &amp;lt;294967296&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[11]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">a thousand times ten million ==&amp;gt; expected: &amp;lt;10000000000&amp;gt; but was: &amp;lt;1410065408&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>truthTable(String, int[], long)[12]</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">a million times five thousand ==&amp;gt; expected: &amp;lt;5000000000&amp;gt; but was: &amp;lt;705032704&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>doesNotWrapAboveMaxValue</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">a total of MAX_VALUE + 1 must be above MAX_VALUE, but was -2147483648 ==&amp;gt; expected: &amp;lt;true&amp;gt; but was: &amp;lt;false&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>keepsTheSignOfALargePositiveTotal</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: &amp;lt;100000000000&amp;gt; but was: &amp;lt;1215752192&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>matchesExactTotalForRandomInput</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">the exact total of a hundred large values ==&amp;gt; expected: &amp;lt;149149089558&amp;gt; but was: &amp;lt;-1174765802&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>keepsTheSignOfALargeNegativeTotal</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: &amp;lt;-100000000000&amp;gt; but was: &amp;lt;-1215752192&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>isNotInstantiable</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">SimpleMathClean should hide its constructor, an instance of it would be useless ==&amp;gt; expected: &amp;lt;true&amp;gt; but was: &amp;lt;false&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>isFinal</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">SimpleMathClean holds only static helpers and should be final ==&amp;gt; expected: &amp;lt;true&amp;gt; but was: &amp;lt;false&amp;gt;</div>
+                                </div>
+                            </div>
+                        </details>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>demo7</strong></td>
+                    <td><span class="badge badge-info">Qwen 38 max XHigh (Kilo Code)</span></td>
+                    <td><span class="badge badge-warning">33/37 Passed</span></td>
+                    <td class="numeric">0.22s</td>
+                    <td class="numeric"><span style="color: #dc2626; font-weight: 700;">4</span></td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-warning">⚠ 4 Failed</span></td>
+                    <td>
+                        <details class="failure-details">
+                            <summary><span class="badge badge-warning" style="cursor: pointer;">🔍 4 Failures (click to inspect)</span></summary>
+                            <div class="failure-list">
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumMatchesLongAccumulationOnRandomFullRangeArrays</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">run 0: [256957624, 1181413113, 942660266, 2065821249, 151476422, -267157795, -1634947265, 172111193, -292080853, 1752363137, 224611745, 1406072123, 736773014, 1911809390, -696415768, -1308542224] ==&amp;gt; expected: &amp;lt;6602925371&amp;gt; but was: &amp;lt;-1987009221&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumOfManyElementsExceedingIntRange</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: &amp;lt;3000000000&amp;gt; but was: &amp;lt;-1294967296&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumBelowIntRangeUsesFullLongRange</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: &amp;lt;-2147483649&amp;gt; but was: &amp;lt;2147483647&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>sumExceedingIntRangeUsesFullLongRange</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: &amp;lt;2147483648&amp;gt; but was: &amp;lt;-2147483648&amp;gt;</div>
+                                </div>
+                            </div>
+                        </details>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>demo8</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.7 Flash High (Kilo Code)</span></td>
+                    <td><span class="badge badge-warning">56/59 Passed</span></td>
+                    <td class="numeric">1.29s</td>
+                    <td class="numeric"><span style="color: #dc2626; font-weight: 700;">3</span></td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-warning">⚠ 3 Failed</span></td>
+                    <td>
+                        <details class="failure-details">
+                            <summary><span class="badge badge-warning" style="cursor: pointer;">🔍 3 Failures (click to inspect)</span></summary>
+                            <div class="failure-list">
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumUnderflowBelowIntegerMin</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: &amp;lt;-4294967296&amp;gt; but was: &amp;lt;0&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumOverflowBeyondIntegerMax</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: &amp;lt;4294967294&amp;gt; but was: &amp;lt;-2&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testSumLargeArray</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: &amp;lt;10000000000&amp;gt; but was: &amp;lt;1410065408&amp;gt;</div>
+                                </div>
+                            </div>
+                        </details>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>demo9</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity)</span></td>
+                    <td><span class="badge badge-warning">60/66 Passed</span></td>
+                    <td class="numeric">1.53s</td>
+                    <td class="numeric"><span style="color: #dc2626; font-weight: 700;">6</span></td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-warning">⚠ 6 Failed</span></td>
+                    <td>
+                        <details class="failure-details">
+                            <summary><span class="badge badge-warning" style="cursor: pointer;">🔍 6 Failures (click to inspect)</span></summary>
+                            <div class="failure-list">
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>cumulativeNegativeUnderflow</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -3000000000L  but was: 1294967296L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>twoMaxValuesShouldNotOverflow</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 4294967294L  but was: -2L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>cumulativePositiveOverflow</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 3000000000L  but was: -1294967296L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>minValueMinusOneShouldNotUnderflow</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -2147483649L  but was: 2147483647L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>maxValuePlusOneShouldNotOverflow</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: 2147483648L  but was: -2147483648L</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>twoMinValuesShouldNotUnderflow</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: -4294967296L  but was: 0L</div>
+                                </div>
+                            </div>
+                        </details>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>demo11</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
+                    <td><span class="badge badge-info">0 Tests</span></td>
+                    <td class="numeric">-</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-info">No Tests</span></td>
+                    <td><span style="color: var(--text-muted); font-size: 0.8rem;">None</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo12</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
+                    <td><span class="badge badge-info">0 Tests</span></td>
+                    <td class="numeric">-</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-info">No Tests</span></td>
+                    <td><span style="color: var(--text-muted); font-size: 0.8rem;">None</span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div id="fasthashmap" class="card">
+        <div class="section-header">
+            <div>
+                <h2>⚡ FastHashMap — AI-Generated Unit Test Suites</h2>
+                <div class="section-desc">Execution results for FastHashMapTest across all evaluated modules.</div>
+            </div>
+            <div>
+                <a href="fasthashmap.html" class="subpage-link">Open Dedicated Page ↗</a>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Module</th>
+                    <th>AI Model / Implementation</th>
+                    <th>Tests</th>
+                    <th class="numeric">Duration</th>
+                    <th class="numeric">Failures</th>
+                    <th class="numeric">Errors</th>
+                    <th>Status</th>
+                    <th>Diagnostics / Test Results</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>demo0</strong></td>
+                    <td><span class="badge badge-info">Human Baseline</span></td>
+                    <td><span class="badge badge-success">29 Passed</span></td>
+                    <td class="numeric">0.21s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo1</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity)</span></td>
+                    <td><span class="badge badge-success">21 Passed</span></td>
+                    <td class="numeric">0.64s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo2</strong></td>
+                    <td><span class="badge badge-info">Kimi K3 (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">43 Passed</span></td>
+                    <td class="numeric">0.38s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo3</strong></td>
+                    <td><span class="badge badge-info">OpenAI 5.6 Sol Max (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">19 Passed</span></td>
+                    <td class="numeric">0.27s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo4</strong></td>
+                    <td><span class="badge badge-info">Gemma 4 31B Thinking (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">10 Passed</span></td>
+                    <td class="numeric">0.03s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo5</strong></td>
+                    <td><span class="badge badge-info">Deepseek V4 Flash Max (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">17 Passed</span></td>
+                    <td class="numeric">0.34s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo6</strong></td>
+                    <td><span class="badge badge-info">Claude Opus 5 Ultra (Claude)</span></td>
+                    <td><span class="badge badge-success">44 Passed</span></td>
+                    <td class="numeric">2.67s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo7</strong></td>
+                    <td><span class="badge badge-info">Qwen 38 max XHigh (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">19 Passed</span></td>
+                    <td class="numeric">0.11s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo8</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.7 Flash High (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">28 Passed</span></td>
+                    <td class="numeric">0.34s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo9</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity)</span></td>
+                    <td><span class="badge badge-success">29 Passed</span></td>
+                    <td class="numeric">1.18s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo11</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
+                    <td><span class="badge badge-success">24 Passed</span></td>
+                    <td class="numeric">0.23s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo12</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
+                    <td><span class="badge badge-success">27 Passed</span></td>
+                    <td class="numeric">5.24s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div id="blackbox" class="card">
+        <div class="section-header">
+            <div>
+                <h2>🛡️ FastHashMap — Manual BlackBox Unit Test Suites</h2>
+                <div class="section-desc">Uniform manual blackbox tests evaluated identically against every FastHashMap implementation.</div>
+            </div>
+            <div>
+                <a href="fasthashmap.html#blackbox" class="subpage-link">Open Dedicated Page ↗</a>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Module</th>
+                    <th>AI Model / Implementation</th>
+                    <th>Tests</th>
+                    <th class="numeric">Duration</th>
+                    <th class="numeric">Failures</th>
+                    <th class="numeric">Errors</th>
+                    <th>Status</th>
+                    <th>Diagnostics / Test Results</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>demo0</strong></td>
+                    <td><span class="badge badge-info">Human Baseline</span></td>
+                    <td><span class="badge badge-success">27 Passed</span></td>
+                    <td class="numeric">0.29s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo1</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity)</span></td>
+                    <td><span class="badge badge-success">26 Passed</span></td>
+                    <td class="numeric">0.23s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo2</strong></td>
+                    <td><span class="badge badge-info">Kimi K3 (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">22 Passed</span></td>
+                    <td class="numeric">0.30s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo3</strong></td>
+                    <td><span class="badge badge-info">OpenAI 5.6 Sol Max (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">22 Passed</span></td>
+                    <td class="numeric">0.34s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo4</strong></td>
+                    <td><span class="badge badge-info">Gemma 4 31B Thinking (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">22 Passed</span></td>
+                    <td class="numeric">0.42s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo5</strong></td>
+                    <td><span class="badge badge-info">Deepseek V4 Flash Max (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">22 Passed</span></td>
+                    <td class="numeric">0.27s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo6</strong></td>
+                    <td><span class="badge badge-info">Claude Opus 5 Ultra (Claude)</span></td>
+                    <td><span class="badge badge-success">22 Passed</span></td>
+                    <td class="numeric">0.23s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo7</strong></td>
+                    <td><span class="badge badge-info">Qwen 38 max XHigh (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">22 Passed</span></td>
+                    <td class="numeric">0.28s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo8</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.7 Flash High (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">26 Passed</span></td>
+                    <td class="numeric">0.33s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo9</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity)</span></td>
+                    <td><span class="badge badge-success">26 Passed</span></td>
+                    <td class="numeric">0.35s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo11</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
+                    <td><span class="badge badge-success">26 Passed</span></td>
+                    <td class="numeric">0.30s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo12</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
+                    <td><span class="badge badge-success">26 Passed</span></td>
+                    <td class="numeric">0.28s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div id="lruclockmap" class="card">
+        <div class="section-header">
+            <div>
+                <h2>⏰ LRUClockMap — Bounded Cache Unit Test Suites</h2>
+                <div class="section-desc">Execution results for LRUClockMapTest (eviction, capacity bounds, concurrent operations).</div>
+            </div>
+            <div>
+                <a href="lruclockmap.html" class="subpage-link">Open Dedicated Page ↗</a>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Module</th>
+                    <th>AI Model / Implementation</th>
+                    <th>Tests</th>
+                    <th class="numeric">Duration</th>
+                    <th class="numeric">Failures</th>
+                    <th class="numeric">Errors</th>
+                    <th>Status</th>
+                    <th>Diagnostics / Test Results</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>demo0</strong></td>
+                    <td><span class="badge badge-info">Human Baseline</span></td>
+                    <td><span class="badge badge-success">37 Passed</span></td>
+                    <td class="numeric">0.55s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo1</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity)</span></td>
+                    <td><span class="badge badge-success">21 Passed</span></td>
+                    <td class="numeric">0.37s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo2</strong></td>
+                    <td><span class="badge badge-info">Kimi K3 (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">38 Passed</span></td>
+                    <td class="numeric">0.25s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo3</strong></td>
+                    <td><span class="badge badge-info">OpenAI 5.6 Sol Max (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">25 Passed</span></td>
+                    <td class="numeric">0.50s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo4</strong></td>
+                    <td><span class="badge badge-info">Gemma 4 31B Thinking (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">11 Passed</span></td>
+                    <td class="numeric">0.04s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo5</strong></td>
+                    <td><span class="badge badge-info">Deepseek V4 Flash Max (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">26 Passed</span></td>
+                    <td class="numeric">1.60s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo6</strong></td>
+                    <td><span class="badge badge-info">Claude Opus 5 Ultra (Claude)</span></td>
+                    <td><span class="badge badge-success">65 Passed</span></td>
+                    <td class="numeric">3.75s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo7</strong></td>
+                    <td><span class="badge badge-info">Qwen 38 max XHigh (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">24 Passed</span></td>
+                    <td class="numeric">0.14s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo8</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.7 Flash High (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">37 Passed</span></td>
+                    <td class="numeric">0.45s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo9</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity)</span></td>
+                    <td><span class="badge badge-success">52 Passed</span></td>
+                    <td class="numeric">0.28s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo11</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
+                    <td><span class="badge badge-success">24 Passed</span></td>
+                    <td class="numeric">0.19s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo12</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
+                    <td><span class="badge badge-success">29 Passed</span></td>
+                    <td class="numeric">0.28s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div id="xlt-util" class="card">
+        <a id="xlt-report-util"></a>
+        <div class="section-header">
+            <div>
+                <h2>🧰 com.xceptance.xlt.report.util — Reporting Utility Test Suites</h2>
+                <div class="section-desc">Execution results for RuntimeHistogram, IntTimeSeries, BitUtil, and BitCompression.</div>
+            </div>
+            <div>
+                <a href="xlt-util.html" class="subpage-link">Open Dedicated Page ↗</a>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Module</th>
+                    <th>AI Model / Implementation</th>
+                    <th>Tests</th>
+                    <th class="numeric">Duration</th>
+                    <th class="numeric">Failures</th>
+                    <th class="numeric">Errors</th>
+                    <th>Status</th>
+                    <th>Diagnostics / Test Results</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>demo0</strong></td>
+                    <td><span class="badge badge-info">Human Baseline</span></td>
+                    <td><span class="badge badge-success">92 Passed</span></td>
+                    <td class="numeric">1.48s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo1</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity)</span></td>
+                    <td><span class="badge badge-success">103 Passed</span></td>
+                    <td class="numeric">0.60s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo2</strong></td>
+                    <td><span class="badge badge-info">Kimi K3 (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">95 Passed</span></td>
+                    <td class="numeric">0.55s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo3</strong></td>
+                    <td><span class="badge badge-info">OpenAI 5.6 Sol Max (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">40 Passed</span></td>
+                    <td class="numeric">0.47s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo4</strong></td>
+                    <td><span class="badge badge-info">Gemma 4 31B Thinking (Kilo Code)</span></td>
+                    <td><span class="badge badge-warning">12/15 Passed</span></td>
+                    <td class="numeric">0.22s</td>
+                    <td class="numeric"><span style="color: #dc2626; font-weight: 700;">3</span></td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-warning">⚠ 3 Failed</span></td>
+                    <td>
+                        <details class="failure-details">
+                            <summary><span class="badge badge-warning" style="cursor: pointer;">🔍 3 Failures (click to inspect)</span></summary>
+                            <div class="failure-list">
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testNextHighestPowerOfTwo</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: &amp;lt;1&amp;gt; but was: &amp;lt;0&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testBasicAdd</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: &amp;lt;50&amp;gt; but was: &amp;lt;48&amp;gt;</div>
+                                </div>
+                                <div class="failure-item">
+                                    <div class="failure-title"><code>testCondense</code> <span class="failure-type">[org.opentest4j.AssertionFailedError]</span></div>
+                                    <div class="failure-msg">expected: &amp;lt;2&amp;gt; but was: &amp;lt;1&amp;gt;</div>
+                                </div>
+                            </div>
+                        </details>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>demo5</strong></td>
+                    <td><span class="badge badge-info">Deepseek V4 Flash Max (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">71 Passed</span></td>
+                    <td class="numeric">1.39s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo6</strong></td>
+                    <td><span class="badge badge-info">Claude Opus 5 Ultra (Claude)</span></td>
+                    <td><span class="badge badge-success">203 Passed</span></td>
+                    <td class="numeric">3.34s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo7</strong></td>
+                    <td><span class="badge badge-info">Qwen 38 max XHigh (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">106 Passed</span></td>
+                    <td class="numeric">0.91s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo8</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.7 Flash High (Kilo Code)</span></td>
+                    <td><span class="badge badge-success">45 Passed</span></td>
+                    <td class="numeric">0.36s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo9</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity)</span></td>
+                    <td><span class="badge badge-success">86 Passed</span></td>
+                    <td class="numeric">1.61s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo11</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
+                    <td><span class="badge badge-success">113 Passed</span></td>
+                    <td class="numeric">6.98s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>demo12</strong></td>
+                    <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
+                    <td><span class="badge badge-success">117 Passed</span></td>
+                    <td class="numeric">2.07s</td>
+                    <td class="numeric">0</td>
+                    <td class="numeric">0</td>
+                    <td><span class="badge badge-success">100% Passing ✅</span></td>
+                    <td><span style="color: var(--success); font-size: 0.8rem; font-weight: 600;">All tests passed</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

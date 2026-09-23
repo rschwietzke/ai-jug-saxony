@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FastHashMap.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">demo7</a> &gt; <a href="index.source.html" class="el_package">org.jugsaxony.demo7</a> &gt; <span class="el_source">FastHashMap.java</span></div><h1>FastHashMap.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2005-2026 Xceptance Software Technologies GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jugsaxony.demo7;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * A fast and simple hash map based on open hashing (separate chaining).
+ * Every bucket holds a singly linked list of entries. New entries are
+ * inserted at the head of the chain, lookups compare the cached hash
+ * first and call {@code equals()} only on a hash match.
+ *
+ * The table size is always a power of two and doubles once the load
+ * factor of 0.75 is exceeded, which makes the map unbounded. The hash
+ * is spread to protect against weak {@code hashCode()} implementations.
+ *
+ * This map is NOT thread-safe. Null keys are rejected with a
+ * {@link NullPointerException}, but null values are fully supported.
+ *
+ * @since 1.0
+ * @author René Schwietzke (Xceptance Software Technologies GmbH)
+ */
+public class FastHashMap&lt;K, V&gt;
+{
+    /**
+     * Initial table capacity, a power of two.
+     */
+    private static final int INITIAL_CAPACITY = 16;
+
+    /**
+     * Resize when size exceeds capacity times this factor.
+     */
+    private static final float LOAD_FACTOR = 0.75f;
+
+    /**
+     * The bucket table, length is always a power of two.
+     */
+    private Entry&lt;K, V&gt;[] table;
+
+    /**
+     * Mask to calculate the bucket index from the hash.
+     */
+    private int mask;
+
+    /**
+     * Size threshold that triggers a resize.
+     */
+    private int resizeThreshold;
+
+    /**
+     * Number of key-value mappings.
+     */
+    private int size;
+
+    /**
+     * Creates a new empty map with the initial capacity.
+     */
+<span class="nc" id="L73">    public FastHashMap()</span>
+    {
+<span class="nc" id="L75">        this.table = createTable(INITIAL_CAPACITY);</span>
+<span class="nc" id="L76">        this.mask = INITIAL_CAPACITY - 1;</span>
+<span class="nc" id="L77">        this.resizeThreshold = (int) (INITIAL_CAPACITY * LOAD_FACTOR);</span>
+<span class="nc" id="L78">        this.size = 0;</span>
+<span class="nc" id="L79">    }</span>
+
+    /**
+     * Returns the value stored for the key, or null when the key
+     * does not exist. A null return value can also mean that the
+     * key is mapped to a null value.
+     *
+     * @param key the key to look up, must not be null
+     * @return the value or null
+     * @throws NullPointerException if the key is null
+     */
+    public V get(final K key)
+    {
+<span class="nc" id="L92">        Objects.requireNonNull(key, &quot;key must not be null&quot;);</span>
+
+<span class="nc" id="L94">        final int hash = spread(key.hashCode());</span>
+
+<span class="nc" id="L96">        Entry&lt;K, V&gt; entry = table[hash &amp; mask];</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        while (entry != null)</span>
+        {
+<span class="nc bnc" id="L99" title="All 4 branches missed.">            if (entry.hash == hash &amp;&amp; entry.key.equals(key))</span>
+            {
+<span class="nc" id="L101">                return entry.value;</span>
+            }
+<span class="nc" id="L103">            entry = entry.next;</span>
+        }
+
+<span class="nc" id="L106">        return null;</span>
+    }
+
+    /**
+     * Stores the value under the given key. If the key already
+     * exists, its value is replaced. Null values are allowed.
+     *
+     * @param key the key, must not be null
+     * @param value the value, may be null
+     * @return the previous value, or null if the key was new
+     * @throws NullPointerException if the key is null
+     */
+    public V put(final K key, final V value)
+    {
+<span class="nc" id="L120">        Objects.requireNonNull(key, &quot;key must not be null&quot;);</span>
+
+<span class="nc" id="L122">        final int hash = spread(key.hashCode());</span>
+<span class="nc" id="L123">        final int index = hash &amp; mask;</span>
+
+<span class="nc" id="L125">        Entry&lt;K, V&gt; entry = table[index];</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        while (entry != null)</span>
+        {
+<span class="nc bnc" id="L128" title="All 4 branches missed.">            if (entry.hash == hash &amp;&amp; entry.key.equals(key))</span>
+            {
+<span class="nc" id="L130">                final V previous = entry.value;</span>
+<span class="nc" id="L131">                entry.value = value;</span>
+<span class="nc" id="L132">                return previous;</span>
+            }
+<span class="nc" id="L134">            entry = entry.next;</span>
+        }
+
+<span class="nc" id="L137">        table[index] = new Entry&lt;&gt;(key, value, hash, table[index]);</span>
+<span class="nc" id="L138">        size++;</span>
+
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        if (size &gt; resizeThreshold)</span>
+        {
+<span class="nc" id="L142">            resize(table.length &lt;&lt; 1);</span>
+        }
+
+<span class="nc" id="L145">        return null;</span>
+    }
+
+    /**
+     * Removes the key and its value from the map.
+     *
+     * @param key the key to remove, must not be null
+     * @return the removed value, or null if the key did not exist
+     * @throws NullPointerException if the key is null
+     */
+    public V remove(final K key)
+    {
+<span class="nc" id="L157">        Objects.requireNonNull(key, &quot;key must not be null&quot;);</span>
+
+<span class="nc" id="L159">        final int hash = spread(key.hashCode());</span>
+<span class="nc" id="L160">        final int index = hash &amp; mask;</span>
+
+<span class="nc" id="L162">        Entry&lt;K, V&gt; entry = table[index];</span>
+<span class="nc" id="L163">        Entry&lt;K, V&gt; previous = null;</span>
+
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        while (entry != null)</span>
+        {
+<span class="nc bnc" id="L167" title="All 4 branches missed.">            if (entry.hash == hash &amp;&amp; entry.key.equals(key))</span>
+            {
+<span class="nc bnc" id="L169" title="All 2 branches missed.">                if (previous == null)</span>
+                {
+<span class="nc" id="L171">                    table[index] = entry.next;</span>
+<span class="nc" id="L172">                }</span>
+                else
+                {
+<span class="nc" id="L175">                    previous.next = entry.next;</span>
+                }
+<span class="nc" id="L177">                size--;</span>
+
+<span class="nc" id="L179">                return entry.value;</span>
+            }
+
+<span class="nc" id="L182">            previous = entry;</span>
+<span class="nc" id="L183">            entry = entry.next;</span>
+        }
+
+<span class="nc" id="L186">        return null;</span>
+    }
+
+    /**
+     * Returns the number of key-value mappings.
+     *
+     * @return the size of the map
+     */
+    public int size()
+    {
+<span class="nc" id="L196">        return size;</span>
+    }
+
+    /**
+     * Returns a new list containing all keys. The order is unspecified.
+     *
+     * @return all keys, empty list for an empty map
+     */
+    public List&lt;K&gt; keys()
+    {
+<span class="nc" id="L206">        final ArrayList&lt;K&gt; result = new ArrayList&lt;&gt;(size);</span>
+
+<span class="nc bnc" id="L208" title="All 2 branches missed.">        for (final Entry&lt;K, V&gt; head : table)</span>
+        {
+<span class="nc" id="L210">            Entry&lt;K, V&gt; entry = head;</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">            while (entry != null)</span>
+            {
+<span class="nc" id="L213">                result.add(entry.key);</span>
+<span class="nc" id="L214">                entry = entry.next;</span>
+            }
+        }
+
+<span class="nc" id="L218">        return result;</span>
+    }
+
+    /**
+     * Returns a new list containing all values. The order is unspecified.
+     * Null values are included.
+     *
+     * @return all values, empty list for an empty map
+     */
+    public List&lt;V&gt; values()
+    {
+<span class="nc" id="L229">        final ArrayList&lt;V&gt; result = new ArrayList&lt;&gt;(size);</span>
+
+<span class="nc bnc" id="L231" title="All 2 branches missed.">        for (final Entry&lt;K, V&gt; head : table)</span>
+        {
+<span class="nc" id="L233">            Entry&lt;K, V&gt; entry = head;</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">            while (entry != null)</span>
+            {
+<span class="nc" id="L236">                result.add(entry.value);</span>
+<span class="nc" id="L237">                entry = entry.next;</span>
+            }
+        }
+
+<span class="nc" id="L241">        return result;</span>
+    }
+
+    /**
+     * Removes all mappings and resets the table to the initial capacity.
+     */
+    public void clear()
+    {
+<span class="nc" id="L249">        this.table = createTable(INITIAL_CAPACITY);</span>
+<span class="nc" id="L250">        this.mask = INITIAL_CAPACITY - 1;</span>
+<span class="nc" id="L251">        this.resizeThreshold = (int) (INITIAL_CAPACITY * LOAD_FACTOR);</span>
+<span class="nc" id="L252">        this.size = 0;</span>
+<span class="nc" id="L253">    }</span>
+
+    /**
+     * Current table capacity. Package-private for testing only.
+     *
+     * @return the number of buckets
+     */
+    int capacity()
+    {
+<span class="nc" id="L262">        return table.length;</span>
+    }
+
+    /**
+     * Doubles the table and rehashes all entries.
+     *
+     * @param newCapacity the new capacity, a power of two
+     */
+    private void resize(final int newCapacity)
+    {
+<span class="nc" id="L272">        final Entry&lt;K, V&gt;[] newTable = createTable(newCapacity);</span>
+<span class="nc" id="L273">        final int newMask = newCapacity - 1;</span>
+
+<span class="nc bnc" id="L275" title="All 2 branches missed.">        for (final Entry&lt;K, V&gt; head : table)</span>
+        {
+<span class="nc" id="L277">            Entry&lt;K, V&gt; entry = head;</span>
+<span class="nc bnc" id="L278" title="All 2 branches missed.">            while (entry != null)</span>
+            {
+<span class="nc" id="L280">                final Entry&lt;K, V&gt; next = entry.next;</span>
+<span class="nc" id="L281">                final int index = entry.hash &amp; newMask;</span>
+
+<span class="nc" id="L283">                entry.next = newTable[index];</span>
+<span class="nc" id="L284">                newTable[index] = entry;</span>
+
+<span class="nc" id="L286">                entry = next;</span>
+            }
+        }
+
+<span class="nc" id="L290">        this.table = newTable;</span>
+<span class="nc" id="L291">        this.mask = newMask;</span>
+<span class="nc" id="L292">        this.resizeThreshold = (int) (newCapacity * LOAD_FACTOR);</span>
+<span class="nc" id="L293">    }</span>
+
+    /**
+     * Spreads the hash code to reduce collisions in the lower bits.
+     *
+     * @param h the original hash code
+     * @return the spread hash
+     */
+    private static int spread(final int h)
+    {
+<span class="nc" id="L303">        return h ^ (h &gt;&gt;&gt; 16);</span>
+    }
+
+    /**
+     * Creates a new bucket table.
+     *
+     * @param capacity the table length
+     * @return the new table
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private static &lt;K, V&gt; Entry&lt;K, V&gt;[] createTable(final int capacity)
+    {
+<span class="nc" id="L315">        return new Entry[capacity];</span>
+    }
+
+    /**
+     * A single key-value entry in a bucket chain.
+     */
+    private static final class Entry&lt;K, V&gt;
+    {
+        final K key;
+        V value;
+        final int hash;
+        Entry&lt;K, V&gt; next;
+
+<span class="nc" id="L328">        Entry(final K key, final V value, final int hash, final Entry&lt;K, V&gt; next)</span>
+        {
+<span class="nc" id="L330">            this.key = key;</span>
+<span class="nc" id="L331">            this.value = value;</span>
+<span class="nc" id="L332">            this.hash = hash;</span>
+<span class="nc" id="L333">            this.next = next;</span>
+<span class="nc" id="L334">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

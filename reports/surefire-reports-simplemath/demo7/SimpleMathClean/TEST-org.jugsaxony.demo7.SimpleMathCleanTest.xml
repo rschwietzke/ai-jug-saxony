@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.215" tests="37" errors="0" skipped="0" failures="4">
+  <properties>
+    <property name="java.specification.version" value="25"/>
+    <property name="sun.jnu.encoding" value="UTF-8"/>
+    <property name="java.class.path" value="/home/rschwietzke/projects/GIT/ai-jug-saxony/demo7/target/test-classes:/home/rschwietzke/projects/GIT/ai-jug-saxony/demo7/target/classes:/home/rschwietzke/.m2/repository/org/junit/jupiter/junit-jupiter/5.10.2/junit-jupiter-5.10.2.jar:/home/rschwietzke/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.10.2/junit-jupiter-api-5.10.2.jar:/home/rschwietzke/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/home/rschwietzke/.m2/repository/org/junit/platform/junit-platform-commons/1.10.2/junit-platform-commons-1.10.2.jar:/home/rschwietzke/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.10.2/junit-jupiter-params-5.10.2.jar:/home/rschwietzke/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.10.2/junit-jupiter-engine-5.10.2.jar:/home/rschwietzke/.m2/repository/org/assertj/assertj-core/3.25.3/assertj-core-3.25.3.jar:/home/rschwietzke/.m2/repository/net/bytebuddy/byte-buddy/1.14.11/byte-buddy-1.14.11.jar:/home/rschwietzke/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar:/home/rschwietzke/.m2/repository/net/sf/jopt-simple/jopt-simple/5.0.4/jopt-simple-5.0.4.jar:/home/rschwietzke/.m2/repository/org/apache/commons/commons-math3/3.6.1/commons-math3-3.6.1.jar:/home/rschwietzke/.m2/repository/org/openjdk/jmh/jmh-generator-annprocess/1.37/jmh-generator-annprocess-1.37.jar:/home/rschwietzke/.m2/repository/org/openjdk/jol/jol-core/0.17/jol-core-0.17.jar:/home/rschwietzke/.m2/repository/org/apache/commons/commons-text/1.14.0/commons-text-1.14.0.jar:/home/rschwietzke/.m2/repository/org/apache/commons/commons-lang3/3.18.0/commons-lang3-3.18.0.jar:/home/rschwietzke/.m2/repository/junit/junit/4.13.2/junit-4.13.2.jar:/home/rschwietzke/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/home/rschwietzke/.m2/repository/org/junit/vintage/junit-vintage-engine/5.10.2/junit-vintage-engine-5.10.2.jar:/home/rschwietzke/.m2/repository/org/junit/platform/junit-platform-engine/1.10.2/junit-platform-engine-1.10.2.jar:/home/rschwietzke/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:"/>
+    <property name="java.vm.vendor" value="Eclipse Adoptium"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="java.vendor.url" value="https://adoptium.net/"/>
+    <property name="os.name" value="Linux"/>
+    <property name="java.vm.specification.version" value="25"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="user.country" value="US"/>
+    <property name="sun.boot.library.path" value="/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem/lib"/>
+    <property name="sun.java.command" value="/home/rschwietzke/projects/GIT/ai-jug-saxony/demo7/target/surefire/surefirebooter-20260922110838904_24.jar /home/rschwietzke/projects/GIT/ai-jug-saxony/demo7/target/surefire 2026-09-22T11-08-25_563-jvmRun1 surefire-20260922110838904_22tmp surefire_7-20260922110838904_23tmp"/>
+    <property name="jdk.debug" value="release"/>
+    <property name="test" value="SimpleMathCleanTest"/>
+    <property name="surefire.test.class.path" value="/home/rschwietzke/projects/GIT/ai-jug-saxony/demo7/target/test-classes:/home/rschwietzke/projects/GIT/ai-jug-saxony/demo7/target/classes:/home/rschwietzke/.m2/repository/org/junit/jupiter/junit-jupiter/5.10.2/junit-jupiter-5.10.2.jar:/home/rschwietzke/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.10.2/junit-jupiter-api-5.10.2.jar:/home/rschwietzke/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/home/rschwietzke/.m2/repository/org/junit/platform/junit-platform-commons/1.10.2/junit-platform-commons-1.10.2.jar:/home/rschwietzke/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.10.2/junit-jupiter-params-5.10.2.jar:/home/rschwietzke/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.10.2/junit-jupiter-engine-5.10.2.jar:/home/rschwietzke/.m2/repository/org/assertj/assertj-core/3.25.3/assertj-core-3.25.3.jar:/home/rschwietzke/.m2/repository/net/bytebuddy/byte-buddy/1.14.11/byte-buddy-1.14.11.jar:/home/rschwietzke/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar:/home/rschwietzke/.m2/repository/net/sf/jopt-simple/jopt-simple/5.0.4/jopt-simple-5.0.4.jar:/home/rschwietzke/.m2/repository/org/apache/commons/commons-math3/3.6.1/commons-math3-3.6.1.jar:/home/rschwietzke/.m2/repository/org/openjdk/jmh/jmh-generator-annprocess/1.37/jmh-generator-annprocess-1.37.jar:/home/rschwietzke/.m2/repository/org/openjdk/jol/jol-core/0.17/jol-core-0.17.jar:/home/rschwietzke/.m2/repository/org/apache/commons/commons-text/1.14.0/commons-text-1.14.0.jar:/home/rschwietzke/.m2/repository/org/apache/commons/commons-lang3/3.18.0/commons-lang3-3.18.0.jar:/home/rschwietzke/.m2/repository/junit/junit/4.13.2/junit-4.13.2.jar:/home/rschwietzke/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/home/rschwietzke/.m2/repository/org/junit/vintage/junit-vintage-engine/5.10.2/junit-vintage-engine-5.10.2.jar:/home/rschwietzke/.m2/repository/org/junit/platform/junit-platform-engine/1.10.2/junit-platform-engine-1.10.2.jar:/home/rschwietzke/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="user.home" value="/home/rschwietzke"/>
+    <property name="user.language" value="en"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.version.date" value="2026-07-21"/>
+    <property name="java.home" value="/home/rschwietzke/.sdkman/candidates/java/25.0.4-tem"/>
+    <property name="file.separator" value="/"/>
+    <property name="basedir" value="/home/rschwietzke/projects/GIT/ai-jug-saxony/demo7"/>
+    <property name="java.vm.compressedOopsMode" value="Zero based"/>
+    <property name="line.separator" value="&#10;"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="surefire.real.class.path" value="/home/rschwietzke/projects/GIT/ai-jug-saxony/demo7/target/surefire/surefirebooter-20260922110838904_24.jar"/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="java.runtime.version" value="25.0.4+7-LTS"/>
+    <property name="user.name" value="rschwietzke"/>
+    <property name="stdout.encoding" value="UTF-8"/>
+    <property name="path.separator" value=":"/>
+    <property name="os.version" value="7.0.0-30-generic"/>
+    <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
+    <property name="file.encoding" value="UTF-8"/>
+    <property name="surefire.failIfNoSpecifiedTests" value="false"/>
+    <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
+    <property name="java.vendor.version" value="Temurin-25.0.4+7"/>
+    <property name="localRepository" value="/home/rschwietzke/.m2/repository"/>
+    <property name="java.vendor.url.bug" value="https://github.com/adoptium/adoptium-support/issues"/>
+    <property name="java.io.tmpdir" value="/tmp"/>
+    <property name="java.version" value="25.0.4"/>
+    <property name="user.dir" value="/home/rschwietzke/projects/GIT/ai-jug-saxony/demo7"/>
+    <property name="os.arch" value="amd64"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="native.encoding" value="UTF-8"/>
+    <property name="java.library.path" value="/usr/java/packages/lib:/usr/lib64:/lib64:/lib:/usr/lib"/>
+    <property name="java.vm.info" value="mixed mode, sharing"/>
+    <property name="stderr.encoding" value="UTF-8"/>
+    <property name="java.vendor" value="Eclipse Adoptium"/>
+    <property name="java.vm.version" value="25.0.4+7-LTS"/>
+    <property name="stdin.encoding" value="UTF-8"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="java.class.version" value="69.0"/>
+    <property name="maven.test.failure.ignore" value="true"/>
+  </properties>
+  <testcase name="maxIntegerMatchesMathMaxOnRandomValues" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.052"/>
+  <testcase name="sumMatchesLongAccumulationOnRandomFullRangeArrays" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.012">
+    <failure message="run 0: [256957624, 1181413113, 942660266, 2065821249, 151476422, -267157795, -1634947265, 172111193, -292080853, 1752363137, 224611745, 1406072123, 736773014, 1911809390, -696415768, -1308542224] ==&gt; expected: &lt;6602925371&gt; but was: &lt;-1987009221&gt;" type="org.opentest4j.AssertionFailedError"><![CDATA[org.opentest4j.AssertionFailedError: run 0: [256957624, 1181413113, 942660266, 2065821249, 151476422, -267157795, -1634947265, 172111193, -292080853, 1752363137, 224611745, 1406072123, 736773014, 1911809390, -696415768, -1308542224] ==> expected: <6602925371> but was: <-1987009221>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:166)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:664)
+	at org.jugsaxony.demo7.SimpleMathCleanTest.sumMatchesLongAccumulationOnRandomFullRangeArrays(SimpleMathCleanTest.java:501)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+]]></failure>
+  </testcase>
+  <testcase name="sumOfManyElementsExceedingIntRange" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.003">
+    <failure message="expected: &lt;3000000000&gt; but was: &lt;-1294967296&gt;" type="org.opentest4j.AssertionFailedError"><![CDATA[org.opentest4j.AssertionFailedError: expected: <3000000000> but was: <-1294967296>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:166)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:161)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:632)
+	at org.jugsaxony.demo7.SimpleMathCleanTest.sumOfManyElementsExceedingIntRange(SimpleMathCleanTest.java:410)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+]]></failure>
+  </testcase>
+  <testcase name="sumMatchesLongAccumulationOnRandomArraysWithinIntRange" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.004"/>
+  <testcase name="maxIntegerReturnsLargerValue" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.002"/>
+  <testcase name="maxIntIsNeverSmallerThanEitherArgumentAndReturnsOneOfThem" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.003"/>
+  <testcase name="maxIntegerRejectsNullSecondArgument" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.003"/>
+  <testcase name="sumOfLargeArrayWithinIntRange" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.014"/>
+  <testcase name="sumRejectsNullArray" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.002"/>
+  <testcase name="maxIntegerAgreesWithPrimitiveOverload" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.001"/>
+  <testcase name="maxIntOfEqualArgumentsIsThatValue" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.001"/>
+  <testcase name="sumOfValuesCancelingOutIsZero" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.001"/>
+  <testcase name="sumBelowIntRangeUsesFullLongRange" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.002">
+    <failure message="expected: &lt;-2147483649&gt; but was: &lt;2147483647&gt;" type="org.opentest4j.AssertionFailedError"><![CDATA[org.opentest4j.AssertionFailedError: expected: <-2147483649> but was: <2147483647>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:166)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:161)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:632)
+	at org.jugsaxony.demo7.SimpleMathCleanTest.sumBelowIntRangeUsesFullLongRange(SimpleMathCleanTest.java:400)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+]]></failure>
+  </testcase>
+  <testcase name="maxIntHandlesAdjacentValues" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.002"/>
+  <testcase name="maxIntIsSymmetric" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.002"/>
+  <testcase name="sumOfEmptyArrayIsZero" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.001"/>
+  <testcase name="sumOfSingleElementIsThatElement" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.001"/>
+  <testcase name="maxIntReturnsSecondArgumentWhenItIsLarger" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.001"/>
+  <testcase name="maxIntegerRejectsNullFirstArgument" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.003"/>
+  <testcase name="sumIsIndependentOfElementOrder" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.001"/>
+  <testcase name="maxIntegerMatchesMathMaxOnBoundaryMatrix" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.002"/>
+  <testcase name="sumExceedingIntRangeUsesFullLongRange" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.002">
+    <failure message="expected: &lt;2147483648&gt; but was: &lt;-2147483648&gt;" type="org.opentest4j.AssertionFailedError"><![CDATA[org.opentest4j.AssertionFailedError: expected: <2147483648> but was: <-2147483648>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:166)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:161)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:632)
+	at org.jugsaxony.demo7.SimpleMathCleanTest.sumExceedingIntRangeUsesFullLongRange(SimpleMathCleanTest.java:392)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+]]></failure>
+  </testcase>
+  <testcase name="sumIsAdditiveOverConcatenation" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.001"/>
+  <testcase name="maxIntHandlesExtremeValues" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.001"/>
+  <testcase name="sumDoesNotModifyInputArray" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.003"/>
+  <testcase name="maxIntegerRejectsBothArgumentsNull" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.002"/>
+  <testcase name="maxIntegerOfEqualValuesIsThatValue" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.001"/>
+  <testcase name="maxIntMatchesMathMaxOnBoundaryMatrix" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.001"/>
+  <testcase name="sumOfAllZerosIsZero" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.001"/>
+  <testcase name="sumOfNegativeValues" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.001"/>
+  <testcase name="maxIntMatchesMathMaxOnRandomValues" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.004"/>
+  <testcase name="maxIntegerHandlesExtremeValues" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.001"/>
+  <testcase name="maxIntegerComparesByValueNotByObjectIdentity" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.001"/>
+  <testcase name="sumOfMixedSignValues" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.001"/>
+  <testcase name="sumOfPositiveValues" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.001"/>
+  <testcase name="maxIntReturnsFirstArgumentWhenItIsLarger" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.001"/>
+  <testcase name="sumOfIntExtremesStaysInRange" classname="org.jugsaxony.demo7.SimpleMathCleanTest" time="0.001"/>
+</testsuite>

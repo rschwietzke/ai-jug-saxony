@@ -26,12 +26,19 @@ public class GlobalJolReportTest {
         // Generate master dashboard and sub-section pages
         GlobalDashboardGenerator.generateDashboard(outputDir, rootDir);
 
+        File jmhJson = new File(outputDir, "jmh-results.json");
+        if (jmhJson.exists()) {
+            GlobalJmhReportGenerator.generateReports(jmhJson, outputDir);
+        }
+
         File dashboardMd = new File(outputDir, "global-dashboard.md");
         File dashboardHtml = new File(outputDir, "global-dashboard.html");
         File indexHtml = new File(outputDir, "index.html");
         File fastHtml = new File(outputDir, "fasthashmap.html");
         File lruHtml = new File(outputDir, "lruclockmap.html");
         File xltHtml = new File(outputDir, "xlt-util.html");
+        File simpleMathHtml = new File(outputDir, "simplemath.html");
+        File surefireHtml = new File(outputDir, "surefire.html");
 
         assertThat(dashboardMd).exists().isNotEmpty();
         assertThat(dashboardHtml).exists().isNotEmpty();
@@ -39,5 +46,7 @@ public class GlobalJolReportTest {
         assertThat(fastHtml).exists().isNotEmpty();
         assertThat(lruHtml).exists().isNotEmpty();
         assertThat(xltHtml).exists().isNotEmpty();
+        assertThat(simpleMathHtml).exists().isNotEmpty();
+        assertThat(surefireHtml).exists().isNotEmpty();
     }
 }
