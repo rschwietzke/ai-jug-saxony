@@ -48,5 +48,23 @@ public class GlobalJolReportTest {
         assertThat(xltHtml).exists().isNotEmpty();
         assertThat(simpleMathHtml).exists().isNotEmpty();
         assertThat(surefireHtml).exists().isNotEmpty();
+
+        File demo0SimpleMathHtml = new File(outputDir, "sources/demo0/SimpleMath.html");
+        File demo0SimpleMathJava = new File(outputDir, "sources/demo0/SimpleMath.java");
+        File demo0SimpleMathTestHtml = new File(outputDir, "sources/demo0/SimpleMathTest.html");
+        File demo0SimpleMathTestJava = new File(outputDir, "sources/demo0/SimpleMathTest.java");
+        File demo0FastHashMapHtml = new File(outputDir, "sources/demo0/FastHashMap.html");
+        File demo0FastHashMapTestHtml = new File(outputDir, "sources/demo0/FastHashMapTest.html");
+        File demo0LruClockMapHtml = new File(outputDir, "sources/demo0/LRUClockMap.html");
+        File demo0LruClockMapTestHtml = new File(outputDir, "sources/demo0/LRUClockMapTest.html");
+
+        assertThat(demo0SimpleMathHtml).exists().isNotEmpty();
+        assertThat(demo0SimpleMathJava).exists().isNotEmpty();
+        assertThat(demo0SimpleMathTestHtml).exists().isNotEmpty();
+        assertThat(demo0SimpleMathTestJava).exists().isNotEmpty();
+        assertThat(demo0FastHashMapHtml).exists().isNotEmpty();
+        assertThat(demo0FastHashMapTestHtml).exists().isNotEmpty();
+        assertThat(demo0LruClockMapHtml).exists().isNotEmpty();
+        assertThat(demo0LruClockMapTestHtml).exists().isNotEmpty();
     }
 }

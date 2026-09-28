@@ -444,6 +444,9 @@ public class GlobalDashboardGenerator {
             }
         }
 
+        // Generate source code snapshots and presentation viewers
+        SourceViewerGenerator.generateSourceSnapshots(outputDir, rootProjectDir, modDirs, MODULE_METADATA);
+
         // Write Markdown Dashboard
         writeMarkdownDashboard(new File(outputDir, "README.md"), fastMapSummaries, fastBlackBoxSummaries, lruMapSummaries, reportUtilSummaries, simpleMathSummaries);
         writeMarkdownDashboard(new File(outputDir, "global-dashboard.md"), fastMapSummaries, fastBlackBoxSummaries, lruMapSummaries, reportUtilSummaries, simpleMathSummaries);
@@ -1112,8 +1115,8 @@ public class GlobalDashboardGenerator {
 
                 String timeStr = s.quality().executionTimeSeconds() > 0 ? String.format(" (%.2fs)", s.quality().executionTimeSeconds()) : "";
 
-                out.printf("| **%s** | %s | %d ✅%s | %.1f%% (%d/%d) | %.1f%% (%d/%d) | %.1f%% (%d/%d) | %s | %s |%n",
-                        s.id(),
+                out.printf("| %s | %s | %d ✅%s | %.1f%% (%d/%d) | %.1f%% (%d/%d) | %.1f%% (%d/%d) | %s | %s |%n",
+                        renderMarkdownModuleLink(s.id(), "FastHashMap"),
                         s.aiModel(),
                         s.quality().tests(),
                         timeStr,
@@ -1143,8 +1146,8 @@ public class GlobalDashboardGenerator {
 
                 String timeStr = s.quality().executionTimeSeconds() > 0 ? String.format(" (%.2fs)", s.quality().executionTimeSeconds()) : "";
 
-                out.printf("| **%s** | %s | %d ✅%s | %.1f%% (%d/%d) | %.1f%% (%d/%d) | %.1f%% (%d/%d) | %s | %s |%n",
-                        s.id(),
+                out.printf("| %s | %s | %d ✅%s | %.1f%% (%d/%d) | %.1f%% (%d/%d) | %.1f%% (%d/%d) | %s | %s |%n",
+                        renderMarkdownModuleLink(s.id(), "FastHashMap"),
                         s.aiModel(),
                         s.quality().tests(),
                         timeStr,
@@ -1169,8 +1172,8 @@ public class GlobalDashboardGenerator {
             out.println("| :--- | :--- | :--- | :--- | :--- | :--- | :--- |");
 
             for (FastHashMapSummary s : fastMaps) {
-                out.printf("| **%s** | %s | %,d B | %,.1f B/e | %,d | %,d B | %d B |%n",
-                        s.id(),
+                out.printf("| %s | %s | %,d B | %,.1f B/e | %,d | %,d B | %d B |%n",
+                        renderMarkdownModuleLink(s.id(), "FastHashMap"),
                         s.aiModel(),
                         s.n1000SizeBytes(),
                         s.n1000BytesPerEntry(),
@@ -1238,8 +1241,8 @@ public class GlobalDashboardGenerator {
                 String pitStr = s.quality().pitTotal() > 0 ? String.format("%.1f%% (%d/%d killed)", s.quality().pitScorePct(), s.quality().pitKilled(), s.quality().pitTotal()) : "N/A";
                 String timeStr = s.quality().executionTimeSeconds() > 0 ? String.format(" (%.2fs)", s.quality().executionTimeSeconds()) : "";
 
-                out.printf("| **%s** | %s | %d ✅%s | %.1f%% (%d/%d) | %.1f%% (%d/%d) | %.1f%% (%d/%d) | %s | %s |%n",
-                        s.id(),
+                out.printf("| %s | %s | %d ✅%s | %.1f%% (%d/%d) | %.1f%% (%d/%d) | %.1f%% (%d/%d) | %s | %s |%n",
+                        renderMarkdownModuleLink(s.id(), "LRUClockMap"),
                         s.aiModel(),
                         s.quality().tests(),
                         timeStr,
@@ -1269,8 +1272,8 @@ public class GlobalDashboardGenerator {
                 String pitStr = s.quality().pitTotal() > 0 ? String.format("%.1f%% (%d/%d killed)", s.quality().pitScorePct(), s.quality().pitKilled(), s.quality().pitTotal()) : "N/A";
                 String timeStr = s.quality().executionTimeSeconds() > 0 ? String.format(" (%.2fs)", s.quality().executionTimeSeconds()) : "";
 
-                out.printf("| **%s** | %s | %d ✅%s | [%.1f%% (%d/%d)](jacoco/%s/xlt-util-coverage.html) | [%.1f%% (%d/%d)](jacoco/%s/xlt-util-coverage.html) | [%.1f%% (%d/%d)](jacoco/%s/xlt-util-coverage.html) | %s | %s |%n",
-                        s.id(),
+                out.printf("| %s | %s | %d ✅%s | [%.1f%% (%d/%d)](jacoco/%s/xlt-util-coverage.html) | [%.1f%% (%d/%d)](jacoco/%s/xlt-util-coverage.html) | [%.1f%% (%d/%d)](jacoco/%s/xlt-util-coverage.html) | %s | %s |%n",
+                        renderMarkdownModuleLink(s.id(), "IntTimeSeries"),
                         s.aiModel(),
                         s.quality().tests(),
                         timeStr,
@@ -1373,8 +1376,8 @@ public class GlobalDashboardGenerator {
                             q.branchCoveragePct(), q.totalBranches() - q.missedBranches(), q.totalBranches(), s.id(), s.id());
                 }
 
-                out.printf("| **%s** | %s | %s | %s | %s | %s | %s | %s |%n",
-                        s.id(),
+                out.printf("| %s | %s | %s | %s | %s | %s | %s | %s |%n",
+                        renderMarkdownModuleLink(s.id(), "SimpleMath"),
                         s.aiModel(),
                         testStr,
                         covInstStr,
@@ -1428,8 +1431,8 @@ public class GlobalDashboardGenerator {
                             q.branchCoveragePct(), q.totalBranches() - q.missedBranches(), q.totalBranches(), s.id(), s.id());
                 }
 
-                out.printf("| **%s** | %s | %s | %s | %s | %s | %s | %s |%n",
-                        s.id(),
+                out.printf("| %s | %s | %s | %s | %s | %s | %s | %s |%n",
+                        renderMarkdownModuleLink(s.id(), "SimpleMathClean"),
                         s.aiModel(),
                         testStr,
                         covInstStr,
@@ -1568,6 +1571,9 @@ public class GlobalDashboardGenerator {
             out.println("        .perf-tag { font-size: 0.8rem; padding: 0.15rem 0.4rem; border-radius: 4px; background: #f1f5f9; border: 1px solid #e2e8f0; color: #334155; font-family: 'JetBrains Mono', monospace; }");
             out.println("        .subtable-wrapper { margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px dashed var(--card-border); }");
             out.println("        .subtable-title { font-size: 1.05rem; font-weight: 700; margin: 0 0 0.75rem 0; color: #1e293b; display: flex; align-items: center; justify-content: space-between; }");
+            out.println("        .module-source-link { color: var(--primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.45rem; border-radius: 6px; background: rgba(2, 132, 199, 0.06); border: 1px solid rgba(2, 132, 199, 0.15); transition: all 0.2s ease; font-weight: 700; }");
+            out.println("        .module-source-link:hover { background: rgba(2, 132, 199, 0.14); border-color: var(--primary); text-decoration: none; transform: translateY(-1px); }");
+            out.println("        .module-source-link .code-icon { font-size: 0.75rem; opacity: 0.75; }");
             out.println("    </style>");
             out.println("</head>");
             out.println("<body>");
@@ -1872,7 +1878,7 @@ public class GlobalDashboardGenerator {
                     }
 
                     out.println("                <tr>");
-                    out.printf("                    <td><strong>%s</strong></td>%n", s.id());
+                    out.printf("                    <td>%s</td>%n", renderModuleLink(s.id(), "FastHashMap"));
                     out.printf("                    <td><span class=\"badge badge-info\">%s</span></td>%n", s.aiModel());
                     out.printf("                    <td>%s</td>%n", testBadge);
                     out.printf("                    <td><a href=\"%s\" style=\"color: var(--primary); text-decoration: underline;\"><strong>%.1f%%</strong></a> (%d/%d)</td>%n", covLink, s.quality().instructionCoveragePct(), s.quality().totalInstructions() - s.quality().missedInstructions(), s.quality().totalInstructions());
@@ -1935,7 +1941,7 @@ public class GlobalDashboardGenerator {
                     }
 
                     out.println("                <tr>");
-                    out.printf("                    <td><strong>%s</strong></td>%n", s.id());
+                    out.printf("                    <td>%s</td>%n", renderModuleLink(s.id(), "FastHashMap"));
                     out.printf("                    <td><span class=\"badge badge-info\">%s</span></td>%n", s.aiModel());
                     out.printf("                    <td>%s</td>%n", testBadge);
                     out.printf("                    <td><a href=\"%s\" style=\"color: var(--primary); text-decoration: underline;\"><strong>%.1f%%</strong></a> (%d/%d)</td>%n", covLink, s.quality().instructionCoveragePct(), s.quality().totalInstructions() - s.quality().missedInstructions(), s.quality().totalInstructions());
@@ -1972,7 +1978,7 @@ public class GlobalDashboardGenerator {
 
                 for (FastHashMapSummary s : fastMaps) {
                     out.println("                    <tr>");
-                    out.printf("                        <td><strong>%s</strong></td>%n", s.id());
+                    out.printf("                        <td>%s</td>%n", renderModuleLink(s.id(), "FastHashMap"));
                     out.printf("                        <td><span class=\"badge badge-info\">%s</span></td>%n", s.aiModel());
                     out.printf("                        <td class=\"numeric\"><strong>%,d B</strong></td>%n", s.n1000SizeBytes());
                     out.printf("                        <td class=\"numeric\">%,.1f B/e</td>%n", s.n1000BytesPerEntry());
@@ -2019,7 +2025,7 @@ public class GlobalDashboardGenerator {
                     String missSpeedupClass = s.getMissSpeedup() >= 1.05 ? "speedup-fast" : (s.getMissSpeedup() <= 0.95 ? "speedup-slow" : "");
 
                     out.println("                    <tr>");
-                    out.printf("                        <td><strong>%s</strong></td>%n", s.id());
+                    out.printf("                        <td>%s</td>%n", renderModuleLink(s.id(), "FastHashMap"));
                     out.printf("                        <td><span class=\"badge badge-info\">%s</span></td>%n", s.aiModel());
                     out.printf("                        <td class=\"numeric\"><span class=\"%s\">%.2fx</span> (%.1f ops/µs)</td>%n", putSpeedupClass, s.putSpeedup(), s.putThroughput());
                     out.printf("                        <td class=\"numeric\"><span class=\"%s\">%.2fx</span> (%.1f ops/µs)</td>%n", hitSpeedupClass, s.getHitSpeedup(), s.getHitThroughput());
@@ -2108,7 +2114,7 @@ public class GlobalDashboardGenerator {
                     }
 
                     out.println("                <tr>");
-                    out.printf("                    <td><strong>%s</strong></td>%n", s.id());
+                    out.printf("                    <td>%s</td>%n", renderModuleLink(s.id(), "LRUClockMap"));
                     out.printf("                    <td><span class=\"badge badge-info\">%s</span></td>%n", s.aiModel());
                     out.printf("                    <td>%s</td>%n", testBadge);
                     out.printf("                    <td><a href=\"%s\" style=\"color: var(--primary); text-decoration: underline;\"><strong>%.1f%%</strong></a> (%d/%d)</td>%n", covLink, s.quality().instructionCoveragePct(), s.quality().totalInstructions() - s.quality().missedInstructions(), s.quality().totalInstructions());
@@ -2184,7 +2190,7 @@ public class GlobalDashboardGenerator {
                     }
 
                     out.println("                <tr>");
-                    out.printf("                    <td><strong>%s</strong></td>%n", s.id());
+                    out.printf("                    <td>%s</td>%n", renderModuleLink(s.id(), "IntTimeSeries"));
                     out.printf("                    <td><span class=\"badge badge-info\">%s</span></td>%n", s.aiModel());
                     out.printf("                    <td>%s</td>%n", testBadge);
                     out.printf("                    <td><a href=\"%s\" style=\"color: var(--primary); text-decoration: underline;\"><strong>%.1f%%</strong></a> (%d/%d)</td>%n", covLink, s.quality().instructionCoveragePct(), s.quality().totalInstructions() - s.quality().missedInstructions(), s.quality().totalInstructions());
@@ -2226,7 +2232,7 @@ public class GlobalDashboardGenerator {
                     }
 
                     out.println("                    <tr>");
-                    out.printf("                        <td><strong>%s</strong></td>%n", s.id());
+                    out.printf("                        <td>%s</td>%n", renderModuleLink(s.id(), "IntTimeSeries"));
                     out.printf("                        <td><span class=\"badge badge-info\">%s</span></td>%n", s.aiModel());
 
                     for (String cname : List.of("RuntimeHistogram", "BitUtil", "BitCompression", "IntTimeSeries", "IntTimeSeriesEntry")) {
@@ -2368,7 +2374,7 @@ public class GlobalDashboardGenerator {
         }
 
         out.println("                <tr>");
-        out.printf("                    <td><strong>%s</strong></td>%n", modId);
+        out.printf("                    <td>%s</td>%n", renderModuleLink(modId, className));
         out.printf("                    <td><span class=\"badge badge-info\">%s</span></td>%n", aiModel);
         out.printf("                    <td>%s</td>%n", testBadge);
         if (total == 0) {
@@ -2394,12 +2400,37 @@ public class GlobalDashboardGenerator {
                 .replace("'", "&#39;");
     }
 
+    private static String renderModuleLink(String modId, String className) {
+        if (className != null && !className.isBlank()) {
+            return String.format("<a href=\"sources/%s/%s.html\" class=\"module-source-link\" title=\"View Source: %s/%s.java\"><strong>%s</strong> <span class=\"code-icon\">📄</span></a>",
+                    modId, className, modId, className, modId);
+        }
+        return String.format("<strong>%s</strong>", modId);
+    }
+
+    private static String renderMarkdownModuleLink(String modId, String className) {
+        if (className != null && !className.isBlank()) {
+            return String.format("[**%s**](sources/%s/%s.html)", modId, modId, className);
+        }
+        return String.format("**%s**", modId);
+    }
+
     private static void renderSurefireSuiteRow(
             PrintWriter out,
             String modId,
             String aiModel,
             QualityStats q,
             List<FailedTestCase> failures) {
+        renderSurefireSuiteRow(out, modId, aiModel, q, failures, null);
+    }
+
+    private static void renderSurefireSuiteRow(
+            PrintWriter out,
+            String modId,
+            String aiModel,
+            QualityStats q,
+            List<FailedTestCase> failures,
+            String className) {
         int total = q.tests();
         int fails = q.failures() + q.errors();
         int passed = Math.max(0, total - fails);
@@ -2420,7 +2451,7 @@ public class GlobalDashboardGenerator {
         String timeStr = q.executionTimeSeconds() > 0 ? String.format("%.2fs", q.executionTimeSeconds()) : "-";
 
         out.println("                <tr>");
-        out.printf("                    <td><strong>%s</strong></td>%n", modId);
+        out.printf("                    <td>%s</td>%n", renderModuleLink(modId, className));
         out.printf("                    <td><span class=\"badge badge-info\">%s</span></td>%n", aiModel);
         out.printf("                    <td>%s</td>%n", testBadge);
         out.printf("                    <td class=\"numeric\">%s</td>%n", timeStr);
@@ -2563,6 +2594,9 @@ public class GlobalDashboardGenerator {
             out.println("        .section-desc { color: var(--text-muted); font-size: 0.95rem; margin: 0.25rem 0 0 0; }");
             out.println("        .subpage-link { font-size: 0.85rem; font-weight: 600; color: var(--primary); text-decoration: none; border: 1px solid #bae6fd; padding: 0.4rem 0.8rem; border-radius: 6px; background: #f0f9ff; transition: all 0.2s; }");
             out.println("        .subpage-link:hover { background: #e0f2fe; border-color: var(--primary); }");
+            out.println("        .module-source-link { color: var(--primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.45rem; border-radius: 6px; background: rgba(2, 132, 199, 0.06); border: 1px solid rgba(2, 132, 199, 0.15); transition: all 0.2s ease; font-weight: 700; }");
+            out.println("        .module-source-link:hover { background: rgba(2, 132, 199, 0.14); border-color: var(--primary); text-decoration: none; transform: translateY(-1px); }");
+            out.println("        .module-source-link .code-icon { font-size: 0.75rem; opacity: 0.75; }");
             out.println("        table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem; }");
             out.println("        th, td { padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid var(--card-border); }");
             out.println("        th { background: #f8fafc; font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }");
@@ -2679,7 +2713,7 @@ public class GlobalDashboardGenerator {
                 if (failures.isEmpty() && s.id().equals("demo6")) {
                     failures = parseFailedTestCases(smDir, "AbstractSimpleMathContract", false);
                 }
-                renderSurefireSuiteRow(out, s.id(), s.aiModel(), s.simpleMathQuality(), failures);
+                renderSurefireSuiteRow(out, s.id(), s.aiModel(), s.simpleMathQuality(), failures, "SimpleMathTest");
             }
 
             out.println("            </tbody>");
@@ -2714,7 +2748,7 @@ public class GlobalDashboardGenerator {
                 if (failures.isEmpty() && s.id().equals("demo6")) {
                     failures = parseFailedTestCases(smCleanDir, "AbstractSimpleMathContract", false);
                 }
-                renderSurefireSuiteRow(out, s.id(), s.aiModel(), s.simpleMathCleanQuality(), failures);
+                renderSurefireSuiteRow(out, s.id(), s.aiModel(), s.simpleMathCleanQuality(), failures, "SimpleMathCleanTest");
             }
 
             out.println("                </tbody>");
@@ -2751,7 +2785,7 @@ public class GlobalDashboardGenerator {
             for (FastHashMapSummary s : fastMaps) {
                 File sfDir = new File(rootProjectDir, s.id() + "/target/surefire-reports");
                 List<FailedTestCase> failures = parseFailedTestCases(sfDir, "FastHashMapTest", false);
-                renderSurefireSuiteRow(out, s.id(), s.aiModel(), s.quality(), failures);
+                renderSurefireSuiteRow(out, s.id(), s.aiModel(), s.quality(), failures, "FastHashMapTest");
             }
 
             out.println("            </tbody>");
@@ -2788,7 +2822,7 @@ public class GlobalDashboardGenerator {
                 File sfDir = new File(outputDir, "surefire-reports-blackbox/" + s.id());
                 if (!sfDir.exists()) sfDir = new File(rootProjectDir, s.id() + "/target/surefire-reports");
                 List<FailedTestCase> failures = parseFailedTestCases(sfDir, "FastHashMapBlackBox", false);
-                renderSurefireSuiteRow(out, s.id(), s.aiModel(), s.quality(), failures);
+                renderSurefireSuiteRow(out, s.id(), s.aiModel(), s.quality(), failures, "FastHashMapBlackBox");
             }
 
             out.println("            </tbody>");
@@ -2824,7 +2858,7 @@ public class GlobalDashboardGenerator {
             for (LruClockMapSummary s : lruMaps) {
                 File sfDir = new File(rootProjectDir, s.id() + "/target/surefire-reports");
                 List<FailedTestCase> failures = parseFailedTestCases(sfDir, "LRUClockMapTest", false);
-                renderSurefireSuiteRow(out, s.id(), s.aiModel(), s.quality(), failures);
+                renderSurefireSuiteRow(out, s.id(), s.aiModel(), s.quality(), failures, "LRUClockMapTest");
             }
 
             out.println("            </tbody>");
@@ -2861,7 +2895,7 @@ public class GlobalDashboardGenerator {
             for (ReportUtilSummary s : reportUtils) {
                 File sfDir = new File(rootProjectDir, s.id() + "/target/surefire-reports");
                 List<FailedTestCase> failures = parseFailedTestCases(sfDir, "com.xceptance.xlt.report.util", true);
-                renderSurefireSuiteRow(out, s.id(), s.aiModel(), s.quality(), failures);
+                renderSurefireSuiteRow(out, s.id(), s.aiModel(), s.quality(), failures, "IntTimeSeriesTest");
             }
 
             out.println("            </tbody>");

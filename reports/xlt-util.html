@@ -68,6 +68,9 @@
         .perf-tag { font-size: 0.8rem; padding: 0.15rem 0.4rem; border-radius: 4px; background: #f1f5f9; border: 1px solid #e2e8f0; color: #334155; font-family: 'JetBrains Mono', monospace; }
         .subtable-wrapper { margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px dashed var(--card-border); }
         .subtable-title { font-size: 1.05rem; font-weight: 700; margin: 0 0 0.75rem 0; color: #1e293b; display: flex; align-items: center; justify-content: space-between; }
+        .module-source-link { color: var(--primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.45rem; border-radius: 6px; background: rgba(2, 132, 199, 0.06); border: 1px solid rgba(2, 132, 199, 0.15); transition: all 0.2s ease; font-weight: 700; }
+        .module-source-link:hover { background: rgba(2, 132, 199, 0.14); border-color: var(--primary); text-decoration: none; transform: translateY(-1px); }
+        .module-source-link .code-icon { font-size: 0.75rem; opacity: 0.75; }
     </style>
 </head>
 <body>
@@ -132,7 +135,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td><strong>demo0</strong></td>
+                    <td><a href="sources/demo0/IntTimeSeries.html" class="module-source-link" title="View Source: demo0/IntTimeSeries.java"><strong>demo0</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Human Baseline</span></td>
                     <td><a href="surefire.html#xlt-util" class="badge badge-success" style="text-decoration: none;">92 Passed</a> <span class="badge badge-time">⏱️ 1.48s</span></td>
                     <td><a href="jacoco/demo0/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>58.3%</strong></a> (3635/6230)</td>
@@ -142,7 +145,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo1</strong></td>
+                    <td><a href="sources/demo1/IntTimeSeries.html" class="module-source-link" title="View Source: demo1/IntTimeSeries.java"><strong>demo1</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity)</span></td>
                     <td><a href="surefire.html#xlt-util" class="badge badge-success" style="text-decoration: none;">103 Passed</a> <span class="badge badge-time">⏱️ 0.60s</span></td>
                     <td><a href="jacoco/demo1/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>99.7%</strong></a> (6212/6230)</td>
@@ -152,7 +155,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo2</strong></td>
+                    <td><a href="sources/demo2/IntTimeSeries.html" class="module-source-link" title="View Source: demo2/IntTimeSeries.java"><strong>demo2</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Kimi K3 (Kilo Code)</span></td>
                     <td><a href="surefire.html#xlt-util" class="badge badge-success" style="text-decoration: none;">95 Passed</a> <span class="badge badge-time">⏱️ 0.55s</span></td>
                     <td><a href="jacoco/demo2/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>57.7%</strong></a> (3592/6230)</td>
@@ -162,7 +165,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo3</strong></td>
+                    <td><a href="sources/demo3/IntTimeSeries.html" class="module-source-link" title="View Source: demo3/IntTimeSeries.java"><strong>demo3</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">OpenAI 5.6 Sol Max (Kilo Code)</span></td>
                     <td><a href="surefire.html#xlt-util" class="badge badge-success" style="text-decoration: none;">40 Passed</a> <span class="badge badge-time">⏱️ 0.47s</span></td>
                     <td><a href="jacoco/demo3/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>99.6%</strong></a> (6208/6230)</td>
@@ -172,7 +175,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo4</strong></td>
+                    <td><a href="sources/demo4/IntTimeSeries.html" class="module-source-link" title="View Source: demo4/IntTimeSeries.java"><strong>demo4</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Gemma 4 31B Thinking (Kilo Code)</span></td>
                     <td><a href="surefire.html#xlt-util" class="badge badge-warning" style="text-decoration: none;">12/15 Passed</a> <span class="badge badge-time">⏱️ 0.22s</span></td>
                     <td><a href="jacoco/demo4/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>52.2%</strong></a> (3252/6230)</td>
@@ -182,7 +185,7 @@
                     <td><span class="badge badge-warning">⚠ 3 Failed</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo5</strong></td>
+                    <td><a href="sources/demo5/IntTimeSeries.html" class="module-source-link" title="View Source: demo5/IntTimeSeries.java"><strong>demo5</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Deepseek V4 Flash Max (Kilo Code)</span></td>
                     <td><a href="surefire.html#xlt-util" class="badge badge-success" style="text-decoration: none;">71 Passed</a> <span class="badge badge-time">⏱️ 1.39s</span></td>
                     <td><a href="jacoco/demo5/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>97.9%</strong></a> (6097/6230)</td>
@@ -192,7 +195,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo6</strong></td>
+                    <td><a href="sources/demo6/IntTimeSeries.html" class="module-source-link" title="View Source: demo6/IntTimeSeries.java"><strong>demo6</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Claude Opus 5 Ultra (Claude)</span></td>
                     <td><a href="surefire.html#xlt-util" class="badge badge-success" style="text-decoration: none;">203 Passed</a> <span class="badge badge-time">⏱️ 3.34s</span></td>
                     <td><a href="jacoco/demo6/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>100.0%</strong></a> (6230/6230)</td>
@@ -202,7 +205,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo7</strong></td>
+                    <td><a href="sources/demo7/IntTimeSeries.html" class="module-source-link" title="View Source: demo7/IntTimeSeries.java"><strong>demo7</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Qwen 38 max XHigh (Kilo Code)</span></td>
                     <td><a href="surefire.html#xlt-util" class="badge badge-success" style="text-decoration: none;">106 Passed</a> <span class="badge badge-time">⏱️ 0.91s</span></td>
                     <td><a href="jacoco/demo7/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>100.0%</strong></a> (6228/6230)</td>
@@ -212,7 +215,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo8</strong></td>
+                    <td><a href="sources/demo8/IntTimeSeries.html" class="module-source-link" title="View Source: demo8/IntTimeSeries.java"><strong>demo8</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Gemini 3.7 Flash High (Kilo Code)</span></td>
                     <td><a href="surefire.html#xlt-util" class="badge badge-success" style="text-decoration: none;">45 Passed</a> <span class="badge badge-time">⏱️ 0.36s</span></td>
                     <td><a href="jacoco/demo8/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>99.8%</strong></a> (6220/6230)</td>
@@ -222,7 +225,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo9</strong></td>
+                    <td><a href="sources/demo9/IntTimeSeries.html" class="module-source-link" title="View Source: demo9/IntTimeSeries.java"><strong>demo9</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity)</span></td>
                     <td><a href="surefire.html#xlt-util" class="badge badge-success" style="text-decoration: none;">86 Passed</a> <span class="badge badge-time">⏱️ 1.61s</span></td>
                     <td><a href="jacoco/demo9/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>99.7%</strong></a> (6214/6230)</td>
@@ -232,7 +235,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo11</strong></td>
+                    <td><a href="sources/demo11/IntTimeSeries.html" class="module-source-link" title="View Source: demo11/IntTimeSeries.java"><strong>demo11</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
                     <td><a href="surefire.html#xlt-util" class="badge badge-success" style="text-decoration: none;">113 Passed</a> <span class="badge badge-time">⏱️ 6.98s</span></td>
                     <td><a href="jacoco/demo11/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>100.0%</strong></a> (6230/6230)</td>
@@ -242,7 +245,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo12</strong></td>
+                    <td><a href="sources/demo12/IntTimeSeries.html" class="module-source-link" title="View Source: demo12/IntTimeSeries.java"><strong>demo12</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
                     <td><a href="surefire.html#xlt-util" class="badge badge-success" style="text-decoration: none;">117 Passed</a> <span class="badge badge-time">⏱️ 2.07s</span></td>
                     <td><a href="jacoco/demo12/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;"><strong>100.0%</strong></a> (6230/6230)</td>
@@ -273,7 +276,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td><strong>demo0</strong></td>
+                        <td><a href="sources/demo0/IntTimeSeries.html" class="module-source-link" title="View Source: demo0/IntTimeSeries.java"><strong>demo0</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Human Baseline</span></td>
                         <td class="numeric"><a href="jacoco/demo0/com.xceptance.xlt.report.util/RuntimeHistogram.java.html" style="color: #0284c7; text-decoration: underline;">98.3%</a> <span style="font-size: 0.72rem; color: var(--text-muted);">(352/358)</span></td>
                         <td class="numeric"><a href="jacoco/demo0/com.xceptance.xlt.report.util.lucene/BitUtil.java.html" style="color: #b45309; font-weight: 700; text-decoration: underline;">44.8%</a> <span style="font-size: 0.72rem; color: var(--text-muted);">(2089/4667)</span></td>
@@ -283,7 +286,7 @@
                         <td class="numeric"><strong><a href="jacoco/demo0/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;">58.3%</a></strong></td>
                     </tr>
                     <tr>
-                        <td><strong>demo1</strong></td>
+                        <td><a href="sources/demo1/IntTimeSeries.html" class="module-source-link" title="View Source: demo1/IntTimeSeries.java"><strong>demo1</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity)</span></td>
                         <td class="numeric"><a href="jacoco/demo1/com.xceptance.xlt.report.util/RuntimeHistogram.java.html" class="badge badge-success" style="text-decoration:none;">100.0%</a></td>
                         <td class="numeric"><a href="jacoco/demo1/com.xceptance.xlt.report.util.lucene/BitUtil.java.html" class="badge badge-success" style="text-decoration:none;">100.0%</a></td>
@@ -293,7 +296,7 @@
                         <td class="numeric"><strong><a href="jacoco/demo1/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;">99.7%</a></strong></td>
                     </tr>
                     <tr>
-                        <td><strong>demo2</strong></td>
+                        <td><a href="sources/demo2/IntTimeSeries.html" class="module-source-link" title="View Source: demo2/IntTimeSeries.java"><strong>demo2</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Kimi K3 (Kilo Code)</span></td>
                         <td class="numeric"><a href="jacoco/demo2/com.xceptance.xlt.report.util/RuntimeHistogram.java.html" class="badge badge-success" style="text-decoration:none;">100.0%</a></td>
                         <td class="numeric"><a href="jacoco/demo2/com.xceptance.xlt.report.util.lucene/BitUtil.java.html" style="color: #b45309; font-weight: 700; text-decoration: underline;">44.8%</a> <span style="font-size: 0.72rem; color: var(--text-muted);">(2089/4667)</span></td>
@@ -303,7 +306,7 @@
                         <td class="numeric"><strong><a href="jacoco/demo2/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;">57.7%</a></strong></td>
                     </tr>
                     <tr>
-                        <td><strong>demo3</strong></td>
+                        <td><a href="sources/demo3/IntTimeSeries.html" class="module-source-link" title="View Source: demo3/IntTimeSeries.java"><strong>demo3</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">OpenAI 5.6 Sol Max (Kilo Code)</span></td>
                         <td class="numeric"><a href="jacoco/demo3/com.xceptance.xlt.report.util/RuntimeHistogram.java.html" class="badge badge-success" style="text-decoration:none;">100.0%</a></td>
                         <td class="numeric"><a href="jacoco/demo3/com.xceptance.xlt.report.util.lucene/BitUtil.java.html" class="badge badge-success" style="text-decoration:none;">100.0%</a></td>
@@ -313,7 +316,7 @@
                         <td class="numeric"><strong><a href="jacoco/demo3/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;">99.6%</a></strong></td>
                     </tr>
                     <tr>
-                        <td><strong>demo4</strong></td>
+                        <td><a href="sources/demo4/IntTimeSeries.html" class="module-source-link" title="View Source: demo4/IntTimeSeries.java"><strong>demo4</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Gemma 4 31B Thinking (Kilo Code)</span></td>
                         <td class="numeric"><a href="jacoco/demo4/com.xceptance.xlt.report.util/RuntimeHistogram.java.html" style="color: #b45309; font-weight: 700; text-decoration: underline;">76.0%</a> <span style="font-size: 0.72rem; color: var(--text-muted);">(272/358)</span></td>
                         <td class="numeric"><a href="jacoco/demo4/com.xceptance.xlt.report.util.lucene/BitUtil.java.html" style="color: #b45309; font-weight: 700; text-decoration: underline;">47.9%</a> <span style="font-size: 0.72rem; color: var(--text-muted);">(2237/4667)</span></td>
@@ -323,7 +326,7 @@
                         <td class="numeric"><strong><a href="jacoco/demo4/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;">52.2%</a></strong></td>
                     </tr>
                     <tr>
-                        <td><strong>demo5</strong></td>
+                        <td><a href="sources/demo5/IntTimeSeries.html" class="module-source-link" title="View Source: demo5/IntTimeSeries.java"><strong>demo5</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Deepseek V4 Flash Max (Kilo Code)</span></td>
                         <td class="numeric"><a href="jacoco/demo5/com.xceptance.xlt.report.util/RuntimeHistogram.java.html" class="badge badge-success" style="text-decoration:none;">100.0%</a></td>
                         <td class="numeric"><a href="jacoco/demo5/com.xceptance.xlt.report.util.lucene/BitUtil.java.html" style="color: #0284c7; text-decoration: underline;">97.7%</a> <span style="font-size: 0.72rem; color: var(--text-muted);">(4560/4667)</span></td>
@@ -333,7 +336,7 @@
                         <td class="numeric"><strong><a href="jacoco/demo5/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;">97.9%</a></strong></td>
                     </tr>
                     <tr>
-                        <td><strong>demo6</strong></td>
+                        <td><a href="sources/demo6/IntTimeSeries.html" class="module-source-link" title="View Source: demo6/IntTimeSeries.java"><strong>demo6</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Claude Opus 5 Ultra (Claude)</span></td>
                         <td class="numeric"><a href="jacoco/demo6/com.xceptance.xlt.report.util/RuntimeHistogram.java.html" class="badge badge-success" style="text-decoration:none;">100.0%</a></td>
                         <td class="numeric"><a href="jacoco/demo6/com.xceptance.xlt.report.util.lucene/BitUtil.java.html" class="badge badge-success" style="text-decoration:none;">100.0%</a></td>
@@ -343,7 +346,7 @@
                         <td class="numeric"><strong><a href="jacoco/demo6/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;">100.0%</a></strong></td>
                     </tr>
                     <tr>
-                        <td><strong>demo7</strong></td>
+                        <td><a href="sources/demo7/IntTimeSeries.html" class="module-source-link" title="View Source: demo7/IntTimeSeries.java"><strong>demo7</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Qwen 38 max XHigh (Kilo Code)</span></td>
                         <td class="numeric"><a href="jacoco/demo7/com.xceptance.xlt.report.util/RuntimeHistogram.java.html" class="badge badge-success" style="text-decoration:none;">100.0%</a></td>
                         <td class="numeric"><a href="jacoco/demo7/com.xceptance.xlt.report.util.lucene/BitUtil.java.html" class="badge badge-success" style="text-decoration:none;">100.0%</a></td>
@@ -353,7 +356,7 @@
                         <td class="numeric"><strong><a href="jacoco/demo7/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;">100.0%</a></strong></td>
                     </tr>
                     <tr>
-                        <td><strong>demo8</strong></td>
+                        <td><a href="sources/demo8/IntTimeSeries.html" class="module-source-link" title="View Source: demo8/IntTimeSeries.java"><strong>demo8</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Gemini 3.7 Flash High (Kilo Code)</span></td>
                         <td class="numeric"><a href="jacoco/demo8/com.xceptance.xlt.report.util/RuntimeHistogram.java.html" class="badge badge-success" style="text-decoration:none;">100.0%</a></td>
                         <td class="numeric"><a href="jacoco/demo8/com.xceptance.xlt.report.util.lucene/BitUtil.java.html" class="badge badge-success" style="text-decoration:none;">100.0%</a></td>
@@ -363,7 +366,7 @@
                         <td class="numeric"><strong><a href="jacoco/demo8/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;">99.8%</a></strong></td>
                     </tr>
                     <tr>
-                        <td><strong>demo9</strong></td>
+                        <td><a href="sources/demo9/IntTimeSeries.html" class="module-source-link" title="View Source: demo9/IntTimeSeries.java"><strong>demo9</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity)</span></td>
                         <td class="numeric"><a href="jacoco/demo9/com.xceptance.xlt.report.util/RuntimeHistogram.java.html" class="badge badge-success" style="text-decoration:none;">100.0%</a></td>
                         <td class="numeric"><a href="jacoco/demo9/com.xceptance.xlt.report.util.lucene/BitUtil.java.html" class="badge badge-success" style="text-decoration:none;">100.0%</a></td>
@@ -373,7 +376,7 @@
                         <td class="numeric"><strong><a href="jacoco/demo9/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;">99.7%</a></strong></td>
                     </tr>
                     <tr>
-                        <td><strong>demo11</strong></td>
+                        <td><a href="sources/demo11/IntTimeSeries.html" class="module-source-link" title="View Source: demo11/IntTimeSeries.java"><strong>demo11</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
                         <td class="numeric"><a href="jacoco/demo11/com.xceptance.xlt.report.util/RuntimeHistogram.java.html" class="badge badge-success" style="text-decoration:none;">100.0%</a></td>
                         <td class="numeric"><a href="jacoco/demo11/com.xceptance.xlt.report.util.lucene/BitUtil.java.html" class="badge badge-success" style="text-decoration:none;">100.0%</a></td>
@@ -383,7 +386,7 @@
                         <td class="numeric"><strong><a href="jacoco/demo11/xlt-util-coverage.html" style="color: var(--primary); text-decoration: underline;">100.0%</a></strong></td>
                     </tr>
                     <tr>
-                        <td><strong>demo12</strong></td>
+                        <td><a href="sources/demo12/IntTimeSeries.html" class="module-source-link" title="View Source: demo12/IntTimeSeries.java"><strong>demo12</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
                         <td class="numeric"><a href="jacoco/demo12/com.xceptance.xlt.report.util/RuntimeHistogram.java.html" class="badge badge-success" style="text-decoration:none;">100.0%</a></td>
                         <td class="numeric"><a href="jacoco/demo12/com.xceptance.xlt.report.util.lucene/BitUtil.java.html" class="badge badge-success" style="text-decoration:none;">100.0%</a></td>

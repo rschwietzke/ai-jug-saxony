@@ -68,6 +68,9 @@
         .perf-tag { font-size: 0.8rem; padding: 0.15rem 0.4rem; border-radius: 4px; background: #f1f5f9; border: 1px solid #e2e8f0; color: #334155; font-family: 'JetBrains Mono', monospace; }
         .subtable-wrapper { margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px dashed var(--card-border); }
         .subtable-title { font-size: 1.05rem; font-weight: 700; margin: 0 0 0.75rem 0; color: #1e293b; display: flex; align-items: center; justify-content: space-between; }
+        .module-source-link { color: var(--primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.45rem; border-radius: 6px; background: rgba(2, 132, 199, 0.06); border: 1px solid rgba(2, 132, 199, 0.15); transition: all 0.2s ease; font-weight: 700; }
+        .module-source-link:hover { background: rgba(2, 132, 199, 0.14); border-color: var(--primary); text-decoration: none; transform: translateY(-1px); }
+        .module-source-link .code-icon { font-size: 0.75rem; opacity: 0.75; }
     </style>
 </head>
 <body>
@@ -141,7 +144,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td><strong>demo0</strong></td>
+                    <td><a href="sources/demo0/FastHashMap.html" class="module-source-link" title="View Source: demo0/FastHashMap.java"><strong>demo0</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Human Baseline</span></td>
                     <td><a href="surefire.html#fasthashmap" class="badge badge-success" style="text-decoration: none;">29 Passed</a> <span class="badge badge-time">⏱️ 0.21s</span></td>
                     <td><a href="jacoco/demo0/org.jugsaxony.demo0/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>100.0%</strong></a> (651/651)</td>
@@ -151,7 +154,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo1</strong></td>
+                    <td><a href="sources/demo1/FastHashMap.html" class="module-source-link" title="View Source: demo1/FastHashMap.java"><strong>demo1</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity)</span></td>
                     <td><a href="surefire.html#fasthashmap" class="badge badge-success" style="text-decoration: none;">21 Passed</a> <span class="badge badge-time">⏱️ 0.64s</span></td>
                     <td><a href="jacoco/demo1/org.jugsaxony.demo1/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>99.0%</strong></a> (520/525)</td>
@@ -161,7 +164,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo2</strong></td>
+                    <td><a href="sources/demo2/FastHashMap.html" class="module-source-link" title="View Source: demo2/FastHashMap.java"><strong>demo2</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Kimi K3 (Kilo Code)</span></td>
                     <td><a href="surefire.html#fasthashmap" class="badge badge-success" style="text-decoration: none;">43 Passed</a> <span class="badge badge-time">⏱️ 0.38s</span></td>
                     <td><a href="jacoco/demo2/org.jugsaxony.demo2/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>100.0%</strong></a> (415/415)</td>
@@ -171,7 +174,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo3</strong></td>
+                    <td><a href="sources/demo3/FastHashMap.html" class="module-source-link" title="View Source: demo3/FastHashMap.java"><strong>demo3</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">OpenAI 5.6 Sol Max (Kilo Code)</span></td>
                     <td><a href="surefire.html#fasthashmap" class="badge badge-success" style="text-decoration: none;">19 Passed</a> <span class="badge badge-time">⏱️ 0.27s</span></td>
                     <td><a href="jacoco/demo3/org.jugsaxony.demo3/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>97.0%</strong></a> (423/436)</td>
@@ -181,7 +184,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo4</strong></td>
+                    <td><a href="sources/demo4/FastHashMap.html" class="module-source-link" title="View Source: demo4/FastHashMap.java"><strong>demo4</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Gemma 4 31B Thinking (Kilo Code)</span></td>
                     <td><a href="surefire.html#fasthashmap" class="badge badge-success" style="text-decoration: none;">10 Passed</a> <span class="badge badge-time">⏱️ 0.03s</span></td>
                     <td><a href="jacoco/demo4/org.jugsaxony.demo4/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>95.6%</strong></a> (409/428)</td>
@@ -191,7 +194,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo5</strong></td>
+                    <td><a href="sources/demo5/FastHashMap.html" class="module-source-link" title="View Source: demo5/FastHashMap.java"><strong>demo5</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Deepseek V4 Flash Max (Kilo Code)</span></td>
                     <td><a href="surefire.html#fasthashmap" class="badge badge-success" style="text-decoration: none;">17 Passed</a> <span class="badge badge-time">⏱️ 0.34s</span></td>
                     <td><a href="jacoco/demo5/org.jugsaxony.demo5/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>96.7%</strong></a> (437/452)</td>
@@ -201,7 +204,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo6</strong></td>
+                    <td><a href="sources/demo6/FastHashMap.html" class="module-source-link" title="View Source: demo6/FastHashMap.java"><strong>demo6</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Claude Opus 5 Ultra (Claude)</span></td>
                     <td><a href="surefire.html#fasthashmap" class="badge badge-success" style="text-decoration: none;">44 Passed</a> <span class="badge badge-time">⏱️ 2.67s</span></td>
                     <td><a href="jacoco/demo6/org.jugsaxony.demo6/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>87.7%</strong></a> (536/611)</td>
@@ -211,7 +214,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo7</strong></td>
+                    <td><a href="sources/demo7/FastHashMap.html" class="module-source-link" title="View Source: demo7/FastHashMap.java"><strong>demo7</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Qwen 38 max XHigh (Kilo Code)</span></td>
                     <td><a href="surefire.html#fasthashmap" class="badge badge-success" style="text-decoration: none;">19 Passed</a> <span class="badge badge-time">⏱️ 0.11s</span></td>
                     <td><a href="jacoco/demo7/org.jugsaxony.demo7/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>100.0%</strong></a> (371/371)</td>
@@ -221,7 +224,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo8</strong></td>
+                    <td><a href="sources/demo8/FastHashMap.html" class="module-source-link" title="View Source: demo8/FastHashMap.java"><strong>demo8</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Gemini 3.7 Flash High (Kilo Code)</span></td>
                     <td><a href="surefire.html#fasthashmap" class="badge badge-success" style="text-decoration: none;">28 Passed</a> <span class="badge badge-time">⏱️ 0.34s</span></td>
                     <td><a href="jacoco/demo8/org.jugsaxony.demo8/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>97.0%</strong></a> (447/461)</td>
@@ -231,7 +234,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo9</strong></td>
+                    <td><a href="sources/demo9/FastHashMap.html" class="module-source-link" title="View Source: demo9/FastHashMap.java"><strong>demo9</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity)</span></td>
                     <td><a href="surefire.html#fasthashmap" class="badge badge-success" style="text-decoration: none;">29 Passed</a> <span class="badge badge-time">⏱️ 1.18s</span></td>
                     <td><a href="jacoco/demo9/org.jugsaxony.demo9/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>96.4%</strong></a> (502/521)</td>
@@ -241,7 +244,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo11</strong></td>
+                    <td><a href="sources/demo11/FastHashMap.html" class="module-source-link" title="View Source: demo11/FastHashMap.java"><strong>demo11</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
                     <td><a href="surefire.html#fasthashmap" class="badge badge-success" style="text-decoration: none;">24 Passed</a> <span class="badge badge-time">⏱️ 0.23s</span></td>
                     <td><a href="jacoco/demo11/org.jugsaxony.demo11/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>100.0%</strong></a> (544/544)</td>
@@ -251,7 +254,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo12</strong></td>
+                    <td><a href="sources/demo12/FastHashMap.html" class="module-source-link" title="View Source: demo12/FastHashMap.java"><strong>demo12</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
                     <td><a href="surefire.html#fasthashmap" class="badge badge-success" style="text-decoration: none;">27 Passed</a> <span class="badge badge-time">⏱️ 5.24s</span></td>
                     <td><a href="jacoco/demo12/org.jugsaxony.demo12/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>99.6%</strong></a> (523/525)</td>
@@ -282,7 +285,7 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td><strong>demo0</strong></td>
+                    <td><a href="sources/demo0/FastHashMap.html" class="module-source-link" title="View Source: demo0/FastHashMap.java"><strong>demo0</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Human Baseline</span></td>
                     <td><a href="surefire.html#blackbox" class="badge badge-success" style="text-decoration: none;">27 Passed</a> <span class="badge badge-time">⏱️ 0.29s</span></td>
                     <td><a href="jacoco-blackbox/demo0/org.jugsaxony.demo0/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>98.6%</strong></a> (642/651)</td>
@@ -292,7 +295,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo1</strong></td>
+                    <td><a href="sources/demo1/FastHashMap.html" class="module-source-link" title="View Source: demo1/FastHashMap.java"><strong>demo1</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity)</span></td>
                     <td><a href="surefire.html#blackbox" class="badge badge-success" style="text-decoration: none;">26 Passed</a> <span class="badge badge-time">⏱️ 0.23s</span></td>
                     <td><a href="jacoco-blackbox/demo1/org.jugsaxony.demo1/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>98.1%</strong></a> (515/525)</td>
@@ -302,7 +305,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo2</strong></td>
+                    <td><a href="sources/demo2/FastHashMap.html" class="module-source-link" title="View Source: demo2/FastHashMap.java"><strong>demo2</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Kimi K3 (Kilo Code)</span></td>
                     <td><a href="surefire.html#blackbox" class="badge badge-success" style="text-decoration: none;">22 Passed</a> <span class="badge badge-time">⏱️ 0.30s</span></td>
                     <td><a href="jacoco-blackbox/demo2/org.jugsaxony.demo2/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>97.6%</strong></a> (405/415)</td>
@@ -312,7 +315,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo3</strong></td>
+                    <td><a href="sources/demo3/FastHashMap.html" class="module-source-link" title="View Source: demo3/FastHashMap.java"><strong>demo3</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">OpenAI 5.6 Sol Max (Kilo Code)</span></td>
                     <td><a href="surefire.html#blackbox" class="badge badge-success" style="text-decoration: none;">22 Passed</a> <span class="badge badge-time">⏱️ 0.34s</span></td>
                     <td><a href="jacoco-blackbox/demo3/org.jugsaxony.demo3/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>97.0%</strong></a> (423/436)</td>
@@ -322,7 +325,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo4</strong></td>
+                    <td><a href="sources/demo4/FastHashMap.html" class="module-source-link" title="View Source: demo4/FastHashMap.java"><strong>demo4</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Gemma 4 31B Thinking (Kilo Code)</span></td>
                     <td><a href="surefire.html#blackbox" class="badge badge-success" style="text-decoration: none;">22 Passed</a> <span class="badge badge-time">⏱️ 0.42s</span></td>
                     <td><a href="jacoco-blackbox/demo4/org.jugsaxony.demo4/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>97.9%</strong></a> (419/428)</td>
@@ -332,7 +335,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo5</strong></td>
+                    <td><a href="sources/demo5/FastHashMap.html" class="module-source-link" title="View Source: demo5/FastHashMap.java"><strong>demo5</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Deepseek V4 Flash Max (Kilo Code)</span></td>
                     <td><a href="surefire.html#blackbox" class="badge badge-success" style="text-decoration: none;">22 Passed</a> <span class="badge badge-time">⏱️ 0.27s</span></td>
                     <td><a href="jacoco-blackbox/demo5/org.jugsaxony.demo5/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>96.7%</strong></a> (437/452)</td>
@@ -342,7 +345,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo6</strong></td>
+                    <td><a href="sources/demo6/FastHashMap.html" class="module-source-link" title="View Source: demo6/FastHashMap.java"><strong>demo6</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Claude Opus 5 Ultra (Claude)</span></td>
                     <td><a href="surefire.html#blackbox" class="badge badge-success" style="text-decoration: none;">22 Passed</a> <span class="badge badge-time">⏱️ 0.23s</span></td>
                     <td><a href="jacoco-blackbox/demo6/org.jugsaxony.demo6/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>67.6%</strong></a> (413/611)</td>
@@ -352,7 +355,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo7</strong></td>
+                    <td><a href="sources/demo7/FastHashMap.html" class="module-source-link" title="View Source: demo7/FastHashMap.java"><strong>demo7</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Qwen 38 max XHigh (Kilo Code)</span></td>
                     <td><a href="surefire.html#blackbox" class="badge badge-success" style="text-decoration: none;">22 Passed</a> <span class="badge badge-time">⏱️ 0.28s</span></td>
                     <td><a href="jacoco-blackbox/demo7/org.jugsaxony.demo7/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>98.9%</strong></a> (367/371)</td>
@@ -362,7 +365,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo8</strong></td>
+                    <td><a href="sources/demo8/FastHashMap.html" class="module-source-link" title="View Source: demo8/FastHashMap.java"><strong>demo8</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Gemini 3.7 Flash High (Kilo Code)</span></td>
                     <td><a href="surefire.html#blackbox" class="badge badge-success" style="text-decoration: none;">26 Passed</a> <span class="badge badge-time">⏱️ 0.33s</span></td>
                     <td><a href="jacoco-blackbox/demo8/org.jugsaxony.demo8/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>95.9%</strong></a> (442/461)</td>
@@ -372,7 +375,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo9</strong></td>
+                    <td><a href="sources/demo9/FastHashMap.html" class="module-source-link" title="View Source: demo9/FastHashMap.java"><strong>demo9</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity)</span></td>
                     <td><a href="surefire.html#blackbox" class="badge badge-success" style="text-decoration: none;">26 Passed</a> <span class="badge badge-time">⏱️ 0.35s</span></td>
                     <td><a href="jacoco-blackbox/demo9/org.jugsaxony.demo9/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>94.6%</strong></a> (493/521)</td>
@@ -382,7 +385,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo11</strong></td>
+                    <td><a href="sources/demo11/FastHashMap.html" class="module-source-link" title="View Source: demo11/FastHashMap.java"><strong>demo11</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
                     <td><a href="surefire.html#blackbox" class="badge badge-success" style="text-decoration: none;">26 Passed</a> <span class="badge badge-time">⏱️ 0.30s</span></td>
                     <td><a href="jacoco-blackbox/demo11/org.jugsaxony.demo11/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>95.6%</strong></a> (520/544)</td>
@@ -392,7 +395,7 @@
                     <td><span class="badge badge-success">100% Passing ✅</span></td>
                 </tr>
                 <tr>
-                    <td><strong>demo12</strong></td>
+                    <td><a href="sources/demo12/FastHashMap.html" class="module-source-link" title="View Source: demo12/FastHashMap.java"><strong>demo12</strong> <span class="code-icon">📄</span></a></td>
                     <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
                     <td><a href="surefire.html#blackbox" class="badge badge-success" style="text-decoration: none;">26 Passed</a> <span class="badge badge-time">⏱️ 0.28s</span></td>
                     <td><a href="jacoco-blackbox/demo12/org.jugsaxony.demo12/FastHashMap.java.html" style="color: var(--primary); text-decoration: underline;"><strong>98.1%</strong></a> (514/524)</td>
@@ -423,7 +426,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td><strong>demo0</strong></td>
+                        <td><a href="sources/demo0/FastHashMap.html" class="module-source-link" title="View Source: demo0/FastHashMap.java"><strong>demo0</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Human Baseline</span></td>
                         <td class="numeric"><strong>80,456 B</strong></td>
                         <td class="numeric">80.5 B/e</td>
@@ -432,7 +435,7 @@
                         <td class="numeric">40 B</td>
                     </tr>
                     <tr>
-                        <td><strong>demo1</strong></td>
+                        <td><a href="sources/demo1/FastHashMap.html" class="module-source-link" title="View Source: demo1/FastHashMap.java"><strong>demo1</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity)</span></td>
                         <td class="numeric"><strong>80,456 B</strong></td>
                         <td class="numeric">80.5 B/e</td>
@@ -441,7 +444,7 @@
                         <td class="numeric">40 B</td>
                     </tr>
                     <tr>
-                        <td><strong>demo2</strong></td>
+                        <td><a href="sources/demo2/FastHashMap.html" class="module-source-link" title="View Source: demo2/FastHashMap.java"><strong>demo2</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Kimi K3 (Kilo Code)</span></td>
                         <td class="numeric"><strong>80,448 B</strong></td>
                         <td class="numeric">80.4 B/e</td>
@@ -450,7 +453,7 @@
                         <td class="numeric">32 B</td>
                     </tr>
                     <tr>
-                        <td><strong>demo3</strong></td>
+                        <td><a href="sources/demo3/FastHashMap.html" class="module-source-link" title="View Source: demo3/FastHashMap.java"><strong>demo3</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">OpenAI 5.6 Sol Max (Kilo Code)</span></td>
                         <td class="numeric"><strong>80,448 B</strong></td>
                         <td class="numeric">80.4 B/e</td>
@@ -459,7 +462,7 @@
                         <td class="numeric">32 B</td>
                     </tr>
                     <tr>
-                        <td><strong>demo4</strong></td>
+                        <td><a href="sources/demo4/FastHashMap.html" class="module-source-link" title="View Source: demo4/FastHashMap.java"><strong>demo4</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Gemma 4 31B Thinking (Kilo Code)</span></td>
                         <td class="numeric"><strong>84,584 B</strong></td>
                         <td class="numeric">84.6 B/e</td>
@@ -468,7 +471,7 @@
                         <td class="numeric">40 B</td>
                     </tr>
                     <tr>
-                        <td><strong>demo5</strong></td>
+                        <td><a href="sources/demo5/FastHashMap.html" class="module-source-link" title="View Source: demo5/FastHashMap.java"><strong>demo5</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Deepseek V4 Flash Max (Kilo Code)</span></td>
                         <td class="numeric"><strong>96,240 B</strong></td>
                         <td class="numeric">96.2 B/e</td>
@@ -477,7 +480,7 @@
                         <td class="numeric">32 B</td>
                     </tr>
                     <tr>
-                        <td><strong>demo6</strong></td>
+                        <td><a href="sources/demo6/FastHashMap.html" class="module-source-link" title="View Source: demo6/FastHashMap.java"><strong>demo6</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Claude Opus 5 Ultra (Claude)</span></td>
                         <td class="numeric"><strong>80,456 B</strong></td>
                         <td class="numeric">80.5 B/e</td>
@@ -486,7 +489,7 @@
                         <td class="numeric">40 B</td>
                     </tr>
                     <tr>
-                        <td><strong>demo7</strong></td>
+                        <td><a href="sources/demo7/FastHashMap.html" class="module-source-link" title="View Source: demo7/FastHashMap.java"><strong>demo7</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Qwen 38 max XHigh (Kilo Code)</span></td>
                         <td class="numeric"><strong>104,240 B</strong></td>
                         <td class="numeric">104.2 B/e</td>
@@ -495,7 +498,7 @@
                         <td class="numeric">32 B</td>
                     </tr>
                     <tr>
-                        <td><strong>demo8</strong></td>
+                        <td><a href="sources/demo8/FastHashMap.html" class="module-source-link" title="View Source: demo8/FastHashMap.java"><strong>demo8</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Gemini 3.7 Flash High (Kilo Code)</span></td>
                         <td class="numeric"><strong>96,240 B</strong></td>
                         <td class="numeric">96.2 B/e</td>
@@ -504,7 +507,7 @@
                         <td class="numeric">32 B</td>
                     </tr>
                     <tr>
-                        <td><strong>demo9</strong></td>
+                        <td><a href="sources/demo9/FastHashMap.html" class="module-source-link" title="View Source: demo9/FastHashMap.java"><strong>demo9</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity)</span></td>
                         <td class="numeric"><strong>80,456 B</strong></td>
                         <td class="numeric">80.5 B/e</td>
@@ -513,7 +516,7 @@
                         <td class="numeric">40 B</td>
                     </tr>
                     <tr>
-                        <td><strong>demo11</strong></td>
+                        <td><a href="sources/demo11/FastHashMap.html" class="module-source-link" title="View Source: demo11/FastHashMap.java"><strong>demo11</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
                         <td class="numeric"><strong>80,456 B</strong></td>
                         <td class="numeric">80.5 B/e</td>
@@ -522,7 +525,7 @@
                         <td class="numeric">40 B</td>
                     </tr>
                     <tr>
-                        <td><strong>demo12</strong></td>
+                        <td><a href="sources/demo12/FastHashMap.html" class="module-source-link" title="View Source: demo12/FastHashMap.java"><strong>demo12</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
                         <td class="numeric"><strong>80,456 B</strong></td>
                         <td class="numeric">80.5 B/e</td>
@@ -553,7 +556,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td><strong>demo0</strong></td>
+                        <td><a href="sources/demo0/FastHashMap.html" class="module-source-link" title="View Source: demo0/FastHashMap.java"><strong>demo0</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Human Baseline</span></td>
                         <td class="numeric"><span class="">1.00x</span> (52.5 ops/µs)</td>
                         <td class="numeric"><span class="">1.00x</span> (54.4 ops/µs)</td>
@@ -563,7 +566,7 @@
                         <td class="numeric">5.10%</td>
                     </tr>
                     <tr>
-                        <td><strong>demo1</strong></td>
+                        <td><a href="sources/demo1/FastHashMap.html" class="module-source-link" title="View Source: demo1/FastHashMap.java"><strong>demo1</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity)</span></td>
                         <td class="numeric"><span class="">0.97x</span> (51.2 ops/µs)</td>
                         <td class="numeric"><span class="speedup-fast">1.36x</span> (74.1 ops/µs)</td>
@@ -573,7 +576,7 @@
                         <td class="numeric">8.80%</td>
                     </tr>
                     <tr>
-                        <td><strong>demo2</strong></td>
+                        <td><a href="sources/demo2/FastHashMap.html" class="module-source-link" title="View Source: demo2/FastHashMap.java"><strong>demo2</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Kimi K3 (Kilo Code)</span></td>
                         <td class="numeric"><span class="speedup-fast">1.06x</span> (55.8 ops/µs)</td>
                         <td class="numeric"><span class="speedup-fast">1.37x</span> (74.5 ops/µs)</td>
@@ -583,7 +586,7 @@
                         <td class="numeric">9.48%</td>
                     </tr>
                     <tr>
-                        <td><strong>demo3</strong></td>
+                        <td><a href="sources/demo3/FastHashMap.html" class="module-source-link" title="View Source: demo3/FastHashMap.java"><strong>demo3</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">OpenAI 5.6 Sol Max (Kilo Code)</span></td>
                         <td class="numeric"><span class="">1.04x</span> (54.7 ops/µs)</td>
                         <td class="numeric"><span class="speedup-fast">1.56x</span> (85.0 ops/µs)</td>
@@ -593,7 +596,7 @@
                         <td class="numeric">8.90%</td>
                     </tr>
                     <tr>
-                        <td><strong>demo4</strong></td>
+                        <td><a href="sources/demo4/FastHashMap.html" class="module-source-link" title="View Source: demo4/FastHashMap.java"><strong>demo4</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Gemma 4 31B Thinking (Kilo Code)</span></td>
                         <td class="numeric"><span class="speedup-slow">0.74x</span> (38.8 ops/µs)</td>
                         <td class="numeric"><span class="">1.04x</span> (56.6 ops/µs)</td>
@@ -603,7 +606,7 @@
                         <td class="numeric">8.93%</td>
                     </tr>
                     <tr>
-                        <td><strong>demo5</strong></td>
+                        <td><a href="sources/demo5/FastHashMap.html" class="module-source-link" title="View Source: demo5/FastHashMap.java"><strong>demo5</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Deepseek V4 Flash Max (Kilo Code)</span></td>
                         <td class="numeric"><span class="speedup-fast">1.17x</span> (61.4 ops/µs)</td>
                         <td class="numeric"><span class="speedup-fast">1.49x</span> (81.1 ops/µs)</td>
@@ -613,7 +616,7 @@
                         <td class="numeric">18.79%</td>
                     </tr>
                     <tr>
-                        <td><strong>demo6</strong></td>
+                        <td><a href="sources/demo6/FastHashMap.html" class="module-source-link" title="View Source: demo6/FastHashMap.java"><strong>demo6</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Claude Opus 5 Ultra (Claude)</span></td>
                         <td class="numeric"><span class="speedup-fast">1.08x</span> (56.8 ops/µs)</td>
                         <td class="numeric"><span class="speedup-fast">1.54x</span> (83.8 ops/µs)</td>
@@ -623,7 +626,7 @@
                         <td class="numeric">8.87%</td>
                     </tr>
                     <tr>
-                        <td><strong>demo7</strong></td>
+                        <td><a href="sources/demo7/FastHashMap.html" class="module-source-link" title="View Source: demo7/FastHashMap.java"><strong>demo7</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Qwen 38 max XHigh (Kilo Code)</span></td>
                         <td class="numeric"><span class="speedup-fast">1.11x</span> (58.1 ops/µs)</td>
                         <td class="numeric"><span class="speedup-fast">1.91x</span> (103.8 ops/µs)</td>
@@ -633,7 +636,7 @@
                         <td class="numeric">18.52%</td>
                     </tr>
                     <tr>
-                        <td><strong>demo8</strong></td>
+                        <td><a href="sources/demo8/FastHashMap.html" class="module-source-link" title="View Source: demo8/FastHashMap.java"><strong>demo8</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Gemini 3.7 Flash High (Kilo Code)</span></td>
                         <td class="numeric"><span class="speedup-slow">0.92x</span> (48.4 ops/µs)</td>
                         <td class="numeric"><span class="speedup-fast">1.18x</span> (64.3 ops/µs)</td>
@@ -643,7 +646,7 @@
                         <td class="numeric">17.07%</td>
                     </tr>
                     <tr>
-                        <td><strong>demo9</strong></td>
+                        <td><a href="sources/demo9/FastHashMap.html" class="module-source-link" title="View Source: demo9/FastHashMap.java"><strong>demo9</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity)</span></td>
                         <td class="numeric"><span class="speedup-slow">0.83x</span> (43.4 ops/µs)</td>
                         <td class="numeric"><span class="speedup-fast">1.44x</span> (78.6 ops/µs)</td>
@@ -653,7 +656,7 @@
                         <td class="numeric">9.06%</td>
                     </tr>
                     <tr>
-                        <td><strong>demo11</strong></td>
+                        <td><a href="sources/demo11/FastHashMap.html" class="module-source-link" title="View Source: demo11/FastHashMap.java"><strong>demo11</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
                         <td class="numeric"><span class="speedup-fast">1.08x</span> (56.6 ops/µs)</td>
                         <td class="numeric"><span class="speedup-fast">1.58x</span> (86.2 ops/µs)</td>
@@ -663,7 +666,7 @@
                         <td class="numeric">7.18%</td>
                     </tr>
                     <tr>
-                        <td><strong>demo12</strong></td>
+                        <td><a href="sources/demo12/FastHashMap.html" class="module-source-link" title="View Source: demo12/FastHashMap.java"><strong>demo12</strong> <span class="code-icon">📄</span></a></td>
                         <td><span class="badge badge-info">Gemini 3.8 Flash High (Antigravity Rework - 100% Mutation Killed)</span></td>
                         <td class="numeric"><span class="">0.97x</span> (51.0 ops/µs)</td>
                         <td class="numeric"><span class="speedup-fast">1.39x</span> (75.7 ops/µs)</td>

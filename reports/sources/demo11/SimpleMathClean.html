@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>demo11 - SimpleMathClean.java (Source Code Viewer)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --header-bg: #f8fafc;
+            --border: #e2e8f0;
+            --gutter-bg: #f8fafc;
+            --gutter-num: #94a3b8;
+            --text: #0f172a;
+            --primary: #0284c7;
+            --primary-glow: rgba(2, 132, 199, 0.12);
+            --accent: #7c3aed;
+            --line-highlight: #fef9c3;
+            --line-highlight-border: #eab308;
+            --kw-color: #cf222e;
+            --str-color: #0a3069;
+            --comment-color: #6e7781;
+            --ann-color: #8250df;
+            --num-color: #0550ae;
+            --type-color: #953800;
+        }
+        body.dark-theme {
+            --bg: #0d1117;
+            --header-bg: #161b22;
+            --border: #30363d;
+            --gutter-bg: #161b22;
+            --gutter-num: #6e7681;
+            --text: #e6edf3;
+            --primary: #38bdf8;
+            --primary-glow: rgba(56, 189, 248, 0.15);
+            --accent: #a855f7;
+            --line-highlight: #3b3014;
+            --line-highlight-border: #d29922;
+            --kw-color: #ff7b72;
+            --str-color: #a5d6ff;
+            --comment-color: #8b949e;
+            --ann-color: #d2a8ff;
+            --num-color: #79c0ff;
+            --type-color: #ffa657;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding-top: 60px;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        .viewer-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 60px;
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.25rem;
+            z-index: 1000;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            gap: 1rem;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .back-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .module-badge {
+            background: #0284c7;
+            color: #ffffff;
+            font-size: 0.82rem;
+            font-weight: 700;
+            padding: 0.25rem 0.65rem;
+            border-radius: 6px;
+            letter-spacing: 0.02em;
+        }
+        .model-badge {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: 0.82rem;
+            font-weight: 500;
+            padding: 0.25rem 0.65rem;
+            border-radius: 6px;
+        }
+        .file-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .file-meta {
+            font-size: 0.8rem;
+            color: var(--gutter-num);
+        }
+        .header-center {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .nav-select {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.35rem 0.65rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+        }
+        .nav-select:focus {
+            border-color: var(--primary);
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .action-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            transition: all 0.15s ease;
+        }
+        .action-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .code-container {
+            width: 100%;
+            overflow-x: auto;
+            padding: 1rem 0;
+        }
+        .code-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.95rem;
+            line-height: 1.55;
+        }
+        .code-row {
+            transition: background 0.1s ease;
+        }
+        .code-row:hover {
+            background-color: var(--header-bg);
+        }
+        .code-row.highlighted {
+            background-color: var(--line-highlight) !important;
+        }
+        .code-row.highlighted td.line-num {
+            border-left: 4px solid var(--line-highlight-border);
+            color: var(--text);
+            font-weight: 700;
+        }
+        td.line-num {
+            width: 1%;
+            min-width: 3.5rem;
+            padding: 0 1rem 0 0.75rem;
+            text-align: right;
+            vertical-align: top;
+            color: var(--gutter-num);
+            user-select: none;
+            border-right: 1px solid var(--border);
+            background-color: var(--gutter-bg);
+        }
+        td.line-num a {
+            color: inherit;
+            text-decoration: none;
+            display: block;
+        }
+        td.line-num a:hover {
+            color: var(--primary);
+        }
+        td.line-code {
+            padding: 0 1.25rem;
+            vertical-align: top;
+            white-space: pre;
+        }
+        .kw { color: var(--kw-color); font-weight: 700; }
+        .lit { color: var(--kw-color); font-weight: 700; }
+        .str { color: var(--str-color); }
+        .comment { color: var(--comment-color); font-style: italic; }
+        .ann { color: var(--ann-color); font-weight: 600; }
+        .num { color: var(--num-color); }
+        .type { color: var(--type-color); }
+    </style>
+</head>
+<body>
+    <header class="viewer-header">
+        <div class="header-left">
+            <a href="../../index.html" class="back-btn" onclick="if (document.referrer && document.referrer.includes('reports')) { history.back(); return false; }">← Back</a>
+            <span class="module-badge">demo11</span>
+            <span class="model-badge">Gemini 3.7 Flash High (Antigravity Rework - 100% Mutation Killed)</span>
+            <span class="file-title">SimpleMathClean.java</span>
+            <span class="file-meta">52 lines • 1.1 KB</span>
+        </div>
+        <div class="header-center">
+            <select class="nav-select" title="Switch File in demo11" onchange="window.location.href=this.value;">
+                <option value="IntTimeSeries.html">IntTimeSeries.java</option>
+                <option value="IntTimeSeriesTest.html">IntTimeSeriesTest.java</option>
+                <option value="RuntimeHistogram.html">RuntimeHistogram.java</option>
+                <option value="RuntimeHistogramTest.html">RuntimeHistogramTest.java</option>
+                <option value="SimpleMath.html">SimpleMath.java</option>
+                <option value="BitCompression.html">BitCompression.java</option>
+                <option value="BitCompressionTest.html">BitCompressionTest.java</option>
+                <option value="BitUtil.html">BitUtil.java</option>
+                <option value="BitUtilTest.html">BitUtilTest.java</option>
+                <option value="FastHashMapBenchmark.html">FastHashMapBenchmark.java</option>
+                <option value="FastHashMapEfficiencyTest.html">FastHashMapEfficiencyTest.java</option>
+                <option value="IntTimeSeriesEntry.html">IntTimeSeriesEntry.java</option>
+                <option value="IntTimeSeriesEntryTest.html">IntTimeSeriesEntryTest.java</option>
+                <option value="SimpleMathClean.html" selected>SimpleMathClean.java</option>
+                <option value="FastHashMap.html">FastHashMap.java</option>
+                <option value="FastHashMapTest.html">FastHashMapTest.java</option>
+                <option value="FastHashMapBlackBox.html">FastHashMapBlackBox.java</option>
+                <option value="LRUClockMap.html">LRUClockMap.java</option>
+                <option value="LRUClockMapTest.html">LRUClockMapTest.java</option>
+            </select>
+            <select class="nav-select" title="Switch Module for SimpleMathClean.java" onchange="window.location.href=this.value;">
+                <option value="../demo0/SimpleMathClean.html">demo0</option>
+                <option value="../demo1/SimpleMathClean.html">demo1</option>
+                <option value="../demo2/SimpleMathClean.html">demo2</option>
+                <option value="../demo3/SimpleMathClean.html">demo3</option>
+                <option value="../demo4/SimpleMathClean.html">demo4</option>
+                <option value="../demo5/SimpleMathClean.html">demo5</option>
+                <option value="../demo6/SimpleMathClean.html">demo6</option>
+                <option value="../demo7/SimpleMathClean.html">demo7</option>
+                <option value="../demo8/SimpleMathClean.html">demo8</option>
+                <option value="../demo9/SimpleMathClean.html">demo9</option>
+                <option value="../demo11/SimpleMathClean.html" selected>demo11</option>
+                <option value="../demo12/SimpleMathClean.html">demo12</option>
+            </select>
+        </div>
+        <div class="header-right">
+            <button class="action-btn" id="copyBtn" onclick="copyCode()">📋 Copy Code</button>
+            <a href="SimpleMathClean.java" download="demo11_SimpleMathClean.java" class="action-btn">💾 Raw Java</a>
+            <button class="action-btn" id="themeBtn" onclick="toggleTheme()">🌙 Dark</button>
+        </div>
+    </header>
+    <div class="code-container">
+        <table class="code-table">
+            <tbody>
+                <tr class="code-row" id="L1">
+                    <td class="line-num" data-line="1"><a href="#L1">1</a></td>
+                    <td class="line-code"><code><span class="kw">package</span> org.jugsaxony.demo11;</code></td>
+                </tr>
+                <tr class="code-row" id="L2">
+                    <td class="line-num" data-line="2"><a href="#L2">2</a></td>
+                    <td class="line-code"><code></code></td>
+                </tr>
+                <tr class="code-row" id="L3">
+                    <td class="line-num" data-line="3"><a href="#L3">3</a></td>
+                    <td class="line-code"><code><span class="comment">/**</span></code></td>
+                </tr>
+                <tr class="code-row" id="L4">
+                    <td class="line-num" data-line="4"><a href="#L4">4</a></td>
+                    <td class="line-code"><code><span class="comment"> * Utility class for trivial static helpers.</span></code></td>
+                </tr>
+                <tr class="code-row" id="L5">
+                    <td class="line-num" data-line="5"><a href="#L5">5</a></td>
+                    <td class="line-code"><code><span class="comment"> * </span></code></td>
+                </tr>
+                <tr class="code-row" id="L6">
+                    <td class="line-num" data-line="6"><a href="#L6">6</a></td>
+                    <td class="line-code"><code><span class="comment"> * @author Rene Schwietzke</span></code></td>
+                </tr>
+                <tr class="code-row" id="L7">
+                    <td class="line-num" data-line="7"><a href="#L7">7</a></td>
+                    <td class="line-code"><code><span class="comment"> */</span></code></td>
+                </tr>
+                <tr class="code-row" id="L8">
+                    <td class="line-num" data-line="8"><a href="#L8">8</a></td>
+                    <td class="line-code"><code><span class="kw">public</span> <span class="kw">class</span> <span class="type">SimpleMathClean</span></code></td>
+                </tr>
+                <tr class="code-row" id="L9">
+                    <td class="line-num" data-line="9"><a href="#L9">9</a></td>
+                    <td class="line-code"><code>{</code></td>
+                </tr>
+                <tr class="code-row" id="L10">
+                    <td class="line-num" data-line="10"><a href="#L10">10</a></td>
+                    <td class="line-code"><code>    <span class="comment">/**</span></code></td>
+                </tr>
+                <tr class="code-row" id="L11">
+                    <td class="line-num" data-line="11"><a href="#L11">11</a></td>
+                    <td class="line-code"><code><span class="comment">     * Returns the larger value of both, effectively running</span></code></td>
+                </tr>
+                <tr class="code-row" id="L12">
+                    <td class="line-num" data-line="12"><a href="#L12">12</a></td>
+                    <td class="line-code"><code><span class="comment">     * a max value calculation.</span></code></td>
+                </tr>
+                <tr class="code-row" id="L13">
+                    <td class="line-num" data-line="13"><a href="#L13">13</a></td>
+                    <td class="line-code"><code><span class="comment">     * </span></code></td>
+                </tr>
+                <tr class="code-row" id="L14">
+                    <td class="line-num" data-line="14"><a href="#L14">14</a></td>
+                    <td class="line-code"><code><span class="comment">     * @param a value one</span></code></td>
+                </tr>
+                <tr class="code-row" id="L15">
+                    <td class="line-num" data-line="15"><a href="#L15">15</a></td>
+                    <td class="line-code"><code><span class="comment">     * @param b value two</span></code></td>
+                </tr>
+                <tr class="code-row" id="L16">
+                    <td class="line-num" data-line="16"><a href="#L16">16</a></td>
+                    <td class="line-code"><code><span class="comment">     * @return the larger value of both</span></code></td>
+                </tr>
+                <tr class="code-row" id="L17">
+                    <td class="line-num" data-line="17"><a href="#L17">17</a></td>
+                    <td class="line-code"><code><span class="comment">     */</span></code></td>
+                </tr>
+                <tr class="code-row" id="L18">
+                    <td class="line-num" data-line="18"><a href="#L18">18</a></td>
+                    <td class="line-code"><code>    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">int</span> max(<span class="kw">final</span> <span class="kw">int</span> a, <span class="kw">final</span> <span class="kw">int</span> b)</code></td>
+                </tr>
+                <tr class="code-row" id="L19">
+                    <td class="line-num" data-line="19"><a href="#L19">19</a></td>
+                    <td class="line-code"><code>    {</code></td>
+                </tr>
+                <tr class="code-row" id="L20">
+                    <td class="line-num" data-line="20"><a href="#L20">20</a></td>
+                    <td class="line-code"><code>        <span class="kw">return</span> (a &gt; b) ? a : b;</code></td>
+                </tr>
+                <tr class="code-row" id="L21">
+                    <td class="line-num" data-line="21"><a href="#L21">21</a></td>
+                    <td class="line-code"><code>    }</code></td>
+                </tr>
+                <tr class="code-row" id="L22">
+                    <td class="line-num" data-line="22"><a href="#L22">22</a></td>
+                    <td class="line-code"><code></code></td>
+                </tr>
+                <tr class="code-row" id="L23">
+                    <td class="line-num" data-line="23"><a href="#L23">23</a></td>
+                    <td class="line-code"><code>    <span class="comment">/**</span></code></td>
+                </tr>
+                <tr class="code-row" id="L24">
+                    <td class="line-num" data-line="24"><a href="#L24">24</a></td>
+                    <td class="line-code"><code><span class="comment">     * Returns the larger value of both, effectively running</span></code></td>
+                </tr>
+                <tr class="code-row" id="L25">
+                    <td class="line-num" data-line="25"><a href="#L25">25</a></td>
+                    <td class="line-code"><code><span class="comment">     * a max value calculation. This is for objects rather than</span></code></td>
+                </tr>
+                <tr class="code-row" id="L26">
+                    <td class="line-num" data-line="26"><a href="#L26">26</a></td>
+                    <td class="line-code"><code><span class="comment">     * primitive types.</span></code></td>
+                </tr>
+                <tr class="code-row" id="L27">
+                    <td class="line-num" data-line="27"><a href="#L27">27</a></td>
+                    <td class="line-code"><code><span class="comment">     * </span></code></td>
+                </tr>
+                <tr class="code-row" id="L28">
+                    <td class="line-num" data-line="28"><a href="#L28">28</a></td>
+                    <td class="line-code"><code><span class="comment">     * @param a value one</span></code></td>
+                </tr>
+                <tr class="code-row" id="L29">
+                    <td class="line-num" data-line="29"><a href="#L29">29</a></td>
+                    <td class="line-code"><code><span class="comment">     * @param b value two</span></code></td>
+                </tr>
+                <tr class="code-row" id="L30">
+                    <td class="line-num" data-line="30"><a href="#L30">30</a></td>
+                    <td class="line-code"><code><span class="comment">     * @return the larger value of both</span></code></td>
+                </tr>
+                <tr class="code-row" id="L31">
+                    <td class="line-num" data-line="31"><a href="#L31">31</a></td>
+                    <td class="line-code"><code><span class="comment">     */</span></code></td>
+                </tr>
+                <tr class="code-row" id="L32">
+                    <td class="line-num" data-line="32"><a href="#L32">32</a></td>
+                    <td class="line-code"><code>    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">int</span> max(<span class="kw">final</span> <span class="type">Integer</span> a, <span class="kw">final</span> <span class="type">Integer</span> b)</code></td>
+                </tr>
+                <tr class="code-row" id="L33">
+                    <td class="line-num" data-line="33"><a href="#L33">33</a></td>
+                    <td class="line-code"><code>    {</code></td>
+                </tr>
+                <tr class="code-row" id="L34">
+                    <td class="line-num" data-line="34"><a href="#L34">34</a></td>
+                    <td class="line-code"><code>        <span class="kw">return</span> (a &gt; b) ? a : b;</code></td>
+                </tr>
+                <tr class="code-row" id="L35">
+                    <td class="line-num" data-line="35"><a href="#L35">35</a></td>
+                    <td class="line-code"><code>    }</code></td>
+                </tr>
+                <tr class="code-row" id="L36">
+                    <td class="line-num" data-line="36"><a href="#L36">36</a></td>
+                    <td class="line-code"><code></code></td>
+                </tr>
+                <tr class="code-row" id="L37">
+                    <td class="line-num" data-line="37"><a href="#L37">37</a></td>
+                    <td class="line-code"><code>    <span class="comment">/**</span></code></td>
+                </tr>
+                <tr class="code-row" id="L38">
+                    <td class="line-num" data-line="38"><a href="#L38">38</a></td>
+                    <td class="line-code"><code><span class="comment">     * Sums all integers in an array. </span></code></td>
+                </tr>
+                <tr class="code-row" id="L39">
+                    <td class="line-num" data-line="39"><a href="#L39">39</a></td>
+                    <td class="line-code"><code><span class="comment">     * </span></code></td>
+                </tr>
+                <tr class="code-row" id="L40">
+                    <td class="line-num" data-line="40"><a href="#L40">40</a></td>
+                    <td class="line-code"><code><span class="comment">     * @param numbers array of integers</span></code></td>
+                </tr>
+                <tr class="code-row" id="L41">
+                    <td class="line-num" data-line="41"><a href="#L41">41</a></td>
+                    <td class="line-code"><code><span class="comment">     * @return sum of all integers</span></code></td>
+                </tr>
+                <tr class="code-row" id="L42">
+                    <td class="line-num" data-line="42"><a href="#L42">42</a></td>
+                    <td class="line-code"><code><span class="comment">     */</span></code></td>
+                </tr>
+                <tr class="code-row" id="L43">
+                    <td class="line-num" data-line="43"><a href="#L43">43</a></td>
+                    <td class="line-code"><code>    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">long</span> sum(<span class="kw">final</span> <span class="kw">int</span>[] numbers)</code></td>
+                </tr>
+                <tr class="code-row" id="L44">
+                    <td class="line-num" data-line="44"><a href="#L44">44</a></td>
+                    <td class="line-code"><code>    {</code></td>
+                </tr>
+                <tr class="code-row" id="L45">
+                    <td class="line-num" data-line="45"><a href="#L45">45</a></td>
+                    <td class="line-code"><code>        <span class="kw">int</span> sum = <span class="num">0</span>;</code></td>
+                </tr>
+                <tr class="code-row" id="L46">
+                    <td class="line-num" data-line="46"><a href="#L46">46</a></td>
+                    <td class="line-code"><code>        <span class="kw">for</span> (<span class="kw">final</span> <span class="kw">int</span> n : numbers)</code></td>
+                </tr>
+                <tr class="code-row" id="L47">
+                    <td class="line-num" data-line="47"><a href="#L47">47</a></td>
+                    <td class="line-code"><code>        {</code></td>
+                </tr>
+                <tr class="code-row" id="L48">
+                    <td class="line-num" data-line="48"><a href="#L48">48</a></td>
+                    <td class="line-code"><code>            sum += n;</code></td>
+                </tr>
+                <tr class="code-row" id="L49">
+                    <td class="line-num" data-line="49"><a href="#L49">49</a></td>
+                    <td class="line-code"><code>        }</code></td>
+                </tr>
+                <tr class="code-row" id="L50">
+                    <td class="line-num" data-line="50"><a href="#L50">50</a></td>
+                    <td class="line-code"><code>        <span class="kw">return</span> sum;</code></td>
+                </tr>
+                <tr class="code-row" id="L51">
+                    <td class="line-num" data-line="51"><a href="#L51">51</a></td>
+                    <td class="line-code"><code>    }</code></td>
+                </tr>
+                <tr class="code-row" id="L52">
+                    <td class="line-num" data-line="52"><a href="#L52">52</a></td>
+                    <td class="line-code"><code>}</code></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        function updateHighlight() {
+            document.querySelectorAll('.code-row.highlighted').forEach(r => r.classList.remove('highlighted'));
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#L')) {
+                const el = document.getElementById(hash.substring(1));
+                if (el) {
+                    el.classList.add('highlighted');
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+        window.addEventListener('hashchange', updateHighlight);
+        window.addEventListener('DOMContentLoaded', updateHighlight);
+
+        function toggleTheme() {
+            const isDark = document.body.classList.toggle('dark-theme');
+            const btn = document.getElementById('themeBtn');
+            btn.innerText = isDark ? '☀️ Light' : '🌙 Dark';
+            localStorage.setItem('presentation-theme', isDark ? 'dark' : 'light');
+        }
+        if (localStorage.getItem('presentation-theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+            const btn = document.getElementById('themeBtn');
+            if (btn) btn.innerText = '☀️ Light';
+        }
+
+        function copyCode() {
+            const codeText = Array.from(document.querySelectorAll('.line-code')).map(td => td.textContent).join('\n');
+            navigator.clipboard.writeText(codeText).then(() => {
+                const btn = document.getElementById('copyBtn');
+                const orig = btn.innerText;
+                btn.innerText = '✅ Copied!';
+                setTimeout(() => btn.innerText = orig, 1800);
+            });
+        }
+    </script>
+</body>
+</html>
